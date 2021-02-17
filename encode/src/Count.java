@@ -4,12 +4,12 @@ import java.util.Set;
 
 public class Count implements Runnable {
 
-    private static final int WINDOW_WIDTH = 31;
+    private static final int WINDOW_WIDTH = 28;
     private static final int MAP_HEIGHT = 26;
     private static final int[] MAP_WIDTHS = {259, 224};
 
     public static void main(String... args) {
-        for (int level = 1; level <= 2; level++) {
+        for (int level = 1; level <= 1; level++) {
             new Count(level, "level" + level + ".mgb", MAP_WIDTHS[level - 1], MAP_HEIGHT).run();
         }
     }
