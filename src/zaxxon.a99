@@ -1,67 +1,155 @@
-*	   Memory Map
-WRKSP  EQU	>8300				* Workspace
-R0LB   EQU	>8301				* R0 LSB
-STACK  EQU	>8320				* Stack
-VDPRD  EQU	>8800				* VDP read data
-VDPSTA EQU	>8802				* VDP status
-VDPWD  EQU	>8C00				* VDP write data
-VDPWA  EQU	>8C02				* VDP set read/write address
+*********************************************************************
+*
+* Zaxxon
+* For the TI-99/4A home computer with F18A
+*
+* February 2021 -
+* Rasmus Moustgaard <rasmus.moustgaard@gmail.com>
+*
 
-*	   VPD RAM Map
-NAMETB EQU	>0000				* Name table base
-NAMET0 EQU	>0000				* Name table page 0
-TILATB EQU	>0300				* Tile attribute table
-NAMET1 EQU	>0400				* Name table page 1
-SPRATB EQU	>0700				* Sprite attribute table
-NAMET2 EQU	>0800				* Name table page 2
-NAMET3 EQU	>0C00				* Name table page 3
-PTRNTB EQU	>1000				* Pattern table base
-PTRNT0 EQU	>1000				* Pattern table plane 0
-PTRNT1 EQU	>1800				* Pattern table plane 1
-PTRNT2 EQU	>2000				* Pattern table plane 2
-SPRPTB EQU	>2800				* Sprite pattern table base
-SPRPT0 EQU	>2800				* Sprite pattern table plane 0
-SPRPT1 EQU	>3000				* Sprite pattern table plane 1
-SPRPT2 EQU	>3800				* Sprite pattern table plane 2
+       copy "macros.a99"
+
+**
+* Memory mapped addresses
+*
+vdpwd  equ  >8c00                      ; VDP write data
+vdpwa  equ  >8c02                      ; VDP set read/write address
+vdprd  equ  >8800                      ; VDP read data
+vdpsta equ  >8802                      ; VDP status
+sound  equ  >8400                      ; PSG sound
+spchrd equ	>9000                      ; Speech read
+spchwt equ	>9400                      ; Speech write
+grmrd  equ  >9800                      ; GROM read data
+grmra  equ  >9802                      ; GROM address read
+grmwd  equ  >9C00                      ; GROM write data
+grmwa  equ  >9C02                      ; GROM address write
+
+**
+* VDP memory map
+*
+nametb equ	>0000				       ; Name table base
+namet0 equ	>0000				       ; Name table page 0 (64 bytes free)
+namet1 equ	>0400				       ; Name table page 1 (64 bytes free)
+namet2 equ	>0800				       ; Name table page 2 (64 bytes free)
+namet3 equ	>0C00				       ; Name table page 3 (64 bytes free)
+ptrntb equ	>1000				       ; Pattern table base
+ptrnt0 equ	>1000				       ; Pattern table plane 0
+ptrnt1 equ	>1800				       ; Pattern table plane 1
+ptrnt2 equ	>2000				       ; Pattern table plane 2
+ptr2tb equ  >2800
+sprptb equ	>2800				       ; Sprite pattern table base
+sprpt0 equ	>2800				       ; Sprite pattern table plane 0
+sprpt1 equ	>2c00				       ; Sprite pattern table plane 1
+sprpt2 equ	>3000				       ; Sprite pattern table plane 2
+nam2tb equ  >3400
+
+
+
+tilatb equ	>3400				       ; Tile attribute table
+spratb equ	>00				       ; Sprite attribute table
+
+**
+* Constants
+*
+backdrop_color:
+       equ  0
+map_width:
+       equ  64
+map_height:
+       equ  64
+map_size:
+       equ  map_width*map_height
+
+**
+* Scratch pad
+*
+rndsd  equ  >83c0                      ; Random number seed
+pad    equ  >8300
+wrksp  equ  pad                        ; Workspace
+r0lb   equ  wrksp+1                    ; Low byte of register 0
+r1lb   equ  wrksp+3
+r2lb   equ  wrksp+5
+r3lb   equ  wrksp+7
+r4lb   equ  wrksp+9
+r5lb   equ  wrksp+11
+r6lb   equ  wrksp+13
+r7lb   equ  wrksp+15
+r8lb   equ  wrksp+17
+r9lb   equ  wrksp+19
+r10lb  equ  wrksp+21
+r11lb  equ  wrksp+23
+r12lb  equ  wrksp+25
+r13lb  equ  wrksp+27
+r14lb  equ  wrksp+29
+r15lb  equ  wrksp+31
+stack  equ  r15lb+>20                  ; Stack (grows up)
+**
+* PAD constants
+*
+padcon:
+       equ  stack+>10                  ; Start of pad constants
+**
+* PAD variables
+*
+padvar:
+       equ  padcon+2                   ; Start of pad variables
+pad_max:
+       equ  padvar
+
+***************************************************************
+*
+* Main program
+*
+       aorg >a000
+main:
+       limi 0                          ; Interrupts off
+       lwpi wrksp                      ; Setup workspace
+       li   r10,stack                  ; Setup stack pointer
+       bl   @graphics_mode
+loop:
+       jmp  loop
 
 *********************************************************************
 *
-* Setup graphics mode
+* Set graphics mode
 *
-GMODE  MOV  R11,*R10+			* Push return address onto the stack
-       LI	R0,>0000			* Reg 0: Graphics mode,
-       BL   @VWTR				* external video off
-       LI   R0,>01C2			* Reg 1: 16K, display on, no interrupt,
-       BL   @VWTR				* size = 1, mag = 0.
-       LI   R0,>0200			* Reg 2: Name table
-       BL   @VWTR				* NAMETB = >0000 (>00 x >400)
-       LI   R0,>030C			* Reg 3: Tile Attribute Table
-       BL   @VWTR				* TILATB = >0300 (>0C * >40), >100 bytes
-       LI   R0,>0402			* Reg 4: Pattern Table
-       BL   @VWTR				* PTRNTB = >1000 (>02 * >800), >1800 bytes
-       LI   R0,>050E			* Reg 5: Sprite Attribute Table
-       BL   @VWTR				* SPRATB = >0700 (>0E * >80), >80 bytes
-       LI   R0,>0605			* Reg 6: Sprite Pattern Table
-       BL   @VWTR				* SPRPTB = >2800 (>05 * >800), >1800 bytes
-       LI   R0,>0700			* Reg 7: Text-mode color and backdrop color
-       BL   @VWTR				* Black backdrop
-       LI	R0,>3133			* Reg 49: Enhanced color mode
-       BL   @VWTR				* ECM3 for tiles, ECM3 for sprites
-       LI	R0,>1B00			* Reg 27: Horizontal scroll offset
-       BL   @VWTR				* Offset 0
-       LI	R0,>1C00			* Reg 28: Vertical scroll offset
-       BL   @VWTR				* Offset 0
-       LI	R0,>1D00			* Reg 29: Page start
-       BL   @VWTR				* Page 1,1
-       LI	R0,>1EFF			* Reg 30: Page size, max sprites
-       BL   @VWTR				* 2x2 pages, 32 sprites
-*	   Clear VDP RAM
-       CLR	R0					* Start address 0
-       CLR	R1					* Fill with 0
-       LI	R2,>4000			* 16K
-       BL	@VSMW
-*	   Return
-       DECT R10					* Pop return address off the stack
-       MOV  *R10,R11
-       B	*R11
-*// GMODE
+graphics_mode:
+       .proc
+       li   r1,vdp_registers
+graphics_mode_1:
+       mov  *r1+,r0
+       jeq  graphics_mode_2
+       bl   @vwtr                      ; Set register
+       jmp  graphics_mode_1
+*      Clear VDP RAM
+graphics_mode_2:
+       clr  r0
+       clr  r1
+       li   r2,>4000
+       bl   @vsmw
+       .endproc
+*      VDP registers
+vdp_registers:
+       byte >00,>00                    ; Graphics I mode
+       byte >01,>e2                    ; 16K, display on, interrupt enabled
+       byte >02,nametb/>400            ; Name table
+       byte >03,tilatb/>40             ; Tile attribute table
+       byte >04,ptrntb/>800            ; Pattern table
+       byte >05,spratb/>80             ; Sprite attribute table
+       byte >06,sprptb/>800            ; Sprite pattern table
+       byte >07,backdrop_color         ; Backdrop color
+       byte >31,>33                    ; Reg 49: Enhanced color mode (ECM3 tiles and sprites)
+       byte >1b,>00                    ; Reg 27: Horizontal scroll offset
+       byte >1c,>00                    ; Reg 28: Vertical scroll offset
+       byte >1d,>13                    ; Reg 29: Page size (1K between sprite patten tables, 2 x 2 scroll size)
+       data 0
+*// graphics_mode
+***************************************************************
+*
+* Includes
+*
+       copy "vdp.a99"
+       copy "chars.a99"
+       copy "level1.a99"
+
+       end
