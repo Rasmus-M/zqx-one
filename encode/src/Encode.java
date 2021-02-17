@@ -129,12 +129,12 @@ public class Encode implements Runnable {
                     if (VERBOSE) System.out.println();
 
                     if (VERBOSE) System.out.print("Delete: ");
-                    diff_out.append("level_" + level + "_" + to3Digits(screen) + "_delete:\n");
-                    diff_out.append("       byte " + hexByte(deleted.size()) + "\n");
-                    for (Integer i : deleted) {
-                        if (VERBOSE) System.out.print(hexByte(i) + " ");
-                        diff_out.append("       byte " + hexByte(i) + "\n");
-                    }
+//                    diff_out.append("level_" + level + "_" + to3Digits(screen) + "_delete:\n");
+//                    diff_out.append("       byte " + hexByte(deleted.size()) + "\n");
+//                    for (Integer i : deleted) {
+//                        if (VERBOSE) System.out.print(hexByte(i) + " ");
+//                        diff_out.append("       byte " + hexByte(i) + "\n");
+//                    }
                     if (VERBOSE) System.out.println();
 
                     if (VERBOSE) System.out.println("Deleted: " + deleted.size() + ", Added: " + added.size() + ", Used = "+ used.size() + " of " + (iMax + 1));

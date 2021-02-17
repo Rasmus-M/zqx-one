@@ -44,7 +44,6 @@ nam2tb equ  >3800                      ; Name table 2 base (64 bytes free)
 tilatb equ	>3c00				       ; Tile attribute table
 spratb equ	>3d00				       ; Sprite attribute table
                                        ; (640 bytes free)
-
 **
 * Constants
 *
@@ -95,9 +94,14 @@ pad_max:
 
 ***************************************************************
 *
-* Main program
+* Upper memory
 *
        aorg >a000
+
+***************************************************************
+*
+* Main program
+*
 main:
        limi 0                          ; Interrupts off
        lwpi wrksp                      ; Setup workspace
@@ -112,10 +116,14 @@ loop:
 *
 graphics_mode:
        .proc
+*      Unlock F18A
+       li   r0,>391C			       ; VR1/57, value 00011100
+       bl   @vwtr				       ; Write once
+       bl   @vwtr				       ; Write twice, unlock
        li   r1,vdp_registers
 graphics_mode_1:
        mov  *r1+,r0
-       jeq  graphics_mode_2
+       jlt  graphics_mode_2
        bl   @vwtr                      ; Set register
        jmp  graphics_mode_1
 *      Clear VDP RAM
@@ -139,14 +147,30 @@ vdp_registers:
        byte >1b,>00                    ; Reg 27: Horizontal scroll offset
        byte >1c,>00                    ; Reg 28: Vertical scroll offset
        byte >1d,>13                    ; Reg 29: Page size (1K between sprite patten tables, 2 x 2 scroll size)
-       data 0
+       data -1
 *// graphics_mode
 ***************************************************************
 *
 * Includes
 *
        copy "vdp.a99"
-       copy "chars.a99"
-       copy "level1.a99"
+       copy "chars1.a99"
+       copy "diff1.a99"
+
+upper_memory_max:
+       equ  $
+
+***************************************************************
+*
+* Lower memory
+*
+       aorg >2000
+
+       copy "map1.a99"
+
+lower_memory_max:
+       equ  $
+
+***************************************************************
 
        end
