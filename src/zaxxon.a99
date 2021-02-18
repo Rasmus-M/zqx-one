@@ -48,11 +48,19 @@ spratb equ	>3d00				       ; Sprite attribute table
 * Constants
 *
 backdrop_color:
-       equ  0
+       equ  15
 screen_height:
        equ  240
+screen_width:
+       equ  256
+screen_height_chars:
+       equ  30
+screen_width_chars:
+       equ  32
+window_width:
+       equ  224
 map_width:
-       equ  259
+       equ  284
 map_height:
        equ  26
 map_size:
@@ -119,7 +127,8 @@ main:
        li   r15,vdpwd                  ; Constant for writing to VDP
        bl   @graphics_mode
        clr  @scroll_x
-       clr  @scroll_y
+       li   r0,>800
+       mov  r0,@scroll_y
        li   r0,level_1_000_add
        mov  r0,@diff_ptr
 loop:
@@ -170,11 +179,11 @@ set_vdp_regs:
        bl	@vwtr
 *	   Horizontal page start
        mov	@scroll_x,r0
-       andi	r0,>0100			       ; Isolate bit value 256
-       swpb	r0					       ; bring to lsb (bit 15)
+       andi	r0,screen_width			   ; Isolate bit value 256
+       swpb	r0					       ; Shift to bit 0
 *	   Vertical page start
-       andi	r1,1				       ; lsb of quotient
-       sla	r1,1				       ; Bring to bit 14
+       andi	r1,1				       ; Bit 0 of quotient
+       sla	r1,1				       ; Shift to bit 1
        soc	r1,r0				       ; Combine with horizontal bit
 *	   Set current name table
        ori	r0,>0200			       ; Name table
@@ -184,48 +193,32 @@ set_vdp_regs:
 
 *********************************************************************
 *
-* Scroll
-*
-scroll:
-       .proc
-       mov  @scroll_x,r0
-       inc  r0
-       mov  r0,@scroll_x
-       andi r0,1
-       jne  scroll_1
-       dec  @scroll_y
-scroll_1:
-       .endproc
-*// scroll
-
-*********************************************************************
-*
 * Upload characters
 *
 * diff_ptr points to the difference structure
 *
 upload_characters:
        .proc
-       mov  @diff_ptr,r3
-       ci   r3,level_1_258_add
+       mov  @diff_ptr,r5
+       ci   r5,diff_end
        jh   upload_characters_2
-       clr  r4
-       movb *r3+,r4
+       clr  r6
+       movb *r5+,r6
        jeq  upload_characters_2
-       swpb r4
+       swpb r6
 upload_characters_1:
        clr  r0
-       movb *r3+,r0
+       movb *r5+,r0
        swpb r0
-       movb *r3+,r1
+       movb *r5+,r1
        swpb r1
-       movb *r3+,r1
+       movb *r5+,r1
        swpb r1
        bl   @upload_character
-       dec  r4
+       dec  r6
        jne  upload_characters_1
 upload_characters_2:
-       mov  r3,@diff_ptr
+       mov  r5,@diff_ptr
        .endproc
 *// upload_characters
 
@@ -238,6 +231,15 @@ upload_characters_2:
 *
 upload_character:
        .proc
+       mov  r0,r3
+       mov  r1,r4
+*      Tile attribute
+       ai   r0,tilatb
+       movb @TAT0(r1),r1
+       bl   @vsbw
+*      Pattern
+       mov  r3,r0
+       mov  r4,r1
        sla  r0,3
        ai   r0,ptrntb
        sla  r1,3
@@ -266,8 +268,70 @@ upload_character_1:
 *
 draw_column:
        .proc
+       li   r0,>3020                   ; Set VDP address increment
+       bl   @vwtr                      ; to 32
+
+       mov  @scroll_x,r0
+       ai   r0,window_width            ; Right side of window
+       mov  r0,r1
+       andi r0,screen_width            ; 0 or 256
+       sla  r0,2                       ; Name table offset (0 or 1024)
+       srl  r1,3                       ; Offset in characters
+       mov  r1,r2
+       andi r2,screen_width_chars-1
+       a    r2,r0                      ; Add to VDP address
+
+       clr  r2                         ; For division
+       mov	@scroll_y,r3               ; Scroll offset
+       li	r4,screen_height           ; Divided by screen height
+       div	r4,r2				       ; r2 quotient, r3 remainder
+       andi r2,1                       ; Bit 0 of quotient
+       sla  r2,11                      ; Name table offset
+       a    r2,r0                      ; Add to VDP address
+       srl  r3,3                       ; Vertical offset in characters
+       mov  r3,r4
+       sla  r3,5                       ; Vertical address offset
+       a    r3,r0                      ; Add to VDP address
+
+       bl   @vwad
+
+       ai   r1,level_1_map-1
+       li   r2,map_height
+draw_column_1:
+       movb *r1,*r15
+       ai   r1,map_width
+       inc  r4                         ; Increase vertical offset
+       ci   r4,screen_height_chars
+       jlt  draw_column_2
+       andi r0,>c1f
+       li   r5,>800
+       xor  r5,r0
+       bl   @vwad
+       clr  r4
+draw_column_2:
+       dec  r2
+       jne  draw_column_1
+
+       li   r0,>3001                   ; Set VDP address increment
+       bl   @vwtr                      ; to 1
        .endproc
 *// draw_column
+
+*********************************************************************
+*
+* Scroll
+*
+scroll:
+       .proc
+       mov  @scroll_x,r0
+       inc  r0
+       mov  r0,@scroll_x
+       andi r0,1
+       jne  scroll_1
+       dec  @scroll_y
+scroll_1:
+       .endproc
+*// scroll
 
 *********************************************************************
 *
@@ -291,11 +355,6 @@ graphics_mode_2:
        clr  r1
        li   r2,>4000
        bl   @vsmw
-*      Tile attributes
-       li   r0,tilatb
-       li   r1,TAT0
-       li   r2,256
-       bl   @vmbw
 *	   Load color palettes
        li   r0,>2fc0			       ; Reg 47, DPM = 1, AUTO INC = 1, start PR0
        bl   @vwtr
@@ -333,7 +392,8 @@ vdp_registers:
        copy "vdp.a99"
        copy "chars1.a99"
        copy "diff1.a99"
-       even
+diff_end:
+       equ  $
 
 upper_memory_max:
        equ  $

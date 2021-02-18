@@ -10,7 +10,7 @@ public class Encode implements Runnable {
     private static final boolean VERBOSE = false;
     private static final int WINDOW_WIDTH = 28;
     private static final int MAP_HEIGHT = 26;
-    private static final int[] MAP_WIDTHS = {259, 224};
+    private static final int[] MAP_WIDTHS = {256, 224};
 
     private final int level;
     private final String fileName;
@@ -140,6 +140,11 @@ public class Encode implements Runnable {
                     if (VERBOSE) System.out.println("Deleted: " + deleted.size() + ", Added: " + added.size() + ", Used = "+ used.size() + " of " + (iMax + 1));
                     screen++;
                 }
+                // Write output
+                FileWriter writer = new FileWriter("../src/diff" + level + ".a99");
+                writer.write(diff_out.toString());
+                writer.close();
+
                 if (VERBOSE) System.out.println("Map:");
                 out.append("*******************************************\n");
                 out.append("level_" + level + "_map:\n");
@@ -152,20 +157,15 @@ public class Encode implements Runnable {
                     }
                     if (VERBOSE) System.out.println();
                 }
-                out.append("*******************************************\n");
-                out.append("level_" + level + "_max:\n");
-                out.append("       byte " + hexByte(maxIndex) + "\n");
-                out.append(diff_out);
+                // Write output
+                FileWriter writer2 = new FileWriter("../src/map" + level + ".a99");
+                writer2.write(out.toString());
+                writer2.close();
 
                 if (VERBOSE) System.out.println();
                 System.out.println("Max size: " + maxSize);
                 System.out.println("Max index: " + maxIndex);
                 System.out.println();
-
-                // Write output
-                FileWriter writer = new FileWriter("../src/level" + level + ".a99");
-                writer.write(out.toString());
-                writer.close();
             } else {
                 throw new Exception("Error: " + len + " bytes found. Expected " + (width * height) + " bytes.");
             }
