@@ -8,7 +8,7 @@ import java.util.*;
 public class Encode implements Runnable {
 
     private static final boolean VERBOSE = false;
-    private static final int WINDOW_WIDTH = 28;
+    private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
     private static final int[] MAP_WIDTHS = {256, 224};
 

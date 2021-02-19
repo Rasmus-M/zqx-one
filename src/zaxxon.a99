@@ -48,7 +48,7 @@ spratb equ	>3d00				       ; Sprite attribute table
 * Constants
 *
 backdrop_color:
-       equ  15
+       equ  0
 screen_height:
        equ  240
 screen_width:
@@ -59,12 +59,18 @@ screen_width_chars:
        equ  32
 window_width:
        equ  224
+window_left:
+       equ  16
+window_top:
+       equ  -36
 map_width:
-       equ  284
+       equ  285
 map_height:
        equ  26
 map_size:
        equ  map_width*map_height
+tl2_first_char:
+       equ  250
 tl2_chars:
        equ  6
 
@@ -128,6 +134,9 @@ main:
        li   r10,stack                  ; Setup stack pointer
        li   r15,vdpwd                  ; Constant for writing to VDP
        bl   @graphics_mode
+restart:
+       bl   @clear_vdp_ram
+       bl   @init_tl2
        clr  @scroll_x
        li   r0,>800
        mov  r0,@scroll_y
@@ -143,7 +152,12 @@ loop:
        bl   @draw_column
 !:
        bl   @scroll
-       jmp  loop
+       c    @scroll_x,@scroll_max
+       jl   loop
+       jmp  restart
+
+scroll_max:
+       data map_width*8-window_width-window_left
 
 *********************************************************************
 *
@@ -275,18 +289,17 @@ draw_column:
        bl   @vwtr                      ; to 32
 *      Calculate VDP address
        mov  @scroll_x,r0
-       ai   r0,window_width+16         ; Right side of window
+       ai   r0,window_width+window_left ; Right side of window
        mov  r0,r1
        andi r0,screen_width            ; 0 or 256
        sla  r0,2                       ; Name table offset (0 or 1024)
        srl  r1,3                       ; Offset in characters
-       mov  r1,r2
-       andi r2,screen_width_chars-1
-       a    r2,r0                      ; Add to VDP address
+       andi r1,screen_width_chars-1
+       a    r1,r0                      ; Add to VDP address
 *      Vertical
        clr  r2                         ; For division
        mov	@scroll_y,r3               ; Scroll offset
-       ai   r3,-40
+       ai   r3,window_top
        li	r4,screen_height           ; Divided by screen height
        div	r4,r2				       ; r2 quotient, r3 remainder
        andi r2,1                       ; Bit 0 of quotient
@@ -297,8 +310,12 @@ draw_column:
        sla  r3,5                       ; Vertical address offset
        a    r3,r0                      ; Add to VDP address
        bl   @vwad                      ; Set VDP address
+*      Map address
+       mov  @scroll_x,r1
+       ai   r1,window_width            ; Offset to start column
+       srl  r1,3                       ; Offset in characters
+       ai   r1,level_1_map
 *      Draw column
-       ai   r1,level_1_map-3
        li   r2,map_height
 draw_column_1:
        movb *r1,*r15
@@ -327,8 +344,6 @@ draw_column_2:
 scroll:
        .proc
        mov  @scroll_x,r0
-       ci   r0,map_width*8-window_width
-       jh   scroll_1
        inc  r0
        mov  r0,@scroll_x
        andi r0,1
@@ -344,63 +359,30 @@ scroll_1:
 *
 graphics_mode:
        .proc
-*      Unlock F18A
-       li   r0,>391C			       ; VR1/57, value 00011100
-       bl   @vwtr				       ; Write once
-       bl   @vwtr				       ; Write twice, unlock
        li   r1,vdp_registers
 graphics_mode_1:
        mov  *r1+,r0
        jlt  graphics_mode_2
        bl   @vwtr                      ; Set register
        jmp  graphics_mode_1
-*      Clear VDP RAM
-graphics_mode_2:
-       clr  r0
-       clr  r1
-       li   r2,>4000
-       bl   @vsmw
-*      Clear name tables
-       li   r0,nametb
-       li   r1,>ff00
-       li   r2,>1000
-       bl   @vsmw
 *	   Load color palettes
+graphics_mode_2:
        li   r0,>2fc0			       ; Reg 47, DPM = 1, AUTO INC = 1, start PR0
        bl   @vwtr
-*      Every two bytes written to the VDP now go to the palette registers.
+*      Every two bytes written to the VDP now go to the palette registers
        li   r0,PAL0
        LI   r2,128				       ; Each of 64 12-bit palette entries requires 2 bytes
 graphics_mode_3:
        movb *r0+,*r15
        dec  r2
        jne  graphics_mode_3
-       li   r0,>2F00			       ; Reg 47, exit DMP
-       bl   @vwtr				       ; (should happen automatically after writing to PR63)
-*      Tile layer 2
-       li   r0,nam2tb
-       li   r1,MD0
-       li   r2,960
-       bl   @vmbw
-       li   r0,ptrnt0+(248*8)
-       li   r1,P0_248x
-       li   r2,tl2_chars*8
-       bl   @vmbw
-       li   r0,ptrnt1+(248*8)
-       li   r1,P1_248x
-       li   r2,tl2_chars*8
-       bl   @vmbw
-       li   r0,ptrnt2+(248*8)
-       li   r1,P2_248x
-       li   r2,tl2_chars*8
-       bl   @vmbw
-       li   r0,tilatb+248
-       li   r1,TAT248x
-       li   r2,tl2_chars
-       bl   @vmbw
+;       li   r0,>2F00			       ; Reg 47, exit DMP
+;       bl   @vwtr				       ; (should happen automatically after writing to PR63)
        .endproc
 *      VDP registers
 vdp_registers:
+       byte >39,>1c                    ; Unlock F18A
+       byte >39,>1c                    ; Unlock F18A
        byte >00,>00                    ; Graphics I mode
        byte >01,>e2                    ; 16K, display on, interrupt enabled
        byte >02,nametb/>400            ; Name table
@@ -417,6 +399,51 @@ vdp_registers:
        byte >0b,tilatb/>40             ; Reg 11: Tile attribute table 2
        data -1
 *// graphics_mode
+
+*********************************************************************
+*
+* Clear VDP RAM
+*
+clear_vdp_ram:
+       .proc
+       li   r0,>01a2                   ; Displaÿ off
+       bl   @vwtr
+       clr  r0                         ; Clear name table and pattern tables
+       clr  r1
+       li   r2,>2800
+       bl   @vsmw
+       li   r0,>3800                   ; Clear name table 2, tile attribute list, SAL
+       li   r2,>800
+       bl   @vsmw
+       li   r0,spratb                  ; Disable sprites
+       li   r1,>d000
+       bl   @vsbw
+       bl   @vsync
+       li   r0,>01e2                   ; Displaÿ on
+       bl   @vwtr
+       .endproc
+*//clear_vdp_ram
+
+*********************************************************************
+*
+* Init tile layer 2
+*
+init_tl2:
+       .proc
+       li   r0,nam2tb
+       li   r1,MD0
+       li   r2,960
+       bl   @vmbw
+       li   r0,ptrnt0+(tl2_first_char*8)
+       li   r1,P0_250x
+       li   r2,tl2_chars*8
+       bl   @vmbw
+       li   r0,tilatb+tl2_first_char
+       li   r1,TAT250x
+       li   r2,tl2_chars
+       bl   @vmbw
+       .endproc
+*// init_tl2
 
 ***************************************************************
 *

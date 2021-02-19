@@ -4,7 +4,7 @@ import java.util.Set;
 
 public class Count implements Runnable {
 
-    private static final int WINDOW_WIDTH = 28;
+    private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
     private static final int[] MAP_WIDTHS = {256, 224};
 
