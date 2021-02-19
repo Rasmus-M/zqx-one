@@ -135,13 +135,7 @@ main:
        li   r15,vdpwd                  ; Constant for writing to VDP
        bl   @graphics_mode
 restart:
-       bl   @clear_vdp_ram
-       bl   @init_tl2
-       clr  @scroll_x
-       li   r0,>800
-       mov  r0,@scroll_y
-       li   r0,level_1_000_add
-       mov  r0,@diff_ptr
+       bl   @init_level
 loop:
        bl   @vsync
        bl   @set_vdp_regs
@@ -402,12 +396,31 @@ vdp_registers:
 
 *********************************************************************
 *
+* Init level
+*
+init_level:
+       .proc
+       li   r0,>01a2                   ; Displaÿ off
+       bl   @vwtr
+       bl   @clear_vdp_ram
+       bl   @init_tl2
+       bl   @vsync
+       li   r0,>01e2                   ; Displaÿ on
+       bl   @vwtr
+       clr  @scroll_x
+       li   r0,>800
+       mov  r0,@scroll_y
+       li   r0,level_1_000_add
+       mov  r0,@diff_ptr
+       .endproc
+*// init_level
+
+*********************************************************************
+*
 * Clear VDP RAM
 *
 clear_vdp_ram:
        .proc
-       li   r0,>01a2                   ; Displaÿ off
-       bl   @vwtr
        clr  r0                         ; Clear name table and pattern tables
        clr  r1
        li   r2,>2800
@@ -418,9 +431,6 @@ clear_vdp_ram:
        li   r0,spratb                  ; Disable sprites
        li   r1,>d000
        bl   @vsbw
-       bl   @vsync
-       li   r0,>01e2                   ; Displaÿ on
-       bl   @vwtr
        .endproc
 *//clear_vdp_ram
 
