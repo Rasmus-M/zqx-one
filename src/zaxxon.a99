@@ -463,6 +463,7 @@ init_tl2:
        copy "chars1.a99"
        copy "tl2.a99"
        copy "diff1.a99"
+*      copy "sprites.a99"
 diff_end:
        equ  $
 
