@@ -6,7 +6,7 @@ public class Count implements Runnable {
 
     private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
-    private static final int[] MAP_WIDTHS = {256, 224};
+    private static final int[] MAP_WIDTHS = {228, 224};
 
     public static void main(String... args) {
         for (int level = 1; level <= 1; level++) {
@@ -44,11 +44,11 @@ public class Count implements Runnable {
                 }
             }
             int screen = 1;
-            for (int x0 = 0; x0 < width - WINDOW_WIDTH; x0++) {
+            for (int x0 = -(WINDOW_WIDTH - 1); x0 <= width; x0++) {
                 Set<Integer> charSet = new HashSet<>();
                 for (int y = 0; y < height; y++) {
                     for (int x = x0; x < x0 + WINDOW_WIDTH; x++) {
-                        int ch = map[y][x];
+                        int ch = getMapChar(map, x, y);
                         charSet.add(ch);
                     }
                 }
@@ -59,6 +59,10 @@ public class Count implements Runnable {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    private int getMapChar(int[][] map, int x, int y) {
+        return x < 0 || x >= map[0].length ? 0 : map[y][x];
     }
 
     private String hexWord(int w) {

@@ -10,7 +10,7 @@ public class Encode implements Runnable {
     private static final boolean VERBOSE = false;
     private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
-    private static final int[] MAP_WIDTHS = {256, 224};
+    private static final int[] MAP_WIDTHS = {228, 224};
 
     private final int level;
     private final String fileName;
@@ -58,7 +58,7 @@ public class Encode implements Runnable {
                 int maxSize = 0;
                 int maxIndex = 0;
                 int screen = 0;
-                for (int x0 = 0; x0 < width; x0++) {
+                for (int x0 = -(WINDOW_WIDTH - 1); x0 <= width - WINDOW_WIDTH; x0++) {
                     if (VERBOSE) System.out.println("Screen " + screen + ":");
                     Set<Integer> used = new HashSet<>();
                     Map<Integer, Integer> added = new HashMap<>();
@@ -66,7 +66,7 @@ public class Encode implements Runnable {
                     // Find chars used in screen
                     for (int y = 0; y < height; y++) {
                         for (int x = x0; x < x0 + WINDOW_WIDTH; x++) {
-                            int ch = x < width ? map[y][x] : 0;
+                            int ch = getMapChar(map, x, y);
                             used.add(ch);
                         }
                     }
@@ -74,7 +74,7 @@ public class Encode implements Runnable {
                     // Process screen
                     for (int y = 0; y < height; y++) {
                         for (int x = x0; x < x0 + WINDOW_WIDTH; x++) {
-                            int ch = x < width ? map[y][x] : 0;
+                            int ch = getMapChar(map, x, y);
                             // Is char in current set?
                             Integer runningIndex = null;
                             for (int i = 0; i < runningChars.length && runningIndex == null; i++) {
@@ -99,7 +99,12 @@ public class Encode implements Runnable {
                             }
                             // Record in map
                             if (runningIndex != null) {
-                                newMap[y][x] = runningIndex;
+                                int ix = x + WINDOW_WIDTH;
+                                if (ix >= 0 && ix < newMap[y].length) {
+                                    newMap[y][ix] = runningIndex;
+                                } else {
+                                    System.out.println("Index out of range: " + ix);
+                                }
                             } else {
                                 throw new Exception("No room found for key " + hexWord(ch));
                             }
@@ -151,7 +156,7 @@ public class Encode implements Runnable {
                 for (int y = 0; y < newMap.length; y++) {
                     int[] row = newMap[y];
                     out.append("       byte ");
-                    for (int x = 0; x < row.length; x++) {
+                    for (int x = WINDOW_WIDTH; x < row.length; x++) {
                         if (VERBOSE) System.out.print(hexByte(row[x]));
                         out.append(hexByte(row[x])).append(x < row.length - 1 ? "," : "\n");
                     }
@@ -165,6 +170,7 @@ public class Encode implements Runnable {
                 if (VERBOSE) System.out.println();
                 System.out.println("Max size: " + maxSize);
                 System.out.println("Max index: " + maxIndex);
+                System.out.println("Map width: " + (newMap[0].length - WINDOW_WIDTH));
                 System.out.println();
             } else {
                 throw new Exception("Error: " + len + " bytes found. Expected " + (width * height) + " bytes.");
@@ -173,6 +179,10 @@ public class Encode implements Runnable {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    private int getMapChar(int[][] map, int x, int y) {
+        return x < 0 || x >= map[0].length ? 0 : map[y][x];
     }
 
     private String to3Digits(int i) {

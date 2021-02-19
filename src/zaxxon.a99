@@ -64,7 +64,7 @@ window_left:
 window_top:
        equ  -36
 map_width:
-       equ  285
+       equ  228
 map_height:
        equ  26
 map_size:
@@ -120,9 +120,9 @@ pad_max:
 
 ***************************************************************
 *
-* Upper memory
+* Lower memory
 *
-       aorg >a000
+       aorg >2000
 
 ***************************************************************
 *
@@ -151,7 +151,7 @@ loop:
        jmp  restart
 
 scroll_max:
-       data map_width*8-window_width-window_left
+       data map_width*8+window_width
 
 *********************************************************************
 *
@@ -306,8 +306,11 @@ draw_column:
        bl   @vwad                      ; Set VDP address
 *      Map address
        mov  @scroll_x,r1
-       ai   r1,window_width            ; Offset to start column
        srl  r1,3                       ; Offset in characters
+       ci   r1,map_width-1
+       jlt  draw_column_0
+       li   r1,map_width-1
+draw_column_0:
        ai   r1,level_1_map
 *      Draw column
        li   r2,map_height
@@ -460,25 +463,27 @@ init_tl2:
 * Includes
 *
        copy "vdp.a99"
-       copy "chars1.a99"
-       copy "tl2.a99"
-       copy "diff1.a99"
-*      copy "sprites.a99"
-diff_end:
-       equ  $
+       copy "map1.a99"
+       copy "tile-attrs.a99"
 
-upper_memory_max:
+lower_memory_max:
        equ  $
 
 ***************************************************************
 *
-* Lower memory
+* Upper memory
 *
-       aorg >2000
+       aorg >a000
 
-       copy "map1.a99"
+       copy "diff1.a99"
+diff_end:
+       equ  $
+       copy "tl2.a99"
+       copy "chars1.a99"
+       copy "sprites.a99"
+       copy "palettes.a99"
 
-lower_memory_max:
+upper_memory_max:
        equ  $
 
 ***************************************************************
