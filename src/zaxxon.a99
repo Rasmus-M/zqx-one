@@ -72,6 +72,8 @@ tl2_first_char:
        equ  250
 tl2_chars:
        equ  6
+max_sprites:
+       equ  8
 
 **
 * Scratch pad
@@ -95,7 +97,7 @@ r12lb  equ  wrksp+25
 r13lb  equ  wrksp+27
 r14lb  equ  wrksp+29
 r15lb  equ  wrksp+31
-stack  equ  r15lb+>20                  ; Stack (grows up)
+stack  equ  wrksp+>20                  ; Stack (grows up)
 **
 * PAD constants
 *
@@ -114,8 +116,12 @@ scroll_y:
        equ  scroll_x+2
 diff_ptr:
        equ  scroll_y+2
-pad_max:
+sprite_def_ptr:
        equ  diff_ptr+2
+sprites_end_ptr:
+       equ  sprite_def_ptr+2
+pad_max:
+       equ  sprites_end_ptr+2
 
 ***************************************************************
 *
@@ -138,12 +144,15 @@ restart:
 loop:
        bl   @vsync
        bl   @set_vdp_regs
+       bl   @draw_sprites
        mov  @scroll_x,r0
        andi r0,7
        jne  !
        bl   @upload_characters
        bl   @draw_column
 !:
+       bl   @move_sprites
+       bl   @create_sprites
        bl   @scroll
        c    @scroll_x,@scroll_max
        jl   loop
@@ -202,6 +211,43 @@ set_vdp_regs:
 
 *********************************************************************
 *
+* Draw sprites
+*
+draw_sprites:
+       .proc
+       li   r0,spratb
+       bl   @vwad
+       li   r4,sprites
+       clr  r0
+draw_sprites_1:
+       c    r4,@sprites_end_ptr
+       jeq  draw_sprites_4
+       mov  @sprite_type(r4),r3
+       jeq  draw_sprites_3
+       mov  *r3+,r2                    ; Number of hardware sprites
+draw_sprites_2:
+       mov  @sprite_y(r4),r1
+       ab   *r3+,r1
+       movb r1,*r15
+       mov  @sprite_x(r4),r1
+       ab   *r3+,r1
+       movb r1,*r15
+       movb *r3+,*r15
+       movb *r3+,*r15
+       inc  r0
+       dec  r2
+       jne  draw_sprites_2
+draw_sprites_3:
+       ai   r4,sprite_size
+       jmp  draw_sprites_1
+draw_sprites_4:
+       ori  r0,>3300
+       bl   @vwtr
+       .endproc
+*// draw_sprites
+
+*********************************************************************
+*
 * Upload characters
 *
 * diff_ptr points to the difference structure
@@ -210,7 +256,7 @@ upload_characters:
        .proc
        mov  @diff_ptr,r5
        ci   r5,diff_end
-       jh   upload_characters_2
+       jhe  upload_characters_2
        clr  r6
        movb *r5+,r6
        jeq  upload_characters_2
@@ -335,6 +381,91 @@ draw_column_2:
 
 *********************************************************************
 *
+* Move sprites
+*
+move_sprites:
+       .proc
+       li   r0,->0100
+       li   r1,>0080
+       li   r4,sprites
+move_sprites_1:
+       c    r4,@sprites_end_ptr
+       jhe  move_sprites_4
+       mov  @sprite_type(r4),r3
+       jeq  move_sprites_2
+       a    r0,@sprite_x(r4)
+       c    @sprite_x(r4),@sprite_x_max
+       jh   move_sprites_2
+       a    r1,@sprite_y(r4)
+       c    @sprite_y(r4),@sprite_y_max
+       jle  move_sprites_3
+move_sprites_2:
+       clr  @sprite_type(r4)           ; Remove sprite
+       mov  @sprites_end_ptr,r5
+       ai   r5,-sprite_size
+       c    r4,r5
+       jne  move_sprites_3
+       mov  r5,@sprites_end_ptr
+move_sprites_3:
+       ai   r4,sprite_size
+       jmp  move_sprites_1
+move_sprites_4:
+       .endproc
+sprite_x_max:
+       data >f000
+sprite_y_max:
+       data >f000
+*// move_sprites
+
+*********************************************************************
+*
+* Create sprites
+*
+create_sprites:
+       .proc
+       mov  @sprite_def_ptr,r6
+create_sprites_1:
+       c    @scroll_x,@sprite_def_scroll_x(r6)
+       jl   create_sprites_2
+       bl   @create_sprite
+       ai   r6,sprite_def_size
+       jmp create_sprites_1
+create_sprites_2:
+       mov  r6,@sprite_def_ptr
+       .endproc
+*// create_sprites
+
+*********************************************************************
+*
+* Create sprite
+*
+create_sprite:
+       .proc
+       li   r4,sprites
+create_sprite_1:
+       c    r4,@sprites_end_ptr
+       jeq  create_sprite_2
+       mov  @sprite_type(r4),r3
+       jeq  create_sprite_2
+       ai   r4,sprite_size
+       jmp  create_sprite_1
+create_sprite_2:
+       mov  @sprite_def_type(r6),@sprite_type(r4)
+       mov  @sprite_x_max,@sprite_x(r4)
+       mov  @sprite_def_y(r6),r5
+       swpb r5
+       mov  r5,@sprite_y(r4)
+       mov  @sprites_end_ptr,r5
+       c    r4,r5
+       jne  create_sprite_3
+       ai   r5,sprite_size
+       mov  r5,@sprites_end_ptr
+create_sprite_3:
+       .endproc
+*// create_sprite
+
+*********************************************************************
+*
 * Scroll
 *
 scroll:
@@ -391,6 +522,7 @@ vdp_registers:
        byte >1d,>43                    ; Reg 29: Page size (1K between sprite patten tables, 2 x 2 scroll size)
        byte >0a,nam2tb/>400            ; Reg 10: Name table 2
        byte >0b,tilatb/>40             ; Reg 11: Tile attribute table 2
+       byte >33,>00                    ; Reg 15: All sprites off
        data -1
 *// graphics_mode
 
@@ -413,6 +545,10 @@ init_level:
        mov  r0,@scroll_y
        li   r0,level_1_000_add
        mov  r0,@diff_ptr
+       li   r0,sprites
+       mov  r0,@sprites_end_ptr
+       li   r0,sprite_defs
+       mov  r0,@sprite_def_ptr
        .endproc
 *// init_level
 
@@ -426,9 +562,8 @@ clear_vdp_ram:
        clr  r1
        li   r2,>4000
        bl   @vsmw
-       li   r0,spratb                  ; Disable sprites
-       li   r1,>d000
-       bl   @vsbw
+       li   r0,>3300                  ; Disable sprites
+       bl   @vwtr
        .endproc
 *// clear_vdp_ram
 
@@ -493,10 +628,12 @@ lower_memory_max:
 
        copy "diff1.a99"
 diff_end:
-       equ  $
        copy "tl2.a99"
        copy "chars1.a99"
        copy "sprite-patterns.a99"
+       copy "sprite-types.a99"
+       copy "sprite-defs.a99"
+       copy "sprites.a99"
        copy "palettes.a99"
 
 upper_memory_max:

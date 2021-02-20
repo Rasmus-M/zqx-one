@@ -1,0 +1,12 @@
+sprite_type:
+       equ  0
+sprite_y:
+       equ  2
+sprite_x:
+       equ  4
+sprite_size:
+       equ  6
+
+sprites:
+       bss  sprite_size*max_sprites
+

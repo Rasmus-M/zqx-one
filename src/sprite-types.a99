@@ -22,7 +22,7 @@ sprite_type_rocket_launch_2:
        byte 0,16,52,6
        byte 16,0,56,6
        byte 16,16,60,6
-sprite_type_blue_gun_:
+sprite_type_blue_gun:
        data 4
        byte 0,0,64,8
        byte 0,16,68,8

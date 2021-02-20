@@ -1,0 +1,16 @@
+sprite_def_scroll_x:
+       equ  0
+sprite_def_y:
+       equ  2
+sprite_def_type:
+       equ  4
+sprite_def_size:
+       equ  6
+
+sprite_defs:
+       data 288,122,sprite_type_radar
+       data 300,122,sprite_type_green_gun
+       data 320,60,sprite_type_blue_gun
+       data 360,122,sprite_type_silo
+       data -1
+
