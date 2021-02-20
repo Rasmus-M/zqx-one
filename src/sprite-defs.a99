@@ -8,9 +8,15 @@ sprite_def_size:
        equ  6
 
 sprite_defs:
-       data 288,122,sprite_type_radar
-       data 300,122,sprite_type_green_gun
-       data 320,60,sprite_type_blue_gun
-       data 360,122,sprite_type_silo
+       data 250,30,sprite_type_blue_gun
+       data 290,122,sprite_type_radar
+       data 316,122,sprite_type_green_gun
+       data 368,29,sprite_type_silo
+       data 384,69,sprite_type_silo
+       data 476,118,sprite_type_silo
+       data 518,70,sprite_type_green_gun
+       data 590,28,sprite_type_silo
+       data 630,122,sprite_type_silo
+       data 656,122,sprite_type_green_gun
        data -1
 
