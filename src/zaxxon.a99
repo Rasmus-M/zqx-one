@@ -39,11 +39,10 @@ ptrnt2 equ	>2000				       ; Pattern table plane 2
 sprptb equ	>2800				       ; Sprite pattern table base
 sprpt0 equ	>2800				       ; Sprite pattern table plane 0
 sprpt1 equ	>2c00				       ; Sprite pattern table plane 1
-sprpt2 equ	>3000				       ; Sprite pattern table plane 2
+sprpt2 equ	>3000				       ; Sprite pattern table plane 2 (1024 bytes free)
 nam2tb equ  >3800                      ; Name table 2 base (64 bytes free)
 tilatb equ	>3c00				       ; Tile attribute table
-spratb equ	>3d00				       ; Sprite attribute table
-                                       ; (640 bytes free)
+spratb equ	>3d00				       ; Sprite attribute table (640 bytes free)
 **
 * Constants
 *
@@ -373,8 +372,6 @@ graphics_mode_3:
        movb *r0+,*r15
        dec  r2
        jne  graphics_mode_3
-;       li   r0,>2F00			       ; Reg 47, exit DMP
-;       bl   @vwtr				       ; (should happen automatically after writing to PR63)
        .endproc
 *      VDP registers
 vdp_registers:
@@ -391,7 +388,7 @@ vdp_registers:
        byte >31,>f3                    ; Reg 49: Enhanced color mode (ECM3 tiles and sprites, 30 rows, tl2)
        byte >1b,>00                    ; Reg 27: Horizontal scroll offset
        byte >1c,>00                    ; Reg 28: Vertical scroll offset
-       byte >1d,>13                    ; Reg 29: Page size (1K between sprite patten tables, 2 x 2 scroll size)
+       byte >1d,>43                    ; Reg 29: Page size (1K between sprite patten tables, 2 x 2 scroll size)
        byte >0a,nam2tb/>400            ; Reg 10: Name table 2
        byte >0b,tilatb/>40             ; Reg 11: Tile attribute table 2
        data -1
@@ -406,6 +403,7 @@ init_level:
        li   r0,>01a2                   ; Displaÿ off
        bl   @vwtr
        bl   @clear_vdp_ram
+       bl   @upload_sprite_patterns
        bl   @init_tl2
        bl   @vsync
        li   r0,>01e2                   ; Displaÿ on
@@ -426,16 +424,34 @@ clear_vdp_ram:
        .proc
        clr  r0                         ; Clear name table and pattern tables
        clr  r1
-       li   r2,>2800
-       bl   @vsmw
-       li   r0,>3800                   ; Clear name table 2, tile attribute list, SAL
-       li   r2,>800
+       li   r2,>4000
        bl   @vsmw
        li   r0,spratb                  ; Disable sprites
        li   r1,>d000
        bl   @vsbw
        .endproc
-*//clear_vdp_ram
+*// clear_vdp_ram
+
+*********************************************************************
+*
+* Upload sprite patterns
+*
+upload_sprite_patterns:
+       .proc
+       li   r0,sprpt0
+       li   r1,S0_0
+       li   r2,32*32
+       bl   @vmbw
+       li   r0,sprpt1
+       li   r1,S1_0
+       li   r2,32*32
+       bl   @vmbw
+       li   r0,sprpt2
+       li   r1,S2_0
+       li   r2,32*32
+       bl   @vmbw
+       .endproc
+*// upload_sprite_patterns
 
 *********************************************************************
 *
@@ -480,7 +496,7 @@ diff_end:
        equ  $
        copy "tl2.a99"
        copy "chars1.a99"
-       copy "sprites.a99"
+       copy "sprite-patterns.a99"
        copy "palettes.a99"
 
 upper_memory_max:
