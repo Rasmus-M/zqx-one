@@ -1,4 +1,5 @@
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.util.*;
 
@@ -124,12 +125,12 @@ public class Encode implements Runnable {
                     maxSize = Math.max(maxSize, used.size());
 
                     if (VERBOSE) System.out.print("Add: ");
-                    diff_out.append("level_" + level + "_" + to3Digits(screen) + "_add:\n");
-                    diff_out.append("       byte " + hexByte(added.size()) + "\n");
+                    diff_out.append("level_").append(level).append("_").append(to3Digits(screen)).append("_add:\n");
+                    diff_out.append("       byte ").append(hexByte(added.size())).append("\n");
                     for (Integer i : added.keySet()) {
                         int globalIndex = added.get(i);
                         if (VERBOSE) System.out.print(hexByte(i) + ":" + hexWord(globalIndex) + " ");
-                        diff_out.append("       byte " + hexByte(i) + ", " + hexByte(globalIndex >> 8) + ", " + hexByte(globalIndex & 0xff) + "              ; " + hexWord(globalIndex) + "\n");
+                        diff_out.append("       byte ").append(hexByte(i)).append(", ").append(hexByte(globalIndex >> 8)).append(", ").append(hexByte(globalIndex & 0xff)).append("              ; ").append(hexWord(globalIndex)).append("\n");
                     }
                     if (VERBOSE) System.out.println();
 
@@ -152,9 +153,8 @@ public class Encode implements Runnable {
 
                 if (VERBOSE) System.out.println("Map:");
                 out.append("*******************************************\n");
-                out.append("level_" + level + "_map:\n");
-                for (int y = 0; y < newMap.length; y++) {
-                    int[] row = newMap[y];
+                out.append("level_").append(level).append("_map:\n");
+                for (int[] row : newMap) {
                     out.append("       byte ");
                     for (int x = WINDOW_WIDTH; x < row.length; x++) {
                         if (VERBOSE) System.out.print(hexByte(row[x]));
@@ -163,9 +163,16 @@ public class Encode implements Runnable {
                     if (VERBOSE) System.out.println();
                 }
                 // Write output
-                FileWriter writer2 = new FileWriter("../src/map" + level + ".a99");
-                writer2.write(out.toString());
-                writer2.close();
+//                FileWriter writer2 = new FileWriter("../src/map" + level + ".a99");
+//                writer2.write(out.toString());
+//                writer2.close();
+                FileOutputStream fos = new FileOutputStream("../bin/map" + level + ".bin");
+                for (int[] row : newMap) {
+                    for (int x = WINDOW_WIDTH; x < row.length; x++) {
+                        fos.write(row[x]);
+                    }
+                }
+                fos.close();
 
                 if (VERBOSE) System.out.println();
                 System.out.println("Max size: " + maxSize);

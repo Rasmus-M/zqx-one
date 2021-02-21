@@ -36,13 +36,13 @@ ptrntb equ	>1000				       ; Pattern table base
 ptrnt0 equ	>1000				       ; Pattern table plane 0
 ptrnt1 equ	>1800				       ; Pattern table plane 1
 ptrnt2 equ	>2000				       ; Pattern table plane 2
-sprptb equ	>2800				       ; Sprite pattern table base
-sprpt0 equ	>2800				       ; Sprite pattern table plane 0
-sprpt1 equ	>2c00				       ; Sprite pattern table plane 1
-sprpt2 equ	>3000				       ; Sprite pattern table plane 2
-nam2tb equ  >3400                      ; Name table 2 base (64 bytes free)
-tilatb equ	>3800				       ; Tile attribute table
-spratb equ	>3900				       ; Sprite attribute table (1664 bytes free)
+nam2tb equ  >2800                      ; Name table 2 base (64 bytes free)
+tilatb equ	>2c00				       ; Tile attribute table
+spratb equ	>2d00				       ; Sprite attribute table (640 bytes free)
+sprptb equ	>3000				       ; Sprite pattern table base
+sprpt0 equ	>3000				       ; Sprite pattern table plane 0
+sprpt1 equ	>3400				       ; Sprite pattern table plane 1
+sprpt2 equ	>3800				       ; Sprite pattern table plane 2 (1024 byte free)
 
 **
 * Constants
@@ -75,6 +75,12 @@ tl2_chars:
        equ  6
 max_sprites:
        equ  8
+gpu_run:
+       equ  nam2tb
+level_1_map:
+       equ  >6000
+map_bank_select:
+       equ  >6008
 
 **
 * Scratch pad
@@ -550,6 +556,7 @@ init_level:
        mov  r0,@sprites_end_ptr
        li   r0,sprite_defs
        mov  r0,@sprite_def_ptr
+       seto @map_bank_select
        .endproc
 *// init_level
 
@@ -612,10 +619,42 @@ init_tl2:
 
 ***************************************************************
 *
+* GPU program to copy VDP RAM >0000->07ff to >4000->47ff
+*
+
+gpu_copy:
+       .proc
+*      Copy program to VDP RAM
+       li   r0,gpu_run
+       LI   R1,gpu_program
+       LI   R2,gpu_program_end-gpu_program
+       bl   @vmbw
+*	   Set the GPU PC which also triggers it
+       LI   r0,gpu_run/256+>3600
+       bl   @vwtr
+       li   r0,>3700
+       bl   @vwtr
+       .endproc
+*      GPU code
+gpu_program:
+       clr  r0
+       li   r1,>4000
+       li   r2,>800
+gpu_program_1:
+       mov  *r0+,*r1+
+       dect r2
+       jne  gpu_program_1
+       idle
+gpu_program_end:
+       equ  $
+*// gpu_copy
+
+***************************************************************
+*
 * Includes
 *
        copy "vdp.a99"
-       copy "map1.a99"
+;       copy "map1.a99"
        copy "tile-attrs.a99"
 
 lower_memory_max:
