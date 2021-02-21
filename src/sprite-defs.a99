@@ -18,5 +18,9 @@ sprite_defs:
        data 590,28,sprite_type_silo
        data 630,122,sprite_type_silo
        data 656,122,sprite_type_green_gun
+       data 674,53,sprite_type_silo
+       data 728,86,sprite_type_blue_gun
+       data 772,126,sprite_type_blue_gun
+       data 772,25,sprite_type_silo
        data -1
 

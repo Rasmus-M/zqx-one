@@ -39,10 +39,11 @@ ptrnt2 equ	>2000				       ; Pattern table plane 2
 sprptb equ	>2800				       ; Sprite pattern table base
 sprpt0 equ	>2800				       ; Sprite pattern table plane 0
 sprpt1 equ	>2c00				       ; Sprite pattern table plane 1
-sprpt2 equ	>3000				       ; Sprite pattern table plane 2 (1024 bytes free)
-nam2tb equ  >3800                      ; Name table 2 base (64 bytes free)
-tilatb equ	>3c00				       ; Tile attribute table
-spratb equ	>3d00				       ; Sprite attribute table (640 bytes free)
+sprpt2 equ	>3000				       ; Sprite pattern table plane 2
+nam2tb equ  >3400                      ; Name table 2 base (64 bytes free)
+tilatb equ	>3800				       ; Tile attribute table
+spratb equ	>3900				       ; Sprite attribute table (1664 bytes free)
+
 **
 * Constants
 *
