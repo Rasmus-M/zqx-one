@@ -1,26 +1,29 @@
 sprite_def_scroll_x:
        equ  0
-sprite_def_y:
+sprite_def_dx:
        equ  2
-sprite_def_type:
+sprite_def_y:
        equ  4
-sprite_def_size:
+sprite_def_type:
        equ  6
+sprite_def_size:
+       equ  8
 
 sprite_defs:
-       data 250,30,sprite_type_blue_gun
-       data 290,122,sprite_type_radar
-       data 316,122,sprite_type_green_gun
-       data 368,29,sprite_type_silo
-       data 384,69,sprite_type_silo
-       data 476,118,sprite_type_silo
-       data 518,70,sprite_type_green_gun
-       data 590,28,sprite_type_silo
-       data 630,122,sprite_type_silo
-       data 656,122,sprite_type_green_gun
-       data 674,53,sprite_type_silo
-       data 728,86,sprite_type_blue_gun
-       data 772,126,sprite_type_blue_gun
-       data 772,25,sprite_type_silo
+       data 250,0,30,sprite_type_blue_gun
+       data 256,32,62,sprite_type_rocket_launch_1
+       data 290,0,122,sprite_type_radar
+       data 316,0,122,sprite_type_green_gun
+       data 368,0,29,sprite_type_silo
+       data 384,0,69,sprite_type_silo
+       data 476,0,118,sprite_type_silo
+       data 518,0,70,sprite_type_green_gun
+       data 590,0,28,sprite_type_silo
+       data 630,0,122,sprite_type_silo
+       data 656,0,122,sprite_type_green_gun
+       data 674,0,53,sprite_type_silo
+       data 728,0,86,sprite_type_blue_gun
+       data 772,0,126,sprite_type_blue_gun
+       data 772,0,25,sprite_type_silo
        data -1
 

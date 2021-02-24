@@ -10,13 +10,13 @@ sprite_type_radar:
        byte 0,16,20,6
        byte 16,0,24,6
        byte 16,16,28,6
-sprite_type_rocket_launch_1:
+sprite_type_rocket_launch_2:
        data 4
        byte 0,0,32,6
        byte 0,16,36,6
        byte 16,0,40,6
        byte 16,16,44,6
-sprite_type_rocket_launch_2:
+sprite_type_rocket_launch_1:
        data 4
        byte 0,0,48,6
        byte 0,16,52,6

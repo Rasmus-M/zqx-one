@@ -17,8 +17,8 @@ vdpwa  equ  >8c02                      ; VDP set read/write address
 vdprd  equ  >8800                      ; VDP read data
 vdpsta equ  >8802                      ; VDP status
 sound  equ  >8400                      ; PSG sound
-spchrd equ	>9000                      ; Speech read
-spchwt equ	>9400                      ; Speech write
+spchrd equ  >9000                      ; Speech read
+spchwt equ  >9400                      ; Speech write
 grmrd  equ  >9800                      ; GROM read data
 grmra  equ  >9802                      ; GROM address read
 grmwd  equ  >9C00                      ; GROM write data
@@ -27,22 +27,24 @@ grmwa  equ  >9C02                      ; GROM address write
 **
 * VDP memory map
 *
-nametb equ	>0000				       ; Name table base
-namet0 equ	>0000				       ; Name table page 0 (64 bytes free)
-namet1 equ	>0400				       ; Name table page 1 (64 bytes free)
-namet2 equ	>0800				       ; Name table page 2 (64 bytes free)
-namet3 equ	>0C00				       ; Name table page 3 (64 bytes free)
-ptrntb equ	>1000				       ; Pattern table base
-ptrnt0 equ	>1000				       ; Pattern table plane 0
-ptrnt1 equ	>1800				       ; Pattern table plane 1
-ptrnt2 equ	>2000				       ; Pattern table plane 2
+nametb equ  >0000                      ; Name table base
+namet0 equ  >0000                      ; Name table page 0 (64 bytes free)
+namet1 equ  >0400                      ; Name table page 1 (64 bytes free)
+namet2 equ  >0800                      ; Name table page 2 (64 bytes free)
+namet3 equ  >0C00                      ; Name table page 3 (64 bytes free)
+ptrntb equ  >1000                      ; Pattern table base
+ptrnt0 equ  >1000                      ; Pattern table plane 0
+ptrnt1 equ  >1800                      ; Pattern table plane 1
+ptrnt2 equ  >2000                      ; Pattern table plane 2
 nam2tb equ  >2800                      ; Name table 2 base (64 bytes free)
-tilatb equ	>2c00				       ; Tile attribute table
-spratb equ	>2d00				       ; Sprite attribute table (640 bytes free)
-sprptb equ	>3000				       ; Sprite pattern table base
-sprpt0 equ	>3000				       ; Sprite pattern table plane 0
-sprpt1 equ	>3400				       ; Sprite pattern table plane 1
-sprpt2 equ	>3800				       ; Sprite pattern table plane 2 (1024 byte free)
+tilatb equ  >2c00                      ; Tile attribute table
+spratb equ  >2d00                      ; Sprite attribute table (640 bytes free)
+sprptb equ  >3000                      ; Sprite pattern table base
+sprpt0 equ  >3000                      ; Sprite pattern table plane 0
+sprpt1 equ  >3400                      ; Sprite pattern table plane 1
+sprpt2 equ  >3800                      ; Sprite pattern table plane 2 (1024 byte free)
+;sprpt1 equ  >3800                      ; Sprite pattern table plane 1
+;sprpt2 equ  >4000                      ; Sprite pattern table plane 2
 
 **
 * Constants
@@ -81,6 +83,8 @@ level_1_map:
        equ  >6000
 map_bank_select:
        equ  >6008
+sprite_create_x:
+       equ  240
 
 **
 * Scratch pad
@@ -188,31 +192,31 @@ vsync_1:
 *
 set_vdp_regs:
        .proc
-*	   Calculate vertical page and offset
+*      Calculate vertical page and offset
        clr  r1
-       mov	@scroll_y,r2
-       li	r3,screen_height
-       div	r3,r1				       ; r1 quotient, r2 remainder
-*	   Horizontal scroll offset
-       mov	@scroll_x,r0
-       andi	r0,>00ff
-       ori	r0,>1b00
-       bl	@vwtr
-*	   Vertical scroll offset
-       mov	r2,r0
-       ori	r0,>1c00
-       bl	@vwtr
-*	   Horizontal page start
-       mov	@scroll_x,r0
-       andi	r0,screen_width			   ; Isolate bit value 256
-       swpb	r0					       ; Shift to bit 0
-*	   Vertical page start
-       andi	r1,1				       ; Bit 0 of quotient
-       sla	r1,1				       ; Shift to bit 1
-       soc	r1,r0				       ; Combine with horizontal bit
-*	   Set current name table
-       ori	r0,>0200			       ; Name table
-       bl	@vwtr
+       mov  @scroll_y,r2
+       li   r3,screen_height
+       div  r3,r1                      ; r1 quotient, r2 remainder
+*      Horizontal scroll offset
+       mov  @scroll_x,r0
+       andi r0,>00ff
+       ori  r0,>1b00
+       bl   @vwtr
+*      Vertical scroll offset
+       mov  r2,r0
+       ori  r0,>1c00
+       bl   @vwtr
+*      Horizontal page start
+       mov  @scroll_x,r0
+       andi r0,screen_width            ; Isolate bit value 256
+       swpb r0                         ; Shift to bit 0
+*      Vertical page start
+       andi r1,1                       ; Bit 0 of quotient
+       sla  r1,1                       ; Shift to bit 1
+       soc  r1,r0                      ; Combine with horizontal bit
+*      Set current name table
+       ori  r0,>0200                   ; Name table
+       bl   @vwtr
        .endproc
 *// set_vdp_regs
 
@@ -344,10 +348,10 @@ draw_column:
        a    r1,r0                      ; Add to VDP address
 *      Vertical
        clr  r2                         ; For division
-       mov	@scroll_y,r3               ; Scroll offset
+       mov  @scroll_y,r3               ; Scroll offset
        ai   r3,window_top
-       li	r4,screen_height           ; Divided by screen height
-       div	r4,r2				       ; r2 quotient, r3 remainder
+       li   r4,screen_height           ; Divided by screen height
+       div  r4,r2                      ; r2 quotient, r3 remainder
        andi r2,1                       ; Bit 0 of quotient
        sla  r2,11                      ; Name table offset
        a    r2,r0                      ; Add to VDP address
@@ -446,6 +450,8 @@ create_sprites_2:
 *
 * Create sprite
 *
+* r6: sprite def
+*
 create_sprite:
        .proc
        li   r4,sprites
@@ -457,11 +463,18 @@ create_sprite_1:
        ai   r4,sprite_size
        jmp  create_sprite_1
 create_sprite_2:
-       mov  @sprite_def_type(r6),@sprite_type(r4)
-       mov  @sprite_x_max,@sprite_x(r4)
-       mov  @sprite_def_y(r6),r5
-       swpb r5
-       mov  r5,@sprite_y(r4)
+       mov  @sprite_def_type(r6),r7
+       mov  r7,@sprite_type(r4)
+       mov  @sprite_def_dx(r6),r0
+       li   r1,sprite_create_x
+       s    r0,r1
+       swpb r1
+       mov  r1,@sprite_x(r4)
+       mov  @sprite_def_y(r6),r1
+       sra  r0,1
+       a    r0,r1
+       swpb r1
+       mov  r1,@sprite_y(r4)
        mov  @sprites_end_ptr,r5
        c    r4,r5
        jne  create_sprite_3
@@ -499,13 +512,13 @@ graphics_mode_1:
        jlt  graphics_mode_2
        bl   @vwtr                      ; Set register
        jmp  graphics_mode_1
-*	   Load color palettes
+*      Load color palettes
 graphics_mode_2:
-       li   r0,>2fc0			       ; Reg 47, DPM = 1, AUTO INC = 1, start PR0
+       li   r0,>2fc0                   ; Reg 47, DPM = 1, AUTO INC = 1, start PR0
        bl   @vwtr
 *      Every two bytes written to the VDP now go to the palette registers
        li   r0,PAL0
-       LI   r2,128				       ; Each of 64 12-bit palette entries requires 2 bytes
+       LI   r2,128                     ; Each of 64 12-bit palette entries requires 2 bytes
 graphics_mode_3:
        movb *r0+,*r15
        dec  r2
@@ -527,6 +540,7 @@ vdp_registers:
        byte >1b,>00                    ; Reg 27: Horizontal scroll offset
        byte >1c,>00                    ; Reg 28: Vertical scroll offset
        byte >1d,>43                    ; Reg 29: Page size (1K between sprite patten tables, 2 x 2 scroll size)
+;       byte >1d,>03                    ; Reg 29: Page size (2K between sprite patten tables, 2 x 2 scroll size)
        byte >0a,nam2tb/>400            ; Reg 10: Name table 2
        byte >0b,tilatb/>40             ; Reg 11: Tile attribute table 2
        byte >33,>00                    ; Reg 15: All sprites off
@@ -541,8 +555,9 @@ init_level:
        .proc
        li   r0,>01a2                   ; Displaÿ off
        bl   @vwtr
-       bl   @clear_vdp_ram
        bl   @upload_sprite_patterns
+;       bl   @gpu_copy
+       bl   @clear_vdp_ram
        bl   @init_tl2
        bl   @vsync
        li   r0,>01e2                   ; Displaÿ on
@@ -568,7 +583,7 @@ clear_vdp_ram:
        .proc
        clr  r0                         ; Clear name table and pattern tables
        clr  r1
-       li   r2,>4000
+       li   r2,>3000
        bl   @vsmw
        li   r0,>3300                  ; Disable sprites
        bl   @vwtr
@@ -590,6 +605,7 @@ upload_sprite_patterns:
        li   r2,32*32
        bl   @vmbw
        li   r0,sprpt2
+;       li   r0,0                       ; Plane 2 will be copied to >4000
        li   r1,S2_0
        li   r2,32*32
        bl   @vmbw
@@ -621,16 +637,15 @@ init_tl2:
 *
 * GPU program to copy VDP RAM >0000->07ff to >4000->47ff
 *
-
 gpu_copy:
        .proc
 *      Copy program to VDP RAM
        li   r0,gpu_run
-       LI   R1,gpu_program
-       LI   R2,gpu_program_end-gpu_program
+       li   r1,gpu_program
+       li   r2,gpu_program_end-gpu_program
        bl   @vmbw
-*	   Set the GPU PC which also triggers it
-       LI   r0,gpu_run/256+>3600
+*      Set the GPU PC which also triggers it
+       li   r0,gpu_run/256+>3600
        bl   @vwtr
        li   r0,>3700
        bl   @vwtr
@@ -654,7 +669,6 @@ gpu_program_end:
 * Includes
 *
        copy "vdp.a99"
-;       copy "map1.a99"
        copy "tile-attrs.a99"
 
 lower_memory_max:
