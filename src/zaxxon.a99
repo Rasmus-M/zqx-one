@@ -235,6 +235,7 @@ draw_sprites_1:
        jeq  draw_sprites_4
        mov  @sprite_type(r4),r3
        jeq  draw_sprites_3
+       ai   r3,sprite_type_n_hw_sprites
        mov  *r3+,r2                    ; Number of hardware sprites
 draw_sprites_2:
        mov  @sprite_y(r4),r1
@@ -468,11 +469,14 @@ create_sprite_2:
        mov  @sprite_def_dx(r6),r0
        li   r1,sprite_create_x
        s    r0,r1
+       s    @sprite_type_cx(r7),r1
        swpb r1
        mov  r1,@sprite_x(r4)
-       mov  @sprite_def_y(r6),r1
+       li   r1,window_top
+       a    @sprite_def_y(r6),r1
        sra  r0,1
        a    r0,r1
+       s    @sprite_type_cy(r7),r1
        swpb r1
        mov  r1,@sprite_y(r4)
        mov  @sprites_end_ptr,r5

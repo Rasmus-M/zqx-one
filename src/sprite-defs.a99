@@ -10,20 +10,20 @@ sprite_def_size:
        equ  8
 
 sprite_defs:
-       data 250,0,30,sprite_type_blue_gun
-       data 256,32,62,sprite_type_rocket_launch_1
-       data 290,0,122,sprite_type_radar
-       data 316,0,122,sprite_type_green_gun
-       data 368,0,29,sprite_type_silo
-       data 384,0,69,sprite_type_silo
-       data 476,0,118,sprite_type_silo
-       data 518,0,70,sprite_type_green_gun
-       data 590,0,28,sprite_type_silo
-       data 630,0,122,sprite_type_silo
-       data 656,0,122,sprite_type_green_gun
-       data 674,0,53,sprite_type_silo
-       data 728,0,86,sprite_type_blue_gun
-       data 772,0,126,sprite_type_blue_gun
-       data 772,0,25,sprite_type_silo
+       data 250,0,64,sprite_type_blue_gun
+       data 256,16,130,sprite_type_rocket_launch_1
+       data 290,0,156,sprite_type_radar
+       data 316,0,156,sprite_type_green_gun
+       data 368,0,63,sprite_type_silo
+       data 384,0,103,sprite_type_silo
+       data 476,0,152,sprite_type_silo
+       data 518,0,104,sprite_type_green_gun
+       data 590,0,62,sprite_type_silo
+       data 630,0,156,sprite_type_silo
+       data 656,0,156,sprite_type_green_gun
+       data 674,0,87,sprite_type_silo
+       data 728,0,120,sprite_type_blue_gun
+       data 772,0,160,sprite_type_blue_gun
+       data 772,0,59,sprite_type_silo
        data -1
 
