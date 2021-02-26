@@ -84,7 +84,7 @@ level_1_map:
 map_bank_select:
        equ  >6008
 sprite_create_x:
-       equ  240
+       equ  255
 
 **
 * Scratch pad
@@ -437,7 +437,9 @@ create_sprites:
        .proc
        mov  @sprite_def_ptr,r6
 create_sprites_1:
-       c    @scroll_x,@sprite_def_scroll_x(r6)
+       mov  @sprite_def_x(r6),r0
+       a    @sprite_def_delay(r6),r0
+       c    @scroll_x,r0
        jl   create_sprites_2
        bl   @create_sprite
        ai   r6,sprite_def_size
@@ -466,7 +468,7 @@ create_sprite_1:
 create_sprite_2:
        mov  @sprite_def_type(r6),r7
        mov  r7,@sprite_type(r4)
-       mov  @sprite_def_dx(r6),r0
+       mov  @sprite_def_delay(r6),r0
        li   r1,sprite_create_x
        s    r0,r1
        s    @sprite_type_cx(r7),r1
