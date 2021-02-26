@@ -28,7 +28,7 @@ sprite_type_radar:
        byte 16,0,24,6
        byte 16,16,28,6
 sprite_type_rocket_launch_2:
-       data 16
+       data 15
        data 24
        data rocket_launch_2_handler
        data 4
@@ -37,7 +37,7 @@ sprite_type_rocket_launch_2:
        byte 16,0,40,6
        byte 16,16,44,6
 sprite_type_rocket_launch_1:
-       data 16
+       data 15
        data 24
        data rocket_launch_1_handler
        data 4
