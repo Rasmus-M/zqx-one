@@ -2,14 +2,17 @@ sprite_type_cx:
        equ  0
 sprite_type_cy:
        equ  2
-sprite_type_n_hw_sprites:
+sprite_type_handler:
        equ  4
-sprite_type_hw_sprites:
+sprite_type_n_hw_sprites:
        equ  6
+sprite_type_hw_sprites:
+       equ  8
 
 sprite_type_silo:
        data 14
        data 24
+       data 0
        data 4
        byte 0,0,0,6                   
        byte 0,16,4,6
@@ -18,6 +21,7 @@ sprite_type_silo:
 sprite_type_radar:
        data 16
        data 27
+       data 0
        data 4
        byte 0,0,16,6
        byte 0,16,20,6
@@ -26,6 +30,7 @@ sprite_type_radar:
 sprite_type_rocket_launch_2:
        data 16
        data 24
+       data 0
        data 4
        byte 0,0,32,6
        byte 0,16,36,6
@@ -34,6 +39,7 @@ sprite_type_rocket_launch_2:
 sprite_type_rocket_launch_1:
        data 16
        data 24
+       data rocket_launch_1_handler
        data 4
        byte 0,0,48,6
        byte 0,16,52,6
@@ -42,6 +48,7 @@ sprite_type_rocket_launch_1:
 sprite_type_blue_gun:
        data 20
        data 18
+       data 0
        data 4
        byte 0,0,64,8
        byte 0,16,68,8
@@ -50,6 +57,7 @@ sprite_type_blue_gun:
 sprite_type_shield:
        data 15
        data 24
+       data 0
        data 4
        byte 0,0,80,8
        byte 0,16,84,8
@@ -58,6 +66,7 @@ sprite_type_shield:
 sprite_type_green_gun:
        data 20
        data 24
+       data 0
        data 4
        byte 0,0,96,10
        byte 0,16,100,10
@@ -66,12 +75,14 @@ sprite_type_green_gun:
 sprite_type_green_rocket_1:
        data 7
        data 21
+       data 0
        data 2
        byte 0,0,112,12
        byte 16,0,124,12
 sprite_type_green_rocket_2:
        data 7
        data 21
+       data 0
        data 2
        byte 0,0,116,12
        byte 16,0,120,12

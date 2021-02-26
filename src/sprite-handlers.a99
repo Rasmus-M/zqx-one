@@ -1,0 +1,31 @@
+**
+* A handler is called when the sprite is created,
+* and each time the sprite is moved.
+*
+* Parameters for all handlers:
+* r4 points to the sprite
+* r6 points to the sprite type
+*
+
+*********************************************************************
+*
+* Rocker launch 1 handler
+*
+rocket_launch_1_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       jlt  rocket_launch_1_handler_1
+       dec  @sprite_counter(r4)
+       jne  rocket_launch_1_handler_2
+       li   r0,sprite_type_rocket_launch_2
+       mov  r0,@sprite_type(r4)
+       li   r0,8
+       mov  r0,@sprite_counter(r4)
+       jmp  rocket_launch_1_handler_2
+rocket_launch_1_handler_1:
+       li   r0,16
+       mov  r0,@sprite_counter(r4)
+rocket_launch_1_handler_2:
+       .endproc
+*// rocket_launch_1_handler
+

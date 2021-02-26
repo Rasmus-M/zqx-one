@@ -397,20 +397,24 @@ draw_column_2:
 *
 move_sprites:
        .proc
-       li   r0,->0100
-       li   r1,>0080
        li   r4,sprites
 move_sprites_1:
        c    r4,@sprites_end_ptr
        jhe  move_sprites_4
-       mov  @sprite_type(r4),r3
+       mov  @sprite_type(r4),r6
        jeq  move_sprites_2
-       a    r0,@sprite_x(r4)
+       a    @sprite_base_vx,@sprite_x(r4)
        c    @sprite_x(r4),@sprite_x_max
        jh   move_sprites_2
-       a    r1,@sprite_y(r4)
+       a    @sprite_base_vy,@sprite_y(r4)
        c    @sprite_y(r4),@sprite_y_max
-       jle  move_sprites_3
+       jh  move_sprites_2
+*      Handler
+       mov  @sprite_type_handler(r6),r0
+       jeq  move_sprites_3
+       bl   *r0
+       jmp  move_sprites_3
+*      Remove
 move_sprites_2:
        clr  @sprite_type(r4)           ; Remove sprite
        mov  @sprites_end_ptr,r5
@@ -418,11 +422,16 @@ move_sprites_2:
        c    r4,r5
        jne  move_sprites_3
        mov  r5,@sprites_end_ptr
+*      Next
 move_sprites_3:
        ai   r4,sprite_size
        jmp  move_sprites_1
 move_sprites_4:
        .endproc
+sprite_base_vx:
+       data ->0100
+sprite_base_vy:
+       data >0080
 sprite_x_max:
        data >f000
 sprite_y_max:
@@ -486,6 +495,10 @@ create_sprite_2:
        jne  create_sprite_3
        ai   r5,sprite_size
        mov  r5,@sprites_end_ptr
+       mov  @sprite_type_handler(r7),r0
+       jeq  create_sprite_3
+       seto @sprite_counter(r4)        ; Initial value
+       bl   *r0
 create_sprite_3:
        .endproc
 *// create_sprite
@@ -675,6 +688,7 @@ gpu_program_end:
 * Includes
 *
        copy "vdp.a99"
+       copy "sprite-handlers.a99"
        copy "tile-attrs.a99"
 
 lower_memory_max:
@@ -693,8 +707,8 @@ diff_end:
        copy "sprite-patterns.a99"
        copy "sprite-types.a99"
        copy "sprite-defs.a99"
-       copy "sprites.a99"
        copy "palettes.a99"
+       copy "sprites.a99"
 
 upper_memory_max:
        equ  $
