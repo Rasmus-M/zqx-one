@@ -466,15 +466,10 @@ create_sprites_2:
 *
 create_sprite:
        .proc
-       li   r4,sprites
+       bl   @allocate_sprite
+       mov  r4,r4
+       jeq  create_sprite_2
 create_sprite_1:
-       c    r4,@sprites_end_ptr
-       jeq  create_sprite_2
-       mov  @sprite_type(r4),r3
-       jeq  create_sprite_2
-       ai   r4,sprite_size
-       jmp  create_sprite_1
-create_sprite_2:
        mov  @sprite_def_type(r6),r7
        mov  r7,@sprite_type(r4)
        mov  @sprite_def_delay(r6),r0
@@ -490,18 +485,67 @@ create_sprite_2:
        s    @sprite_type_cy(r7),r1
        swpb r1
        mov  r1,@sprite_y(r4)
-       mov  @sprites_end_ptr,r5
-       c    r4,r5
-       jne  create_sprite_3
-       ai   r5,sprite_size
-       mov  r5,@sprites_end_ptr
        mov  @sprite_type_handler(r7),r0
-       jeq  create_sprite_3
+       jeq  create_sprite_2
        seto @sprite_counter(r4)        ; Initial value
        bl   *r0
-create_sprite_3:
+create_sprite_2:
        .endproc
 *// create_sprite
+
+*********************************************************************
+*
+* Allocate sprite
+*
+allocate_sprite:
+       .proc
+       li   r4,sprites
+allocate_sprite_1:
+       c    r4,@sprites_end_ptr
+       jeq  allocate_sprite_2
+       mov  @sprite_type(r4),r0
+       jeq  allocate_sprite_2
+       ai   r4,sprite_size
+       jmp  allocate_sprite_1
+allocate_sprite_2:
+       ci   r4,sprites+(sprite_size*max_sprites)
+       jl   allocate_sprite_3
+       clr  r4
+       jmp  allocate_sprite_4
+allocate_sprite_3:
+       mov  @sprites_end_ptr,r5
+       c    r4,r5
+       jne  allocate_sprite_4
+       ai   r5,sprite_size
+       mov  r5,@sprites_end_ptr
+allocate_sprite_4:
+       .endproc
+*// allocate_sprite
+
+*********************************************************************
+*
+* Allign sprites to the same screen position
+*
+* r4: sprite to align from
+* r5: sprite to align
+*
+align_sprites:
+       mov  @sprite_type(r4),r6
+       mov  @sprite_type(r5),r7
+       mov  @sprite_x(r4),r0
+       srl  r0,8
+       a    @sprite_type_cx(r6),r0
+       s    @sprite_type_cx(r7),r0
+       sla  r0,8
+       mov  r0,@sprite_x(r5)
+       mov  @sprite_y(r4),r0
+       srl  r0,8
+       a    @sprite_type_cy(r6),r0
+       s    @sprite_type_cy(r7),r0
+       sla  r0,8
+       mov  r0,@sprite_y(r5)
+       rt
+*// allign_sprites
 
 *********************************************************************
 *
