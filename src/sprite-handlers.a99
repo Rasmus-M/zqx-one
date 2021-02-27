@@ -9,60 +9,44 @@
 
 *********************************************************************
 *
-* Rocker launch 1 handler
+* Rocker launch handler
 *
-rocket_launch_1_handler:
+rocket_launch_handler:
        .proc
        mov  @sprite_counter(r4),r0
-       jlt  rocket_launch_1_handler_1
-       dec  @sprite_counter(r4)
-       jne  rocket_launch_1_handler_2
-       li   r0,sprite_type_rocket_launch_2
-       mov  r0,@sprite_type(r4)
-       seto @sprite_counter(r4)
-       jmp  rocket_launch_1_handler_2
-rocket_launch_1_handler_1:
-       li   r0,16
+       inc  r0
        mov  r0,@sprite_counter(r4)
-rocket_launch_1_handler_2:
-       .endproc
-*// rocket_launch_1_handler
-
-*********************************************************************
-*
-* Rocker launch 2 handler
-*
-rocket_launch_2_handler:
-       .proc
-       mov  @sprite_counter(r4),r0
-       jlt  rocket_launch_2_handler_1
-       jeq  rocket_launch_2_handler_2
-       ci   r0,8
-       jne  rocket_launch_2_handler_0
+       ci   r0,64
+       jne  rocket_launch_handler_1
 *      Create rocket
        .push r4
        bl   @allocate_sprite
        mov  r4,r5
        .pop r4
        mov  r5,r5
-       jeq  rocket_launch_2_handler_2
+       jeq  rocket_launch_handler_5
        li   r0,sprite_type_green_rocket_1
        mov  r0,@sprite_type(r5)
        bl   @align_sprites
        seto @sprite_counter(r5)
-       jmp  rocket_launch_2_handler_2
-rocket_launch_2_handler_0:
-       dec  @sprite_counter(r4)
-       jne  rocket_launch_2_handler_2
+       jmp  rocket_launch_handler_5
+rocket_launch_handler_1:
+       ci   r0,128
+       jne  rocket_launch_handler_2
        clr  @sprite_type(r4)
-       jmp  rocket_launch_2_handler_2
-*      Init
-rocket_launch_2_handler_1:
-       li   r0,24
-       mov  r0,@sprite_counter(r4)
-rocket_launch_2_handler_2:
+       jmp  rocket_launch_handler_5
+rocket_launch_handler_2:
+       andi r0,>0010
+       jne  rocket_launch_handler_3
+       li   r0,sprite_type_rocket_launch_1
+       jmp  rocket_launch_handler_4
+rocket_launch_handler_3:
+       li   r0,sprite_type_rocket_launch_2
+rocket_launch_handler_4:
+       mov  r0,@sprite_type(r4)
+rocket_launch_handler_5:
        .endproc
-*// rocket_launch_2_handler
+*// rocket_launch_handler
 
 *********************************************************************
 *
