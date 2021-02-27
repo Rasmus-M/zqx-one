@@ -15,6 +15,7 @@ sprite_defs:
        data 224,122,48,sprite_type_rocket_launch_1
        data 290,184,0,sprite_type_radar
        data 324,184,0,sprite_type_green_gun
+;       data 313,90,16,sprite_type_rocket_launch_1
        data 366,87,0,sprite_type_silo
        data 382,127,0,sprite_type_silo
        data 476,176,0,sprite_type_silo

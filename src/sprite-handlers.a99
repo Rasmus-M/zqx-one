@@ -37,8 +37,9 @@ rocket_launch_2_handler:
        mov  @sprite_counter(r4),r0
        jlt  rocket_launch_2_handler_1
        jeq  rocket_launch_2_handler_2
-       dec  @sprite_counter(r4)
-       jne  rocket_launch_2_handler_2
+       ci   r0,8
+       jne  rocket_launch_2_handler_0
+*      Create rocket
        .push r4
        bl   @allocate_sprite
        mov  r4,r5
@@ -50,8 +51,14 @@ rocket_launch_2_handler:
        bl   @align_sprites
        seto @sprite_counter(r5)
        jmp  rocket_launch_2_handler_2
+rocket_launch_2_handler_0:
+       dec  @sprite_counter(r4)
+       jne  rocket_launch_2_handler_2
+       clr  @sprite_type(r4)
+       jmp  rocket_launch_2_handler_2
+*      Init
 rocket_launch_2_handler_1:
-       li   r0,8
+       li   r0,24
        mov  r0,@sprite_counter(r4)
 rocket_launch_2_handler_2:
        .endproc
@@ -65,6 +72,17 @@ green_rocket_handler:
        .proc
        li   r0,->0100
        a    r0,@sprite_y(r4)
+       mov  @sprite_counter(r4),r0
+       inc  r0
+       mov  r0,@sprite_counter(r4)
+       andi r0,>0008
+       jne  green_rocket_handler_1
+       li   r0,sprite_type_green_rocket_1
+       jmp  green_rocket_handler_2
+green_rocket_handler_1:
+       li   r0,sprite_type_green_rocket_2
+green_rocket_handler_2:
+       mov  r0,@sprite_type(r4)
        .endproc
 *// green_rocket_handler
 
