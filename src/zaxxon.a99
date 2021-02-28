@@ -734,6 +734,7 @@ gpu_program_end:
        copy "vdp.a99"
        copy "sprite-handlers.a99"
        copy "tile-attrs.a99"
+       copy "palettes.a99"
 
 lower_memory_max:
        equ  $
@@ -751,7 +752,6 @@ diff_end:
        copy "sprite-patterns.a99"
        copy "sprite-types.a99"
        copy "sprite-defs.a99"
-       copy "palettes.a99"
        copy "sprites.a99"
 
 upper_memory_max:
