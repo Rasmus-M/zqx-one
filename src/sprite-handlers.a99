@@ -69,3 +69,15 @@ green_rocket_handler_2:
        .endproc
 *// green_rocket_handler
 
+*********************************************************************
+*
+* Shield handler
+*
+shield_handler:
+       .proc
+;       li   r0,>0080
+;       a    r0,@sprite_x(r4)
+;       li   r0,>0100
+;       a    r0,@sprite_y(r4)
+       .endproc
+*// shield_handler

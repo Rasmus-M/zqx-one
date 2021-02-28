@@ -57,7 +57,7 @@ sprite_type_blue_gun:
 sprite_type_shield:
        data 15
        data 24
-       data 0
+       data shield_handler
        data 4
        byte 0,0,80,8
        byte 0,16,84,8

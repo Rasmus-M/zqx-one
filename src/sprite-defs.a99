@@ -24,25 +24,31 @@ sprite_defs:
        data 416,177,48,sprite_type_rocket_launch_1
        data 476,176,0,sprite_type_silo
        data 522,134,0,sprite_type_green_gun
-       data 560,153,48,sprite_type_rocket_launch_1
        data 588,88,0,sprite_type_silo
+       data 560,153,48,sprite_type_rocket_launch_1
        data 629,182,0,sprite_type_silo
-       data 640,113,48,sprite_type_rocket_launch_1
        data 661,184,0,sprite_type_green_gun
        data 672,113,0,sprite_type_silo
+       data 640,113,48,sprite_type_rocket_launch_1
        data 733,143,0,sprite_type_blue_gun
-       data 736,81,48,sprite_type_rocket_launch_1
        data 770,86,0,sprite_type_silo
        data 776,184,0,sprite_type_blue_gun
+       data 736,81,48,sprite_type_rocket_launch_1
        data 800,177,48,sprite_type_rocket_launch_1
        data 992,80,0,sprite_type_blue_gun
-       data 1142,160,0,sprite_type_silo
+       data 1142,166,0,sprite_type_silo
+       data 1154,88,0,sprite_type_shield
        data 1174,136,0,sprite_type_silo
+       data 1186,120,0,sprite_type_shield
+       data 1218,152,0,sprite_type_shield
        data 1226,182,0,sprite_type_blue_gun
        data 1228,72,0,sprite_type_green_gun
+       data 1250,184,0,sprite_type_shield
+       data 1272,80,48,sprite_type_rocket_launch_1
        data 1332,72,0,sprite_type_green_gun
        data 1342,136,0,sprite_type_silo
        data 1550,156,0,sprite_type_silo
+       data 1568,97,48,sprite_type_rocket_launch_1
        data 1624,144,0,sprite_type_silo
        data 1660,180,0,sprite_type_radar
        data -1
