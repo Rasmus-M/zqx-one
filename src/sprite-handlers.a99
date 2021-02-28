@@ -4,7 +4,6 @@
 *
 * Parameters for all handlers:
 * r4 points to the sprite
-* r6 points to the sprite type
 *
 
 *********************************************************************

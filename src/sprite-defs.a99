@@ -10,6 +10,9 @@ sprite_def_size:
        equ  8
 
 * Sort by x + delay
+* Measure position on Zaxxon-level1.png
+* Subtract 14 from x and 8 from y
+*
 sprite_defs:
        data 252,86,0,sprite_type_blue_gun
        data 224,122,48,sprite_type_rocket_launch_1
@@ -18,6 +21,7 @@ sprite_defs:
        data 313,90,48,sprite_type_rocket_launch_1
        data 366,87,0,sprite_type_silo
        data 382,127,0,sprite_type_silo
+       data 416,177,48,sprite_type_rocket_launch_1
        data 476,176,0,sprite_type_silo
        data 522,134,0,sprite_type_green_gun
        data 588,88,0,sprite_type_silo
