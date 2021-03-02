@@ -247,6 +247,8 @@ draw_sprites_2:
        movb *r6+,*r15
        movb *r6+,*r15
        inc  r0
+       ci   r0,32
+       jeq  draw_sprites_4
        dec  r2
        jne  draw_sprites_2
 draw_sprites_3:
