@@ -722,8 +722,6 @@ init_tl2:
 *
        copy "vdp.a99"
        copy "sprite-handlers.a99"
-       copy "tile-attrs.a99"
-       copy "sprite-defs.a99"
 
 lower_memory_max:
        equ  $
@@ -738,7 +736,9 @@ lower_memory_max:
 diff_end:
        copy "tl2.a99"
        copy "chars1.a99"
+       copy "tile-attrs.a99"
        copy "sprite-types.a99"
+       copy "sprite-defs.a99"
        copy "sprites.a99"
        copy "palettes.a99"
 
