@@ -1,12 +1,12 @@
 ****************************************
 * Tile Attributes                       
 ****************************************
-TAT250x BYTE >04                        ;
-TAT251x BYTE >14                        ;
-TAT252x BYTE >14                        ;
-TAT253x BYTE >14                        ;
-TAT254x BYTE >14                        ;
-TAT255x BYTE >14                        ;
+TAT250x BYTE >06                        ;
+TAT251x BYTE >16                        ;
+TAT252x BYTE >16                        ;
+TAT253x BYTE >16                        ;
+TAT254x BYTE >16                        ;
+TAT255x BYTE >16                        ;
 ****************************************
 * Character Patterns Plane 0            
 ****************************************

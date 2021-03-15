@@ -7,9 +7,11 @@ java -jar tools/ea5tocart.jar bin/ZAXXON "ZAXXON" > make.log
 
 tools\pad.exe bin\map1.bin bin\map1-8k.bin 8192
 
+xas99.py -b -w src/sprite-patterns.a99 -o bin/sprite-patterns.bin
+
 copy /b bin\ZAXXON8.bin + ^
     bin\map1-8k.bin + ^
-    bin\empty.bin + ^
+    bin\empty-2k.bin + bin\sprite-patterns.bin + ^
     bin\empty.bin + ^
     bin\empty.bin ^
     .\zaxxon8.bin
