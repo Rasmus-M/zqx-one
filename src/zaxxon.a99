@@ -231,9 +231,11 @@ draw_sprites_1:
        mov  *r6+,r2                    ; Number of hardware sprites
 draw_sprites_2:
        mov  @sprite_y(r4),r1
+       sla  r1,2                       ; FP 10.6
        ab   *r6+,r1
        movb r1,*r15
        mov  @sprite_x(r4),r1
+       sla  r1,2                       ; FP 10.6
        ab   *r6+,r1
        movb r1,*r15
        movb *r6+,*r15
@@ -392,13 +394,13 @@ move_sprites_1:
        c    r4,@sprites_end_ptr
        jhe  move_sprites_4
        mov  @sprite_type(r4),r7
-       jeq  move_sprites_2
+       jeq  move_sprites_3
        a    @sprite_base_vx,@sprite_x(r4)
-       c    @sprite_x(r4),@sprite_x_max
-       jh   move_sprites_2
+       c    @sprite_x(r4),@sprite_x_min
+       jlt  move_sprites_2
        a    @sprite_base_vy,@sprite_y(r4)
        c    @sprite_y(r4),@sprite_y_max
-       jh  move_sprites_2
+       jgt  move_sprites_2
 *      Handler
        mov  @sprite_type_handler(r7),r0
        jeq  move_sprites_3
@@ -419,13 +421,13 @@ move_sprites_3:
 move_sprites_4:
        .endproc
 sprite_base_vx:
-       data ->0100
+       data ->0040                     ; -1 in FP 10.6
 sprite_base_vy:
-       data >0080
-sprite_x_max:
-       data >f000
+       data >0020                      ; 0.5 in FP 10.6
+sprite_x_min:
+       data -16*64                     ; FP 10.6
 sprite_y_max:
-       data >f000
+       data 240*64                     ; FP 10.6
 *// move_sprites
 
 *********************************************************************
@@ -466,14 +468,14 @@ create_sprite_1:
        li   r1,sprite_create_x
        s    r0,r1
        s    @sprite_type_cx(r7),r1
-       swpb r1
+       sla  r1,6                       ; FP 10.6
        mov  r1,@sprite_x(r4)
        li   r1,window_top
        a    @sprite_def_y(r6),r1
        sra  r0,1
        a    r0,r1
        s    @sprite_type_cy(r7),r1
-       swpb r1
+       sla  r1,6                       ; FP 10.6
        mov  r1,@sprite_y(r4)
        mov  @sprite_type_handler(r7),r0
        jeq  create_sprite_2
@@ -523,16 +525,16 @@ align_sprites:
        mov  @sprite_type(r4),r6
        mov  @sprite_type(r5),r7
        mov  @sprite_x(r4),r0
-       srl  r0,8
+       srl  r0,6
        a    @sprite_type_cx(r6),r0
        s    @sprite_type_cx(r7),r0
-       sla  r0,8
+       sla  r0,6
        mov  r0,@sprite_x(r5)
        mov  @sprite_y(r4),r0
-       srl  r0,8
+       srl  r0,6
        a    @sprite_type_cy(r6),r0
        s    @sprite_type_cy(r7),r0
-       sla  r0,8
+       sla  r0,6
        mov  r0,@sprite_y(r5)
        rt
 *// allign_sprites

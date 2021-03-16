@@ -86,4 +86,23 @@ sprite_type_green_rocket_2:
        data 2
        byte 0,0,>e0,>0e
        byte 16,0,>f4,>0e
+sprite_type_wall_left:
+       data 12
+       data 20
+       data 0
+       data 4
+       byte 0,0,>c0,>0c
+       byte 0,16,>c4,>0c
+       byte 16,0,>d0,>0c
+       byte 16,16,>d4,>0c
+sprite_type_wall_right:
+       data 12
+       data 20
+       data 0
+       data 4
+       byte 0,0,>c0,>0c
+       byte 0,16,>b8,>0c
+       byte 16,0,>d0,>0c
+       byte 16,16,>bc,>0c
+
 

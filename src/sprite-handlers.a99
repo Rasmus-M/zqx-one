@@ -53,7 +53,7 @@ rocket_launch_handler_5:
 *
 green_rocket_handler:
        .proc
-       li   r0,->0100
+       li   r0,->0040                  ; -1 in FP 10.6
        a    r0,@sprite_y(r4)
        mov  @sprite_counter(r4),r0
        inc  r0
