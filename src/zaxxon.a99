@@ -30,7 +30,10 @@ grmwa  equ  >9C02                      ; GROM address write
 nametb equ  >0000                      ; Name table base
 namet0 equ  >0000                      ; Name table page 0 (64 bytes free)
 tilatb equ  >0400                      ; Tile attribute table
-spratb equ  >0500                      ; Sprite attribute table (640 bytes free)
+spratb equ  >0500                      ; Sprite attribute table
+sprat2 equ  >0580                      ; Sprite attribute table 2
+sprabf equ  >0600                      ; Sprite attribute table buffer
+gpurun equ  >0700                      ; GPU program
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
 ptrntb equ  >1000                      ; Pattern table base
@@ -72,9 +75,7 @@ tl2_first_char:
 tl2_chars:
        equ  6
 max_sprites:
-       equ  12
-gpu_run:
-       equ  nam2tb
+       equ  16
 level_1_map:
        equ  >6000
 map_bank_select:
@@ -153,7 +154,7 @@ restart:
 loop:
        bl   @vsync
        bl   @set_vdp_regs
-       bl   @draw_sprites
+       bl   @gpu_run
        mov  @scroll_x,r0
        andi r0,7
        jne  !
@@ -162,6 +163,7 @@ loop:
 !:
        bl   @move_sprites
        bl   @create_sprites
+       bl   @draw_sprites
        bl   @scroll
        c    @scroll_x,@scroll_max
        jl   loop
@@ -218,10 +220,10 @@ set_vdp_regs:
 *
 draw_sprites:
        .proc
-       li   r0,spratb
+       li   r0,sprabf+2
        bl   @vwad
        li   r4,sprites
-       clr  r0
+       clr  r3
 draw_sprites_1:
        c    r4,@sprites_end_ptr
        jeq  draw_sprites_4
@@ -240,8 +242,8 @@ draw_sprites_2:
        movb r1,*r15
        movb *r6+,*r15
        movb *r6+,*r15
-       inc  r0
-       ci   r0,32
+       inc  r3
+       ci   r3,64
        jeq  draw_sprites_4
        dec  r2
        jne  draw_sprites_2
@@ -249,8 +251,10 @@ draw_sprites_3:
        ai   r4,sprite_size
        jmp  draw_sprites_1
 draw_sprites_4:
-       ori  r0,>3300
-       bl   @vwtr
+       li   r0,sprabf
+       bl   @vwad
+       movb r3,*r15
+       movb @r3lb,*r15
        .endproc
 *// draw_sprites
 
@@ -610,8 +614,8 @@ init_level:
        li   r0,>01a2                   ; Displaÿ off
        bl   @vwtr
        bl   @upload_sprite_patterns
-;       bl   @gpu_copy
        bl   @clear_vdp_ram
+       bl   @gpu_copy
        bl   @init_tl2
        bl   @vsync
        li   r0,>01e2                   ; Displaÿ on
@@ -687,36 +691,115 @@ init_tl2:
        .endproc
 *// init_tl2
 
-;***************************************************************
-;*
-;* GPU program to copy VDP RAM >0000->07ff to >4000->47ff
-;*
-;gpu_copy:
-;       .proc
-;*      Copy program to VDP RAM
-;       li   r0,gpu_run
-;       li   r1,gpu_program
-;       li   r2,gpu_program_end-gpu_program
-;       bl   @vmbw
-;*      Set the GPU PC which also triggers it
-;       li   r0,gpu_run/256+>3600
-;       bl   @vwtr
-;       li   r0,>3700
-;       bl   @vwtr
-;       .endproc
-;*      GPU code
-;gpu_program:
-;       clr  r0
-;       li   r1,>4000
-;       li   r2,>800
-;gpu_program_1:
-;       mov  *r0+,*r1+
-;       dect r2
-;       jne  gpu_program_1
-;       idle
-;gpu_program_end:
-;       equ  $
-;*// gpu_copy
+***************************************************************
+*
+* Copy GPU program to VDP RAM
+*
+gpu_copy:
+       .proc
+       li   r0,gpurun
+       li   r1,gpu_program
+       li   r2,gpu_program_end-gpu_program
+       bl   @vmbw
+       .endproc
+*// gpu_copy
+
+***************************************************************
+*
+* Run GPU program
+*
+gpu_run:
+       .proc
+*      Set the GPU PC which also triggers it
+       li   r0,gpurun/256+>3600
+       bl   @vwtr
+       li   r0,gpurun%256+>3700
+       bl   @vwtr
+       .endproc
+*// gpu_run
+
+***************************************************************
+*
+* GPU program
+*
+gpu_program:
+       xorg gpurun
+*      Copy sprites
+       clr  r5                         ; Number of top sprites
+       clr  r6                         ; Number of botom sprites
+       li   r0,sprabf
+       mov  *r0+,r2
+       jeq  gpu_program_4
+       li   r3,spratb                  ; Top dest
+       li   r4,sprat2                  ; Bottom dest
+gpu_program_1:
+       movb *r0,r1
+       mov  *r0+,r7
+       mov  *r0+,r8
+       ci   r1,>f000
+       jh   gpu_program_1a
+       cb   r1,@split_y
+       jhe  gpu_program_2
+gpu_program_1a:
+       ci   r5,32
+       jhe  gpu_program_2
+       mov  r7,*r3+
+       mov  r8,*r3+
+       inc  r5
+gpu_program_2:
+       ci   r1,>f000
+       jhe  gpu_program_3
+       cb   r1,@split_y_top
+       jl   gpu_program_3
+       ci   r6,32
+       jhe  gpu_program_3
+       mov  r7,*r4+
+       mov  r8,*r4+
+       inc  r6
+gpu_program_3:
+       dec  r2
+       jne  gpu_program_1
+gpu_program_4:
+       swpb r5
+       movb r5,@top_sprites
+       swpb r6
+       movb r6,@bottom_sprites
+*      Set sprite attribute table 1
+       li   r0,(spratb/>80)*256
+       movb r0,@>6005
+       movb @top_sprites,@>6033        ; Set max sprites
+*      Set hsync trigger
+       movb @>6032,r0
+       ori  r0,>4000
+       movb r0,@>6032
+*      Return
+gpu_program_5:
+       idle
+*      Hsync handler
+       cb	@>7000,@split_y			   ; Check scanline no
+       jl   gpu_program_5
+*      Set sprite attribute table 1
+       li   r0,(sprat2/>80)*256
+       movb r0,@>6005
+       movb @bottom_sprites,@>6033     ; Set max sprites
+*      Clear hsync trigger
+       movb @>6032,r0
+       andi r0,>bfff
+       movb r0,@>6032
+*      Return
+       idle
+split_y:
+       byte >88
+split_y_top:
+       byte >68
+top_sprites:
+       byte 0
+bottom_sprites:
+       byte 0
+       aorg
+gpu_program_end:
+       equ  $
+*// gpu_program
 
 ***************************************************************
 *
