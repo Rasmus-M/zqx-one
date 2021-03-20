@@ -765,27 +765,27 @@ gpu_program_4:
        swpb r6
        movb r6,@bottom_sprites
 *      Set sprite attribute table 1
-       li   r0,(spratb/>80)*256
-       movb r0,@>6005
-       movb @top_sprites,@>6033        ; Set max sprites
+       li   r0,(spratb/>80)*256        ; Value for VR5 (table 1)
+       movb r0,@>6005                  ; Set VR5
+       movb @top_sprites,@>6033        ; Set max sprites (VR51)
 *      Set hsync trigger
-       movb @>6032,r0
-       ori  r0,>4000
-       movb r0,@>6032
+       movb @>6032,r0                  ; Get contens of VR50
+       ori  r0,>4000                   ; Set hsync bit
+       movb r0,@>6032                  ; Set VR50
 *      Return
 gpu_program_5:
        idle
 *      Hsync handler
-       cb	@>7000,@split_y			   ; Check scanline no
-       jl   gpu_program_5
+       cb   @>7000,@split_y            ; Check scanline no
+       jne  gpu_program_5              ; Wait if not reached
 *      Set sprite attribute table 1
-       li   r0,(sprat2/>80)*256
-       movb r0,@>6005
-       movb @bottom_sprites,@>6033     ; Set max sprites
+       li   r0,(sprat2/>80)*256        ; Value for VR5 (table 2)
+       movb r0,@>6005                  ; Set VR5
+       movb @bottom_sprites,@>6033     ; Set max sprites (VR51)
 *      Clear hsync trigger
-       movb @>6032,r0
-       andi r0,>bfff
-       movb r0,@>6032
+       movb @>6032,r0                  ; Get contens of VR50
+       andi r0,>bfff                   ; Clear hsync bit
+       movb r0,@>6032                  ; Set VR50
 *      Return
        idle
 split_y:
