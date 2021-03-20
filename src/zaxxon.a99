@@ -158,12 +158,12 @@ loop:
        mov  @scroll_x,r0
        andi r0,7
        jne  !
-       bl   @upload_characters
-       bl   @draw_column
+       bl   @upload_characters         ; Max 31916/Avr 8997 cycles
+       bl   @draw_column               ; Max 5126/Avr 5092 cycles
 !:
        bl   @move_sprites
        bl   @create_sprites
-       bl   @draw_sprites
+       bl   @draw_sprites              ; Max 21880/Avr 12040 cycles
        bl   @scroll
        c    @scroll_x,@scroll_max
        jl   loop
