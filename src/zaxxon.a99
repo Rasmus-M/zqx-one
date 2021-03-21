@@ -595,7 +595,7 @@ vdp_registers:
        byte >05,spratb/>80             ; Sprite attribute table
        byte >06,sprptb/>800            ; Sprite pattern table
        byte >07,backdrop_color         ; Backdrop color
-       byte >31,>f3                    ; Reg 49: Enhanced color mode (ECM3 tiles and sprites, 30 rows, tl2)
+       byte >31,>fb                    ; Reg 49: Enhanced color mode (ECM3 tiles and sprites, 30 rows, tl2, real y coord)
        byte >1b,>00                    ; Reg 27: Horizontal scroll offset
        byte >1c,>00                    ; Reg 28: Vertical scroll offset
        byte >1d,>01                    ; Reg 29: Page size (2K between sprite patten tables, 1 x 2 scroll size)
@@ -733,32 +733,46 @@ gpu_program:
        li   r3,spratb                  ; Top dest
        li   r4,sprat2                  ; Bottom dest
 gpu_program_1:
-       movb *r0,r1
+       mov  *r0,r1
        mov  *r0+,r7
        mov  *r0+,r8
-       ci   r1,>f000
-       jh   gpu_program_1a
+*      Check for inclusion in top SAL
+       cb   r1,@hw_sprite_y_max
+       jh   gpu_program_1a             ; OK - top of screen
        cb   r1,@split_y
-       jhe  gpu_program_2
+       jhe  gpu_program_2              ; Not OK - bottom
 gpu_program_1a:
+       swpb r1
+       cb   r1,@hw_sprite_x_max
+       jhe   gpu_program_1b            ; Not OK - right
        ci   r5,32
-       jhe  gpu_program_2
+       jhe  gpu_program_2              ; Not OK - no more sprites
+*      OK for inclusion in top SAL
        mov  r7,*r3+
        mov  r8,*r3+
        inc  r5
+gpu_program_1b:
+       swpb r1
+*      Check for inclusion in bottom SAL
 gpu_program_2:
-       ci   r1,>f000
-       jhe  gpu_program_3
+       cb   r1,@hw_sprite_y_max
+       jhe  gpu_program_3              ; Not OK - top of screen
        cb   r1,@split_y_top
-       jl   gpu_program_3
+       jl   gpu_program_3              ; Not OK - top of screen
+       swpb r1
+       cb   r1,@hw_sprite_x_max
+       jhe   gpu_program_3             ; Not OK - right
        ci   r6,32
-       jhe  gpu_program_3
+       jhe  gpu_program_3              ; Not OK - no more sprites
+*      OK for inclusion in bottom SAL
        mov  r7,*r4+
        mov  r8,*r4+
        inc  r6
+*      Next sprite
 gpu_program_3:
        dec  r2
        jne  gpu_program_1
+*      Record number of sprites in each SAL
 gpu_program_4:
        swpb r5
        movb r5,@top_sprites
@@ -768,6 +782,8 @@ gpu_program_4:
        li   r0,(spratb/>80)*256        ; Value for VR5 (table 1)
        movb r0,@>6005                  ; Set VR5
        movb @top_sprites,@>6033        ; Set max sprites (VR51)
+;       li   r0,>0400
+;       movb r0,@>6007
 *      Set hsync trigger
        movb @>6032,r0                  ; Get contens of VR50
        ori  r0,>4000                   ; Set hsync bit
@@ -782,6 +798,8 @@ gpu_program_5:
        li   r0,(sprat2/>80)*256        ; Value for VR5 (table 2)
        movb r0,@>6005                  ; Set VR5
        movb @bottom_sprites,@>6033     ; Set max sprites (VR51)
+;       li   r0,>0600
+;       movb r0,@>6007
 *      Clear hsync trigger
        movb @>6032,r0                  ; Get contens of VR50
        andi r0,>bfff                   ; Clear hsync bit
@@ -789,9 +807,13 @@ gpu_program_5:
 *      Return
        idle
 split_y:
-       byte >88
+       byte >90
 split_y_top:
-       byte >68
+       byte >80
+hw_sprite_x_max:
+       byte >f0
+hw_sprite_y_max:
+       byte >f0
 top_sprites:
        byte 0
 bottom_sprites:
