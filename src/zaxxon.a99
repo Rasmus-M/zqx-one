@@ -28,11 +28,12 @@ grmwa  equ  >9C02                      ; GROM address write
 * VDP memory map
 *
 nametb equ  >0000                      ; Name table base
-namet0 equ  >0000                      ; Name table page 0 (64 bytes free)
+namet0 equ  >0000                      ; Name table page 0
+sprbuf equ  >03c0                      ; Sprite buffer
 tilatb equ  >0400                      ; Tile attribute table
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
-sprabf equ  >0600                      ; Sprite attribute table buffer
+sprabf equ  >0600                      ; Sprite attributes buffer
 gpurun equ  >0700                      ; GPU program
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
@@ -163,7 +164,7 @@ loop:
 !:
        bl   @move_sprites
        bl   @create_sprites
-       bl   @draw_sprites              ; Max 21880/Avr 12040 cycles
+       bl   @upload_sprites            ; Max 21880/Avr 12040 cycles
        bl   @scroll
        c    @scroll_x,@scroll_max
        jl   loop
@@ -216,47 +217,33 @@ set_vdp_regs:
 
 *********************************************************************
 *
-* Draw sprites
+* Upload sprites
 *
-draw_sprites:
+upload_sprites:
        .proc
-       li   r0,sprabf+2
+       li   r0,sprbuf
        bl   @vwad
        li   r4,sprites
-       clr  r3
-draw_sprites_1:
+upload_sprites_1:
        c    r4,@sprites_end_ptr
-       jeq  draw_sprites_4
+       jeq  upload_sprites_4
        mov  @sprite_type(r4),r6
-       jeq  draw_sprites_3
-       ai   r6,sprite_type_n_hw_sprites
-       mov  *r6+,r2                    ; Number of hardware sprites
-draw_sprites_2:
+       jeq  upload_sprites_3
+       movb @sprite_type_index+1(r6),*r15
        mov  @sprite_y(r4),r1
        sla  r1,2                       ; FP 10.6
-       ab   *r6+,r1
        movb r1,*r15
        mov  @sprite_x(r4),r1
        sla  r1,2                       ; FP 10.6
-       ab   *r6+,r1
        movb r1,*r15
-       movb *r6+,*r15
-       movb *r6+,*r15
-       inc  r3
-       ci   r3,64
-       jeq  draw_sprites_4
-       dec  r2
-       jne  draw_sprites_2
-draw_sprites_3:
+upload_sprites_3:
        ai   r4,sprite_size
-       jmp  draw_sprites_1
-draw_sprites_4:
-       li   r0,sprabf
-       bl   @vwad
-       movb r3,*r15
-       movb @r3lb,*r15
+       jmp  upload_sprites_1
+upload_sprites_4:
+       li   r1,>ff00
+       movb r1,*r15
        .endproc
-*// draw_sprites
+*// upload_sprites
 
 *********************************************************************
 *
@@ -701,6 +688,10 @@ gpu_copy:
        li   r1,gpu_program
        li   r2,gpu_program_end-gpu_program
        bl   @vmbw
+       li   r0,sprabf
+       li   r1,sprite_attrs_table
+       li   r2,sprite_attrs_end-sprite_attrs_table
+       bl   @vmbw
        .endproc
 *// gpu_copy
 
@@ -725,53 +716,63 @@ gpu_run:
 gpu_program:
        xorg gpurun
 *      Copy sprites
-       clr  r5                         ; Number of top sprites
-       clr  r6                         ; Number of botom sprites
-       li   r0,sprabf
-       mov  *r0+,r2
-       jeq  gpu_program_4
        li   r3,spratb                  ; Top dest
        li   r4,sprat2                  ; Bottom dest
+       clr  r5                         ; Number of top sprites
+       clr  r6                         ; Number of bottom sprites
+       li   r9,sprbuf
+gpu_program_0:
+       clr  r0
+       movb *r9+,r0                    ; Get sprite type index
+       jlt  gpu_program_4              ; -1 = End
+       movb *r9+,r11                   ; Get y0
+       movb *r9+,r12                   ; Get x0
+       srl  r0,7                       ; Index to word offset
+       ai   r0,sprabf                  ; Index entry
+       a    *r0,r0                     ; Add offset to sprite attributes
+       mov  *r0+,r2                    ; Number of hardware sprites for this sprite
 gpu_program_1:
-       mov  *r0,r1
-       mov  *r0+,r7
-       mov  *r0+,r8
+       movb *r0+,r7                    ; Get y
+       ab   r11,r7                     ; Add y0
+       movb *r0+,r8                    ; Get x
+       ab   r12,r8                     ; Add x0
+       mov  *r0+,r1                    ; Get pattern and color
 *      Check for inclusion in top SAL
-       cb   r1,@hw_sprite_y_max
+       cb   r7,@hw_sprite_y_max
        jh   gpu_program_1a             ; OK - top of screen
-       cb   r1,@split_y
+       cb   r7,@split_y
        jhe  gpu_program_2              ; Not OK - bottom
 gpu_program_1a:
-       swpb r1
-       cb   r1,@hw_sprite_x_max
-       jhe   gpu_program_1b            ; Not OK - right
+       cb   r8,@hw_sprite_x_max
+       jhe   gpu_program_2            ; Not OK - right
        ci   r5,32
        jhe  gpu_program_2              ; Not OK - no more sprites
 *      OK for inclusion in top SAL
-       mov  r7,*r3+
-       mov  r8,*r3+
+       movb r7,*r3+
+       movb r8,*r3+
+       mov  r1,*r3+
        inc  r5
-gpu_program_1b:
-       swpb r1
 *      Check for inclusion in bottom SAL
 gpu_program_2:
-       cb   r1,@hw_sprite_y_max
+       cb   r7,@hw_sprite_y_max
        jhe  gpu_program_3              ; Not OK - top of screen
-       cb   r1,@split_y_top
+       cb   r7,@split_y_top
        jl   gpu_program_3              ; Not OK - top of screen
-       swpb r1
-       cb   r1,@hw_sprite_x_max
-       jhe   gpu_program_3             ; Not OK - right
+       cb   r8,@hw_sprite_x_max
+       jhe  gpu_program_3              ; Not OK - right
        ci   r6,32
        jhe  gpu_program_3              ; Not OK - no more sprites
 *      OK for inclusion in bottom SAL
-       mov  r7,*r4+
-       mov  r8,*r4+
+       movb r7,*r4+
+       movb r8,*r4+
+       mov  r1,*r4+
        inc  r6
-*      Next sprite
+*      Next hardware sprite
 gpu_program_3:
        dec  r2
        jne  gpu_program_1
+*      Next sprite
+       jmp  gpu_program_0
 *      Record number of sprites in each SAL
 gpu_program_4:
        swpb r5
@@ -845,6 +846,7 @@ diff_end:
        copy "chars1.a99"
        copy "tile-attrs.a99"
        copy "sprite-types.a99"
+       copy "sprite-attrs.a99"
        copy "sprite-defs.a99"
        copy "sprites.a99"
        copy "palettes.a99"

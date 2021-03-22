@@ -1,121 +1,79 @@
-sprite_type_cx:
+sprite_type_index:
        equ  0
-sprite_type_cy:
+sprite_type_cx:
        equ  2
-sprite_type_handler:
+sprite_type_cy:
        equ  4
-sprite_type_n_hw_sprites:
+sprite_type_handler:
        equ  6
-sprite_type_hw_sprites:
+sprite_type_size:
        equ  8
 
 no_handler:
        equ  0
 
 sprite_type_silo:
+       data 0
        data 14
        data 24
        data no_handler
-       data 4
-       byte 0,0,>08,>08
-       byte 0,16,>0c,>08
-       byte 16,0,>18,>08
-       byte 16,16,>1c,>08
 sprite_type_radar:
+       data 1
        data 16
        data 27
        data no_handler
-       data 4
-       byte 0,0,>80,>08
-       byte 0,16,>84,>08
-       byte 16,0,>90,>08
-       byte 16,16,>94,>08
 sprite_type_rocket_launch_2:
+       data 2
        data 15
        data 24
        data rocket_launch_handler
-       data 4
-       byte 0,0,>40,>08
-       byte 0,16,>44,>08
-       byte 16,0,>50,>08
-       byte 16,16,>54,>08
 sprite_type_rocket_launch_1:
+       data 3
        data 15
        data 24
        data rocket_launch_handler
-       data 4
-       byte 0,0,>48,>08
-       byte 0,16,>4c,>08
-       byte 16,0,>58,>08
-       byte 16,16,>5c,>08
 sprite_type_blue_gun:
+       data 4
        data 20
        data 18
        data no_handler
-       data 3
-       byte 0,0,>28,>0a
-       byte 0,16,>2c,>0a
-       byte 16,0,>38,>0a
 sprite_type_shield:
+       data 5
        data 15
        data 24
        data shield_handler
-       data 4
-       byte 0,0,>88,>04
-       byte 0,16,>8c,>04
-       byte 16,0,>98,>04
-       byte 16,16,>9c,>04
 sprite_type_green_gun:
+       data 6
        data 20
        data 24
        data no_handler
-       data 3
-       byte 0,0,>20,>06
-       byte 16,0,>30,>06
-       byte 16,16,>34,>06
 sprite_type_green_gun_2:
+       data 7
        data 8
        data 12
        data no_handler
-       data 2
-       byte 0,0,>24,>06
-       byte 8,16,>3c,>06
 sprite_type_green_rocket_1:
+       data 8
        data 7
        data 21
        data green_rocket_handler
-       data 2
-       byte 0,0,>e0,>0e
-       byte 16,0,>f0,>0e
 sprite_type_green_rocket_2:
+       data 9
        data 7
        data 21
        data green_rocket_handler
-       data 2
-       byte 0,0,>e0,>0e
-       byte 16,0,>f4,>0e
 sprite_type_wall_left:
+       data 10
        data 12
        data 20
        data no_handler
-       data 4
-       byte 0,0,>c0,>0c
-       byte 0,16,>c4,>0c
-       byte 16,0,>d0,>0c
-       byte 16,16,>d4,>0c
 sprite_type_wall_right:
+       data 11
        data 12
        data 20
        data no_handler
-       data 4
-       byte 0,0,>c0,>0c
-       byte 0,16,>b8,>0c
-       byte 16,0,>d0,>0c
-       byte 16,16,>bc,>0c
 sprite_type_blue_plane:
+       data 12
        data 10
        data 10
        data no_handler
-       data 2
-       byte 0,0,>a8,>0a
-       byte 0,16,>ac,>0a
