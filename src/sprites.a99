@@ -1,13 +1,15 @@
 sprite_type:
        equ  0
-sprite_y:
+sprite_visible:
        equ  2
-sprite_x:
+sprite_y:
        equ  4
-sprite_counter:
+sprite_x:
        equ  6
-sprite_size:
+sprite_counter:
        equ  8
+sprite_size:
+       equ  10
 
 sprites:
        bss  sprite_size*max_sprites

@@ -75,9 +75,29 @@ green_rocket_handler_2:
 *
 shield_handler:
        .proc
-;       li   r0,>0080
-;       a    r0,@sprite_x(r4)
-;       li   r0,>0100
-;       a    r0,@sprite_y(r4)
+       seto @sprite_visible(r4)
+       mov  @sprite_counter(r4),r0
+       jlt  shield_handler_2
+       jeq  shield_handler_1
+       dec  r0
+       mov  r0,@sprite_counter(r4)
+       li   r0,>0800                   ; 32 in FP 10.6
+       a    r0,@sprite_x(r4)
+       li   r0,>0400                   ; 16 in FP 10.6
+       a    r0,@sprite_y(r4)
+       mov  @sprite_x(r4),r0
+       ci   r0,>3c00
+       jl   shield_handler_3
+       clr  @sprite_visible(r4)
+       jmp  shield_handler_3
+shield_handler_1:
+       li   r0,->2000                  ; -128 in FP 10.6
+       a    r0,@sprite_x(r4)
+       li   r0,->1000                  ; -64 in FP 10.6
+       a    r0,@sprite_y(r4)
+shield_handler_2:
+       li   r0,4
+       mov  r0,@sprite_counter(r4)
+shield_handler_3:
        .endproc
 *// shield_handler

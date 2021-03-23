@@ -229,6 +229,8 @@ upload_sprites_1:
        jeq  upload_sprites_4
        mov  @sprite_type(r4),r6
        jeq  upload_sprites_3
+       abs  @sprite_visible(r4)
+       jeq  upload_sprites_3
        movb @sprite_type_index+1(r6),*r15
        mov  @sprite_y(r4),r1
        sla  r1,2                       ; FP 10.6
@@ -455,6 +457,7 @@ create_sprite:
 create_sprite_1:
        mov  @sprite_def_type(r6),r7
        mov  r7,@sprite_type(r4)
+       seto @sprite_visible(r4)
        mov  @sprite_def_delay(r6),r0
        li   r1,sprite_create_x
        s    r0,r1

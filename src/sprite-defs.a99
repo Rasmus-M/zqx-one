@@ -51,12 +51,12 @@ sprite_defs:
        data 1142,167,0,sprite_type_silo
        data 1154,89,0,sprite_type_shield
        data 1174,137,0,sprite_type_silo
-       data 1186,121,0,sprite_type_shield
-       data 1218,153,0,sprite_type_shield
+;       data 1186,121,0,sprite_type_shield
+;       data 1218,153,0,sprite_type_shield
        data 1226,183,0,sprite_type_blue_gun
        data 1228,73,0,sprite_type_green_gun_2
        data 1240,113,0,sprite_type_radar
-       data 1250,185,0,sprite_type_shield
+;       data 1250,185,0,sprite_type_shield
        data 1320-48,81,48,sprite_type_rocket_launch_1
        data 1332,73,0,sprite_type_green_gun_2
        data 1342,137,0,sprite_type_silo
