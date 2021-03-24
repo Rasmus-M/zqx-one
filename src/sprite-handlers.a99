@@ -101,3 +101,40 @@ shield_handler_2:
 shield_handler_3:
        .endproc
 *// shield_handler
+
+*********************************************************************
+*
+* Explosion handler
+*
+explosion_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       inc  r0
+       mov  r0,@sprite_counter(r4)
+       andi r0,>0010
+       jne  explosion_handler_1
+       li   r0,sprite_type_explosion_1
+       jmp  explosion_handler_2
+explosion_handler_1:
+       li   r0,sprite_type_explosion_2
+explosion_handler_2:
+       mov  r0,@sprite_type(r4)
+       .endproc
+*// explosion_handler
+
+*********************************************************************
+*
+* Silo handler
+*
+silo_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       inc  r0
+       mov  r0,@sprite_counter(r4)
+       ci   r0,128
+       jlt  silo_handler_1
+       li   r0,sprite_type_explosion_1
+       mov  r0,@sprite_type(r4)
+silo_handler_1:
+       .endproc
+*// silo_handler

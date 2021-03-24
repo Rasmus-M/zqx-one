@@ -34,7 +34,7 @@ tilatb equ  >0400                      ; Tile attribute table
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
 sprabf equ  >0600                      ; Sprite attributes buffer
-gpurun equ  >0700                      ; GPU program
+gpurun equ  >0730                      ; GPU program
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
 ptrntb equ  >1000                      ; Pattern table base

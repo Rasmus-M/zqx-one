@@ -16,7 +16,7 @@ sprite_type_silo:
        data 0
        data 14
        data 24
-       data no_handler
+       data silo_handler
 sprite_type_radar:
        data 1
        data 16
@@ -77,3 +77,58 @@ sprite_type_blue_plane:
        data 10
        data 10
        data no_handler
+sprite_type_explosion_1:
+       data 13
+       data 15
+       data 23
+       data explosion_handler
+sprite_type_explosion_2:
+       data 14
+       data 15
+       data 23
+       data explosion_handler
+sprite_type_plane:
+       data 15
+       data 9
+       data 9
+       data no_handler
+;sprite_type_shadow:
+;       data 16
+;       data 9
+;       data 9
+;       data no_handler
+;sprite_type_hit_1:
+;       data 17
+;       data 8
+;       data 20
+;       data no_handler
+;sprite_type_hit_2:
+;       data 18
+;       data 15
+;       data 15
+;       data no_handler
+;sprite_type_cinders:
+;       data 19
+;       data 15
+;       data 9
+;       data no_handler
+;sprite_type_cinders_500:
+;       data 20
+;       data 15
+;       data 24
+;       data no_handler
+;sprite_type_green_shot:
+;       data 21
+;       data 8
+;       data 10
+;       data no_handler
+;sprite_type_red_shot:
+;       data 22
+;       data 6
+;       data 12
+;       data no_handler
+;sprite_type_small_explosion:
+;       data 23
+;       data 8
+;       data 8
+;       data no_handler
