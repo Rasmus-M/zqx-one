@@ -92,6 +92,13 @@ sprite_type_plane:
        data 9
        data 9
        data no_handler
+
+sprite_type_cinders:
+       data 16
+       data 15
+       data 9
+       data no_handler
+
 ;sprite_type_shadow:
 ;       data 16
 ;       data 9

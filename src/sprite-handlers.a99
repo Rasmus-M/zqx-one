@@ -111,7 +111,15 @@ explosion_handler:
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
-       andi r0,>0010
+       ci   r0,32
+       jl   explosion_handler_0
+       mov  @sprite_type(r4),r1
+       li   r2,sprite_type_cinders
+       bl   @align_sprites_types
+       li   r0,sprite_type_cinders
+       jmp  explosion_handler_2
+explosion_handler_0:
+       andi r0,>0008
        jne  explosion_handler_1
        li   r0,sprite_type_explosion_1
        jmp  explosion_handler_2
@@ -135,6 +143,7 @@ silo_handler:
        jlt  silo_handler_1
        li   r0,sprite_type_explosion_1
        mov  r0,@sprite_type(r4)
+       seto @sprite_counter(r4)
 silo_handler_1:
        .endproc
 *// silo_handler

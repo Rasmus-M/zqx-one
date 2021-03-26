@@ -382,7 +382,7 @@ draw_column_2:
 *
 move_sprites:
        .proc
-       li   r4,sprites
+       li   r4,sprites+sprite_size
 move_sprites_1:
        c    r4,@sprites_end_ptr
        jhe  move_sprites_4
@@ -483,6 +483,9 @@ create_sprite_2:
 *
 * Allocate sprite
 *
+* On return r4 contains the address of the sprites
+* or 0 if allocation failed
+*
 allocate_sprite:
        .proc
        li   r4,sprites
@@ -532,6 +535,26 @@ align_sprites:
        mov  r0,@sprite_y(r5)
        rt
 *// allign_sprites
+
+*********************************************************************
+*
+* Allign sprites to the same screen position
+*
+* r1: From type
+* r2: To type
+* r4: sprite to align
+*
+align_sprites_types:
+       mov  @sprite_type_cx(r2),r0
+       s    @sprite_type_cx(r1),r0
+       srl  r0,6
+       a    r0,@sprite_x(r4)
+       mov  @sprite_type_cy(r2),r0
+       s    @sprite_type_cy(r1),r0
+       srl  r0,6
+       a    r0,@sprite_y(r4)
+       rt
+*// align_sprites_types
 
 *********************************************************************
 *
@@ -620,7 +643,18 @@ init_level:
        li   r0,sprite_defs
        mov  r0,@sprite_def_ptr
        seto @map_bank_select
+*      Create player plane
+       bl   @allocate_sprite
+       li   r0,player_init_data
+       mov  *r0+,*r4+                  ; Type
+       mov  *r0+,*r4+                  ; Visible
+       mov  *r0+,*r4+                  ; Y
+       mov  *r0+,*r4+                  ; X
+       mov  *r0+,*r4+                  ; Counter
        .endproc
+player_init_data:
+       data sprite_type_plane,-1,128*64,48*64,0
+
 *// init_level
 
 *********************************************************************
