@@ -34,7 +34,7 @@ tilatb equ  >0400                      ; Tile attribute table
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
 sprabf equ  >0600                      ; Sprite attributes buffer
-gpurun equ  >0730                      ; GPU program
+gpuprg equ  >0730                      ; GPU program
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
 ptrntb equ  >1000                      ; Pattern table base
@@ -85,6 +85,12 @@ sprite_bank_select:
        equ  >600a
 sprite_create_x:
        equ  255
+max_uploaded_chars_per_frame:
+       equ  4
+isometric_x0:
+       equ  -16*64
+isometric_y0:
+       equ  64*64
 
 **
 * Scratch pad
@@ -125,14 +131,24 @@ scroll_x:
        equ  vdp_status+2
 scroll_y:
        equ  scroll_x+2
-diff_ptr:
+char_diff_ptr:
        equ  scroll_y+2
+chars_to_upload:
+       equ  char_diff_ptr+2
 sprite_def_ptr:
-       equ  diff_ptr+2
+       equ  chars_to_upload+2
 sprites_end_ptr:
        equ  sprite_def_ptr+2
+player_sprite:
+       equ sprites_end_ptr+2
+player_x:
+       equ player_sprite+2
+player_y:
+       equ player_x+2
+player_z:
+       equ player_y+2
 pad_max:
-       equ  sprites_end_ptr+2
+       equ player_z+2
 
 ***************************************************************
 *
@@ -156,15 +172,12 @@ loop:
        bl   @vsync
        bl   @set_vdp_regs
        bl   @gpu_run
-       mov  @scroll_x,r0
-       andi r0,7
-       jne  !
-       bl   @upload_characters         ; Max 31916/Avr 8997 cycles
+       bl   @upload_characters         ; Max 10324/Avr 2578 cycles
        bl   @draw_column               ; Max 5126/Avr 5092 cycles
-!:
+       bl   @move_player
        bl   @move_sprites
        bl   @create_sprites
-       bl   @upload_sprites            ; Max 21880/Avr 12040 cycles
+       bl   @upload_sprites            ; Max 5786/Avr 2285 cycles
        bl   @scroll
        c    @scroll_x,@scroll_max
        jl   loop
@@ -255,14 +268,33 @@ upload_sprites_4:
 *
 upload_characters:
        .proc
-       mov  @diff_ptr,r5
+       mov  @scroll_x,r0
+       andi r0,7
+       jne  upload_characters_0
+*      Get new characters to upload
+       mov  @char_diff_ptr,r5
        ci   r5,diff_end
-       jhe  upload_characters_2
+       jhe  upload_characters_3
        clr  r6
        movb *r5+,r6
-       jeq  upload_characters_2
+       jeq  upload_characters_3
        swpb r6
+       mov  r6,@chars_to_upload
+       mov  r5,@char_diff_ptr
+*      Calculate how many characters to upload this frame
+upload_characters_0:
+       mov  @chars_to_upload,r6
+       jeq  upload_characters_4                ; Skip if none left
+       ci   r6,max_uploaded_chars_per_frame
+       jle  upload_characters_1
+       ci   r0,7                               ; At frame 7 we need to finish
+       jeq  upload_characters_1
+       li   r6,max_uploaded_chars_per_frame    ; Limit number of characters to upload
+*      Upload characters
 upload_characters_1:
+       s    r6,@chars_to_upload
+       mov  @char_diff_ptr,r5
+upload_characters_2:
        clr  r0
        movb *r5+,r0
        swpb r0
@@ -272,9 +304,10 @@ upload_characters_1:
        swpb r1
        bl   @upload_character
        dec  r6
-       jne  upload_characters_1
-upload_characters_2:
-       mov  r5,@diff_ptr
+       jne  upload_characters_2
+upload_characters_3:
+       mov  r5,@char_diff_ptr
+upload_characters_4:
        .endproc
 *// upload_characters
 
@@ -324,6 +357,9 @@ upload_character_1:
 *
 draw_column:
        .proc
+       mov  @scroll_x,r0
+       andi r0,7
+       jne  draw_column_3
 *      Set VDP address increment
        li   r0,>3020                   ; Set VDP address increment
        bl   @vwtr                      ; to 32
@@ -373,8 +409,50 @@ draw_column_2:
 *      Reset VDP address increment
        li   r0,>3001                   ; Set VDP address increment
        bl   @vwtr                      ; to 1
+draw_column_3:
        .endproc
 *// draw_column
+
+*********************************************************************
+*
+* Move player
+*
+move_player:
+       .proc
+       li   r0,KEY_FI
+       bl   @check_key
+*      Fire
+       jeq  move_player_1
+*      Left
+move_player_1:
+       tb   1
+       jeq  move_player_2
+       li   r1,->0040
+       a    r1,@player_y
+       jmp  move_player_3
+*      Right
+move_player_2:
+       tb   2
+       jeq  move_player_3
+       li   r1,>0040
+       a    r1,@player_y
+*      Down
+move_player_3:
+       tb   3
+       jeq  move_player_4
+       li   r1,>0040
+       a    r1,@player_z
+       jmp  move_player_5
+*      Up
+move_player_4:
+       tb   4
+       jeq  move_player_5
+       li   r1,->0040
+       a    r1,@player_z
+move_player_5:
+       bl   @player_position
+       .endproc
+*// move_player
 
 *********************************************************************
 *
@@ -574,6 +652,126 @@ scroll_1:
 
 *********************************************************************
 *
+* Calculate player position
+*
+player_position:
+       .proc
+       mov  @player_x,r0
+       mov  @player_y,r1
+       mov  @player_z,r2
+       bl   @iso_projection
+       mov  @player_sprite,r4
+       mov  r0,@sprite_x(r4)
+       mov  r1,@sprite_y(r4)
+       .endproc
+*// player_position
+
+*********************************************************************
+*
+* Calculate isometric projection
+*
+* r0: x coordinate
+* r1: y coordinate
+* r2: z coordinate
+*
+* On return r0 contains the screen x coordinate
+* and r1 the screen y coordinate
+*
+iso_projection:
+       mov  r0,r3                      ; Save x
+       a    r1,r0                      ; x + y
+       s    r3,r1                      ; y - x
+       sra  r1,1                       ; (y - x) / 2
+       s    r2,r1                      ; (y - x) / 2 - z
+       ai   r0,isometric_x0
+       ai   r1,isometric_y0
+       rt
+*// iso_projection
+
+*********************************************************************
+*
+* Check key
+*
+* r0: Column in MSB: >0000 - >0700, Row in LSB: >0006 - >0014
+*
+*       Column   0      1    2    3    4    5     6       7
+*     Row
+*     >0006      =      .    ,    M    N    /    Fire    Fire
+*     >0008    Space    L    K    J    H    ;    Left    Left
+*     >000A    Enter    O    I    U    Y    P    Right   Right
+*     >000C             9    8    7    6    0    Down    Down
+*     >000E    Fctn     2    3    4    5    1    Up      Up
+*     >0010    Shift    S    D    F    G    A
+*     >0012    Ctrl     W    E    R    T    Q
+*     >0014             X    C    V    B    Z
+*
+* On return NEQ means that the key is pressed
+*
+KEY_FI EQU  >0606
+KEY_LF EQU  >0608
+KEY_RG EQU  >060A
+KEY_DN EQU  >060C
+KEY_UP EQU  >060E
+KEY_CM EQU  >0206
+KEY_FS EQU  >0106
+KEY_0  EQU  >050C
+KEY_1  EQU  >050E
+KEY_2  EQU  >010E
+KEY_3  EQU  >020E
+KEY_4  EQU  >030E
+KEY_5  EQU  >040E
+KEY_6  EQU  >040C
+KEY_7  EQU  >030C
+KEY_8  EQU  >020C
+KEY_9  EQU  >010C
+KEY_A  EQU  >0510
+KEY_B  EQU  >0414
+KEY_C  EQU  >0214
+KEY_D  EQU  >0210
+KEY_E  EQU  >0212
+KEY_F  EQU  >0310
+KEY_G  EQU  >0410
+KEY_H  EQU  >0408
+KEY_I  EQU  >020A
+KEY_J  EQU  >0308
+KEY_K  EQU  >0208
+KEY_L  EQU  >0108
+KEY_M  EQU  >0306
+KEY_N  EQU  >0406
+KEY_O  EQU  >010A
+KEY_P  EQU  >050A
+KEY_Q  EQU  >0512
+KEY_R  EQU  >0312
+KEY_S  EQU  >0110
+KEY_T  EQU  >0412
+KEY_U  EQU  >030A
+KEY_V  EQU  >0314
+KEY_W  EQU  >0112
+KEY_X  EQU  >0114
+KEY_Y  EQU  >040A
+KEY_Z  EQU  >0514
+KEY_SP EQU  >0008
+KEY_EN EQU  >000A
+KEY_FN EQU  >000E
+KEY_SH EQU  >0010
+KEY_CT EQU  >0012
+JOY_FI EQU  >0606
+JOY_LT EQU  >0608
+JOY_RT EQU  >060A
+JOY_DN EQU  >060C
+JOY_UP EQU  >060E
+*
+check_key:
+       li   r12,>0024                  ; CRU address of the column decoder
+       ldcr r0,3                       ; Select column
+       andi r0,>00ff
+       mov  r0,r12                     ; Select row
+       tb   0                          ; Test key, EQ if not pressed
+       rt
+*// check_key
+
+*********************************************************************
+*
 * Set graphics mode
 *
 graphics_mode:
@@ -637,7 +835,8 @@ init_level:
        li   r0,>800
        mov  r0,@scroll_y
        li   r0,level_1_000_add
-       mov  r0,@diff_ptr
+       mov  r0,@char_diff_ptr
+       clr  @chars_to_upload
        li   r0,sprites
        mov  r0,@sprites_end_ptr
        li   r0,sprite_defs
@@ -645,16 +844,18 @@ init_level:
        seto @map_bank_select
 *      Create player plane
        bl   @allocate_sprite
-       li   r0,player_init_data
-       mov  *r0+,*r4+                  ; Type
-       mov  *r0+,*r4+                  ; Visible
-       mov  *r0+,*r4+                  ; Y
-       mov  *r0+,*r4+                  ; X
-       mov  *r0+,*r4+                  ; Counter
+       li   r0,sprite_type_plane
+       mov  r0,@sprite_type(r4)
+       seto @sprite_visible(r4)
+       mov  r4,@player_sprite
+       li   r0,0
+       mov  r0,@player_x
+       li   r1,128*64
+       mov  r1,@player_y
+       li   r2,0*64
+       mov  r2,@player_z
+       bl   @player_position
        .endproc
-player_init_data:
-       data sprite_type_plane,-1,128*64,48*64,0
-
 *// init_level
 
 *********************************************************************
@@ -721,7 +922,7 @@ init_tl2:
 *
 gpu_copy:
        .proc
-       li   r0,gpurun
+       li   r0,gpuprg
        li   r1,gpu_program
        li   r2,gpu_program_end-gpu_program
        bl   @vmbw
@@ -739,9 +940,9 @@ gpu_copy:
 gpu_run:
        .proc
 *      Set the GPU PC which also triggers it
-       li   r0,gpurun/256+>3600
+       li   r0,gpuprg/256+>3600
        bl   @vwtr
-       li   r0,gpurun%256+>3700
+       li   r0,gpuprg%256+>3700
        bl   @vwtr
        .endproc
 *// gpu_run
@@ -751,7 +952,7 @@ gpu_run:
 * GPU program
 *
 gpu_program:
-       xorg gpurun
+       xorg gpuprg
 *      Copy sprites
        li   r3,spratb                  ; Top dest
        li   r4,sprat2                  ; Bottom dest
