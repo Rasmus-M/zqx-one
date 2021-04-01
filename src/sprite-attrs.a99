@@ -113,45 +113,39 @@ sprite_attrs_plane:
        data 2
        byte 0,0,>00,>04
        byte 0,16,>04,>04
-
+sprite_attrs_shadow:
+       data 2
+       byte 0,0,>10,>06
+       byte 0,16,>14,>06
+sprite_attrs_hit_1:
+       data 4
+       byte 0,0,>a0,>04
+       byte 0,16,>a4,>04
+       byte 16,0,>b0,>04
+       byte 16,16,>b4,>04
+sprite_attrs_hit_2:
+       data 2
+       byte 0,0,>e8,>04
+       byte 0,16,>f8,>04
 sprite_attrs_cinders:
        data 2
        byte 0,0,>d8,>0c
        byte 0,16,>dc,>0c
-
-;sprite_attrs_shadow:
-;       data 2
-;       byte 0,0,>10,>06
-;       byte 0,16,>14,>06
-;sprite_attrs_hit_1:
-;       data 4
-;       byte 0,0,>a0,>04
-;       byte 0,16,>a4,>04
-;       byte 16,0,>b0,>04
-;       byte 16,16,>b4,>04
-;sprite_attrs_hit_2:
-;       data 2
-;       byte 0,0,>e8,>04
-;       byte 0,16,>f8,>04
-;sprite_attrs_cinders:
-;       data 2
-;       byte 0,0,>d8,>0c
-;       byte 0,16,>dc,>0c
-;sprite_attrs_cinders_500:
-;       data 4
-;       byte 0,0,>c8,>0c
-;       byte 0,16,>cc,>0c
-;       byte 8,0,>d8,>0c
-;       byte 8,16,>dc,>0c
-;sprite_attrs_green_shot:
-;       data 1
-;       byte 0,0,>ec,>06
-;sprite_attrs_red_shot:
-;       data 1
-;       byte 0,0,>fc,>04
-;sprite_attrs_small_explosion:
-;       data 1
-;       byte 0,0,>e4,>04
+sprite_attrs_cinders_500:
+       data 4
+       byte 0,0,>c8,>0c
+       byte 0,16,>cc,>0c
+       byte 8,0,>d8,>0c
+       byte 8,16,>dc,>0c
+sprite_attrs_green_shot:
+       data 1
+       byte 0,0,>ec,>06
+sprite_attrs_red_shot:
+       data 1
+       byte 0,0,>fc,>04
+sprite_attrs_small_explosion:
+       data 1
+       byte 0,0,>e4,>04
 
 sprite_attrs_end:
        equ  $

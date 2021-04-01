@@ -29,12 +29,12 @@ grmwa  equ  >9C02                      ; GROM address write
 *
 nametb equ  >0000                      ; Name table base
 namet0 equ  >0000                      ; Name table page 0
-sprbuf equ  >03c0                      ; Sprite buffer
 tilatb equ  >0400                      ; Tile attribute table
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
 sprabf equ  >0600                      ; Sprite attributes buffer
-gpuprg equ  >0730                      ; GPU program
+gputmp equ  >0600                      ; GPU program temporary location
+sprbuf equ  >0780                      ; Sprite buffer (128 bytes)
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
 ptrntb equ  >1000                      ; Pattern table base
@@ -45,6 +45,7 @@ sprptb equ  >2800                      ; Sprite pattern table base
 sprpt0 equ  >2800                      ; Sprite pattern table plane 0
 sprpt1 equ  >3000                      ; Sprite pattern table plane 1
 sprpt2 equ  >3800                      ; Sprite pattern table plane 2
+gpuprg equ  >4000                      ; GPU program location
 
 **
 * Constants
@@ -826,7 +827,7 @@ init_level:
        bl   @vwtr
        bl   @upload_sprite_patterns
        bl   @clear_vdp_ram
-       bl   @gpu_copy
+       bl   @upload_gpu_program
        bl   @init_tl2
        bl   @vsync
        li   r0,>01e2                   ; Displaÿ on
@@ -920,18 +921,25 @@ init_tl2:
 *
 * Copy GPU program to VDP RAM
 *
-gpu_copy:
+upload_gpu_program:
        .proc
-       li   r0,gpuprg
+*      Upload to tmp location
+       li   r0,gputmp
        li   r1,gpu_program
        li   r2,gpu_program_end-gpu_program
+*      Move to final location
        bl   @vmbw
+       li   r0,gputmp/256+>3600
+       bl   @vwtr
+       li   r0,gputmp%256+>3700
+       bl   @vwtr
+*      Upload sprite attributes
        li   r0,sprabf
        li   r1,sprite_attrs_table
        li   r2,sprite_attrs_end-sprite_attrs_table
        bl   @vmbw
        .endproc
-*// gpu_copy
+*// upload_gpu_program
 
 ***************************************************************
 *
@@ -952,6 +960,15 @@ gpu_run:
 * GPU program
 *
 gpu_program:
+       li   r0,gputmp+(gpu_program_start-gpu_program)
+       li   r1,gpuprg
+       li   r2,gpu_program_end-gpu_program_start
+gpu_program_copy:
+       mov  *r0+,*r1+
+       dect r2
+       jne  gpu_program_copy
+       idle
+gpu_program_start:
        xorg gpuprg
 *      Copy sprites
        li   r3,spratb                  ; Top dest
