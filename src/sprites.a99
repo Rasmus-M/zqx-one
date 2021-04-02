@@ -6,10 +6,12 @@ sprite_y:
        equ  4
 sprite_x:
        equ  6
-sprite_counter:
+sprite_z:
        equ  8
-sprite_size:
+sprite_counter:
        equ  10
+sprite_size:
+       equ  12
 
 sprites:
        bss  sprite_size*max_sprites

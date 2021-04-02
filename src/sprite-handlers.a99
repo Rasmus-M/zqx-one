@@ -53,8 +53,8 @@ rocket_launch_handler_5:
 *
 green_rocket_handler:
        .proc
-       li   r0,->0040                  ; -1 in FP 10.6
-       a    r0,@sprite_y(r4)
+       li   r0,1*scale                 ; Fixed point
+       a    r0,@sprite_z(r4)
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
@@ -81,19 +81,15 @@ shield_handler:
        jeq  shield_handler_1
        dec  r0
        mov  r0,@sprite_counter(r4)
-       li   r0,>0800                   ; 32 in FP 10.6
-       a    r0,@sprite_x(r4)
-       li   r0,>0400                   ; 16 in FP 10.6
+       li   r0,32*scale                ; Fixed point
        a    r0,@sprite_y(r4)
-       mov  @sprite_x(r4),r0
-       ci   r0,>3c00
+       mov  @sprite_y(r4),r0
+       ci   r0,128*scale               ; Fixed point
        jl   shield_handler_3
        clr  @sprite_visible(r4)
        jmp  shield_handler_3
 shield_handler_1:
-       li   r0,->2000                  ; -128 in FP 10.6
-       a    r0,@sprite_x(r4)
-       li   r0,->1000                  ; -64 in FP 10.6
+       li   r0,128*scale               ; Fixed point
        a    r0,@sprite_y(r4)
 shield_handler_2:
        li   r0,4

@@ -29,12 +29,13 @@ grmwa  equ  >9C02                      ; GROM address write
 *
 nametb equ  >0000                      ; Name table base
 namet0 equ  >0000                      ; Name table page 0
+scrlpv equ  >03c0                      ; Scroll VDP variable
 tilatb equ  >0400                      ; Tile attribute table
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
 sprabf equ  >0600                      ; Sprite attributes buffer
 gputmp equ  >0600                      ; GPU program temporary location
-sprbuf equ  >0780                      ; Sprite buffer (128 bytes)
+sprbuf equ  >0780                      ; Sprite buffer (128 bytes: 16 sprites)
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
 ptrntb equ  >1000                      ; Pattern table base
@@ -86,12 +87,18 @@ sprite_bank_select:
        equ  >600a
 sprite_create_x:
        equ  255
+n_sprite_patterns:
+       equ  64
 max_uploaded_chars_per_frame:
        equ  4
+scale:
+       equ  16
+decimals:
+       equ  4
 isometric_x0:
-       equ  -16*64
+       equ  -16*scale
 isometric_y0:
-       equ  64*64
+       equ  64*scale
 
 **
 * Scratch pad
@@ -128,8 +135,10 @@ padvar:
        equ  padcon+2                   ; Start of pad variables
 vdp_status:
        equ  padvar
-scroll_x:
+scroll_pos:
        equ  vdp_status+2
+scroll_x:
+       equ  scroll_pos+2
 scroll_y:
        equ  scroll_x+2
 char_diff_ptr:
@@ -142,14 +151,8 @@ sprites_end_ptr:
        equ  sprite_def_ptr+2
 player_sprite:
        equ sprites_end_ptr+2
-player_x:
-       equ player_sprite+2
-player_y:
-       equ player_x+2
-player_z:
-       equ player_y+2
 pad_max:
-       equ player_z+2
+       equ player_sprite+2
 
 ***************************************************************
 *
@@ -237,6 +240,7 @@ upload_sprites:
        .proc
        li   r0,sprbuf
        bl   @vwad
+       li   r2,r1lb
        li   r4,sprites
 upload_sprites_1:
        c    r4,@sprites_end_ptr
@@ -245,19 +249,23 @@ upload_sprites_1:
        jeq  upload_sprites_3
        abs  @sprite_visible(r4)
        jeq  upload_sprites_3
-       movb @sprite_type_index+1(r6),*r15
-       mov  @sprite_y(r4),r1
-       sla  r1,2                       ; FP 10.6
+       mov  @sprite_type_index(r6),r1
        movb r1,*r15
+       movb *r2,*r15
        mov  @sprite_x(r4),r1
-       sla  r1,2                       ; FP 10.6
        movb r1,*r15
+       movb *r2,*r15                   ; Low byte
+       mov  @sprite_y(r4),r1
+       movb r1,*r15
+       movb *r2,*r15                   ; Low byte
+       mov  @sprite_z(r4),r1
+       movb r1,*r15
+       movb *r2,*r15                   ; Low byte
 upload_sprites_3:
        ai   r4,sprite_size
        jmp  upload_sprites_1
 upload_sprites_4:
-       li   r1,>ff00
-       movb r1,*r15
+       seto *r15
        .endproc
 *// upload_sprites
 
@@ -420,6 +428,10 @@ draw_column_3:
 *
 move_player:
        .proc
+       mov  @player_sprite,r4
+       li   r1,1*scale                 ; Constant forward velocity
+       a    r1,@sprite_x(r4)
+*      Check joystick
        li   r0,KEY_FI
        bl   @check_key
 *      Fire
@@ -428,30 +440,29 @@ move_player:
 move_player_1:
        tb   1
        jeq  move_player_2
-       li   r1,->0040
-       a    r1,@player_y
+       li   r1,1*scale
+       s    r1,@sprite_y(r4)
        jmp  move_player_3
 *      Right
 move_player_2:
        tb   2
        jeq  move_player_3
-       li   r1,>0040
-       a    r1,@player_y
+       li   r1,1*scale
+       a    r1,@sprite_y(r4)
 *      Down
 move_player_3:
        tb   3
        jeq  move_player_4
-       li   r1,>0040
-       a    r1,@player_z
+       li   r1,1*scale
+       a    r1,@sprite_z(r4)
        jmp  move_player_5
 *      Up
 move_player_4:
        tb   4
        jeq  move_player_5
-       li   r1,->0040
-       a    r1,@player_z
+       li   r1,1*scale
+       s    r1,@sprite_z(r4)
 move_player_5:
-       bl   @player_position
        .endproc
 *// move_player
 
@@ -467,12 +478,10 @@ move_sprites_1:
        jhe  move_sprites_4
        mov  @sprite_type(r4),r7
        jeq  move_sprites_3
-       a    @sprite_base_vx,@sprite_x(r4)
-       c    @sprite_x(r4),@sprite_x_min
+       c    @sprite_x(r4),@scroll_pos
        jlt  move_sprites_2
-       a    @sprite_base_vy,@sprite_y(r4)
-       c    @sprite_y(r4),@sprite_y_max
-       jgt  move_sprites_2
+;       c    @sprite_z(r4),@sprite_z_max
+;       jgt  move_sprites_2
 *      Handler
        mov  @sprite_type_handler(r7),r0
        jeq  move_sprites_3
@@ -492,14 +501,8 @@ move_sprites_3:
        jmp  move_sprites_1
 move_sprites_4:
        .endproc
-sprite_base_vx:
-       data ->0040                     ; -1 in FP 10.6
-sprite_base_vy:
-       data >0020                      ; 0.5 in FP 10.6
-sprite_x_min:
-       data -16*64                     ; FP 10.6
-sprite_y_max:
-       data 240*64                     ; FP 10.6
+sprite_z_max:
+       data 128*scale                  ; Fixed point
 *// move_sprites
 
 *********************************************************************
@@ -541,15 +544,17 @@ create_sprite_1:
        li   r1,sprite_create_x
        s    r0,r1
        s    @sprite_type_cx(r7),r1
-       sla  r1,6                       ; FP 10.6
+       sla  r1,decimals                ; To fixed point
+       a    @scroll_pos,r1
        mov  r1,@sprite_x(r4)
        li   r1,window_top
        a    @sprite_def_y(r6),r1
        sra  r0,1
        a    r0,r1
        s    @sprite_type_cy(r7),r1
-       sla  r1,6                       ; FP 10.6
+       sla  r1,decimals                ; To fixed point
        mov  r1,@sprite_y(r4)
+       clr  @sprite_z(r4)
        mov  @sprite_type_handler(r7),r0
        jeq  create_sprite_2
        seto @sprite_counter(r4)        ; Initial value
@@ -641,53 +646,20 @@ align_sprites_types:
 *
 scroll:
        .proc
-       mov  @scroll_x,r0
-       inc  r0
-       mov  r0,@scroll_x
-       andi r0,1
+       li   r0,1*scale
+       a    r0,@scroll_pos
+       mov  @scroll_pos,r1
+       li   r0,scrlpv                  ; Update VPD variable
+       bl   @vsbw                      ; High byte
+       movb @r1lb,*r15                 ; Low byte
+       srl  r1,decimals
+       mov  r1,@scroll_x
+       andi r1,1
        jne  scroll_1
        dec  @scroll_y
 scroll_1:
        .endproc
 *// scroll
-
-*********************************************************************
-*
-* Calculate player position
-*
-player_position:
-       .proc
-       mov  @player_x,r0
-       mov  @player_y,r1
-       mov  @player_z,r2
-       bl   @iso_projection
-       mov  @player_sprite,r4
-       mov  r0,@sprite_x(r4)
-       mov  r1,@sprite_y(r4)
-       .endproc
-*// player_position
-
-*********************************************************************
-*
-* Calculate isometric projection
-*
-* r0: x coordinate
-* r1: y coordinate
-* r2: z coordinate
-*
-* On return r0 contains the screen x coordinate
-* and r1 the screen y coordinate
-*
-iso_projection:
-       mov  r0,r3                      ; Save x
-       a    r1,r0                      ; x + y
-       s    r3,r1                      ; y - x
-       sra  r1,1                       ; (y - x) / 2
-       s    r2,r1                      ; (y - x) / 2 - z
-       ai   r0,isometric_x0
-       ai   r1,isometric_y0
-       rt
-*// iso_projection
 
 *********************************************************************
 *
@@ -832,6 +804,11 @@ init_level:
        bl   @vsync
        li   r0,>01e2                   ; Displaÿ on
        bl   @vwtr
+       clr  @scroll_pos
+       li   r0,scrlpv
+       clr  r1
+       bl   @vsbw
+       clr  *r15
        clr  @scroll_x
        li   r0,>800
        mov  r0,@scroll_y
@@ -849,13 +826,14 @@ init_level:
        mov  r0,@sprite_type(r4)
        seto @sprite_visible(r4)
        mov  r4,@player_sprite
-       li   r0,0
-       mov  r0,@player_x
-       li   r1,128*64
-       mov  r1,@player_y
-       li   r2,0*64
-       mov  r2,@player_z
-       bl   @player_position
+       clr  @sprite_x(r4)
+       li   r0,128*scale
+       mov  r0,@sprite_y(r4)
+       li   r0,32*scale
+       mov  r0,@sprite_z(r4)
+       li   r0,sprbuf
+       seto r1
+       bl   @vsbw
        .endproc
 *// init_level
 
@@ -883,15 +861,15 @@ upload_sprite_patterns:
        seto @sprite_bank_select
        li   r0,sprpt0
        li   r1,>6800
-       li   r2,64*32
+       li   r2,n_sprite_patterns*32
        bl   @vmbw
        li   r0,sprpt1
        li   r1,>7000
-       li   r2,64*32
+       li   r2,n_sprite_patterns*32
        bl   @vmbw
        li   r0,sprpt2
        li   r1,>7800
-       li   r2,64*32
+       li   r2,n_sprite_patterns*32
        bl   @vmbw
        .endproc
 *// upload_sprite_patterns
@@ -919,170 +897,9 @@ init_tl2:
 
 ***************************************************************
 *
-* Copy GPU program to VDP RAM
-*
-upload_gpu_program:
-       .proc
-*      Upload to tmp location
-       li   r0,gputmp
-       li   r1,gpu_program
-       li   r2,gpu_program_end-gpu_program
-*      Move to final location
-       bl   @vmbw
-       li   r0,gputmp/256+>3600
-       bl   @vwtr
-       li   r0,gputmp%256+>3700
-       bl   @vwtr
-*      Upload sprite attributes
-       li   r0,sprabf
-       li   r1,sprite_attrs_table
-       li   r2,sprite_attrs_end-sprite_attrs_table
-       bl   @vmbw
-       .endproc
-*// upload_gpu_program
-
-***************************************************************
-*
-* Run GPU program
-*
-gpu_run:
-       .proc
-*      Set the GPU PC which also triggers it
-       li   r0,gpuprg/256+>3600
-       bl   @vwtr
-       li   r0,gpuprg%256+>3700
-       bl   @vwtr
-       .endproc
-*// gpu_run
-
-***************************************************************
-*
-* GPU program
-*
-gpu_program:
-       li   r0,gputmp+(gpu_program_start-gpu_program)
-       li   r1,gpuprg
-       li   r2,gpu_program_end-gpu_program_start
-gpu_program_copy:
-       mov  *r0+,*r1+
-       dect r2
-       jne  gpu_program_copy
-       idle
-gpu_program_start:
-       xorg gpuprg
-*      Copy sprites
-       li   r3,spratb                  ; Top dest
-       li   r4,sprat2                  ; Bottom dest
-       clr  r5                         ; Number of top sprites
-       clr  r6                         ; Number of bottom sprites
-       li   r9,sprbuf
-gpu_program_0:
-       clr  r0
-       movb *r9+,r0                    ; Get sprite type index
-       jlt  gpu_program_4              ; -1 = End
-       movb *r9+,r11                   ; Get y0
-       movb *r9+,r12                   ; Get x0
-       srl  r0,7                       ; Index to word offset
-       ai   r0,sprabf                  ; Index entry
-       a    *r0,r0                     ; Add offset to sprite attributes
-       mov  *r0+,r2                    ; Number of hardware sprites for this sprite
-gpu_program_1:
-       movb *r0+,r7                    ; Get y
-       ab   r11,r7                     ; Add y0
-       movb *r0+,r8                    ; Get x
-       ab   r12,r8                     ; Add x0
-       mov  *r0+,r1                    ; Get pattern and color
-*      Check for inclusion in top SAL
-       cb   r7,@hw_sprite_y_max
-       jh   gpu_program_1a             ; OK - top of screen
-       cb   r7,@split_y
-       jhe  gpu_program_2              ; Not OK - bottom
-gpu_program_1a:
-       cb   r8,@hw_sprite_x_max
-       jhe   gpu_program_2            ; Not OK - right
-       ci   r5,32
-       jhe  gpu_program_2              ; Not OK - no more sprites
-*      OK for inclusion in top SAL
-       movb r7,*r3+
-       movb r8,*r3+
-       mov  r1,*r3+
-       inc  r5
-*      Check for inclusion in bottom SAL
-gpu_program_2:
-       cb   r7,@hw_sprite_y_max
-       jhe  gpu_program_3              ; Not OK - top of screen
-       cb   r7,@split_y_top
-       jl   gpu_program_3              ; Not OK - top of screen
-       cb   r8,@hw_sprite_x_max
-       jhe  gpu_program_3              ; Not OK - right
-       ci   r6,32
-       jhe  gpu_program_3              ; Not OK - no more sprites
-*      OK for inclusion in bottom SAL
-       movb r7,*r4+
-       movb r8,*r4+
-       mov  r1,*r4+
-       inc  r6
-*      Next hardware sprite
-gpu_program_3:
-       dec  r2
-       jne  gpu_program_1
-*      Next sprite
-       jmp  gpu_program_0
-*      Record number of sprites in each SAL
-gpu_program_4:
-       swpb r5
-       movb r5,@top_sprites
-       swpb r6
-       movb r6,@bottom_sprites
-*      Set sprite attribute table 1
-       li   r0,(spratb/>80)*256        ; Value for VR5 (table 1)
-       movb r0,@>6005                  ; Set VR5
-       movb @top_sprites,@>6033        ; Set max sprites (VR51)
-;       li   r0,>0400
-;       movb r0,@>6007
-*      Set hsync trigger
-       movb @>6032,r0                  ; Get contens of VR50
-       ori  r0,>4000                   ; Set hsync bit
-       movb r0,@>6032                  ; Set VR50
-*      Return
-gpu_program_5:
-       idle
-*      Hsync handler
-       cb   @>7000,@split_y            ; Check scanline no
-       jne  gpu_program_5              ; Wait if not reached
-*      Set sprite attribute table 1
-       li   r0,(sprat2/>80)*256        ; Value for VR5 (table 2)
-       movb r0,@>6005                  ; Set VR5
-       movb @bottom_sprites,@>6033     ; Set max sprites (VR51)
-;       li   r0,>0600
-;       movb r0,@>6007
-*      Clear hsync trigger
-       movb @>6032,r0                  ; Get contens of VR50
-       andi r0,>bfff                   ; Clear hsync bit
-       movb r0,@>6032                  ; Set VR50
-*      Return
-       idle
-split_y:
-       byte >90
-split_y_top:
-       byte >80
-hw_sprite_x_max:
-       byte >f0
-hw_sprite_y_max:
-       byte >f0
-top_sprites:
-       byte 0
-bottom_sprites:
-       byte 0
-       aorg
-gpu_program_end:
-       equ  $
-*// gpu_program
-
-***************************************************************
-*
 * Includes
 *
+       copy "gpu.a99"
        copy "vdp.a99"
        copy "sprite-handlers.a99"
 

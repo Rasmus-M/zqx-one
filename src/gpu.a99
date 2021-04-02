@@ -1,0 +1,183 @@
+gpu_sprite_index:
+       equ  0
+gpu_sprite_x:
+       equ  2
+gpu_sprite_y:
+       equ  4
+gpu_sprite_z:
+       equ  6
+gpu_sprite_size:
+       equ  8
+
+***************************************************************
+*
+* Copy GPU program to VDP RAM
+*
+upload_gpu_program:
+       .proc
+*      Upload to tmp location
+       li   r0,gputmp
+       li   r1,gpu_program
+       li   r2,gpu_program_end-gpu_program
+*      Move to final location
+       bl   @vmbw
+       li   r0,gputmp/256+>3600
+       bl   @vwtr
+       li   r0,gputmp%256+>3700
+       bl   @vwtr
+*      Upload sprite attributes
+       li   r0,sprabf
+       li   r1,sprite_attrs_table
+       li   r2,sprite_attrs_end-sprite_attrs_table
+       bl   @vmbw
+       .endproc
+*// upload_gpu_program
+
+***************************************************************
+*
+* Run GPU program
+*
+gpu_run:
+       .proc
+*      Set the GPU PC which also triggers it
+       li   r0,gpuprg/256+>3600
+       bl   @vwtr
+       li   r0,gpuprg%256+>3700
+       bl   @vwtr
+       .endproc
+*// gpu_run
+
+***************************************************************
+*
+* GPU program
+*
+gpu_program:
+       li   r0,gputmp+(gpu_program_start-gpu_program)
+       li   r1,gpuprg
+       li   r2,gpu_program_end-gpu_program_start
+gpu_program_copy:
+       mov  *r0+,*r1+
+       dect r2
+       jne  gpu_program_copy
+       idle
+gpu_program_start:
+       xorg gpuprg
+**
+*      Generate sprite attribute tables
+       li   r3,spratb                  ; Top dest
+       li   r4,sprat2                  ; Bottom dest
+       clr  r5                         ; Number of top sprites
+       clr  r6                         ; Number of bottom sprites
+       li   r9,sprbuf
+gpu_program_0:
+       mov  *r9+,r0                    ; Get sprite type index
+       jlt  gpu_program_4              ; -1 = End
+       mov  *r9+,r10                   ; Get x0
+       mov  *r9+,r11                   ; Get y0
+       mov  *r9+,r12                   ; Get z0
+       s    @scrlpv,r10                ; Adjust for scrolling
+*      Isometric projection
+       mov  r10,r13                    ; Save x0
+       a    r11,r10                    ; x0 + y0
+       s    r13,r11                    ; y0 - x0
+       sra  r11,1                      ; (y0 - x0) / 2
+       s    r12,r11                    ; (y0 - x0) / 2 - z0
+       ai   r10,isometric_x0           ; Adjust for screen layout
+       sla  r10,8-decimals             ; To fixed point 8.8
+       ai   r11,isometric_y0           ; Adjust for screen layout
+       sla  r11,8-decimals             ; To fixed point 8.8
+*      Locate sprite attributes
+       sla  r0,1                       ; Index to word offset
+       ai   r0,sprabf                  ; Index entry
+       a    *r0,r0                     ; Add offset to sprite attributes
+       mov  *r0+,r2                    ; Number of hardware sprites for this sprite
+gpu_program_1:
+       movb *r0+,r7                    ; Get y
+       ab   r11,r7                     ; Add y0
+       movb *r0+,r8                    ; Get x
+       ab   r10,r8                     ; Add x0
+       mov  *r0+,r1                    ; Get pattern and color
+*      Check for inclusion in top SAL
+       cb   r7,@hw_sprite_y_max
+       jh   gpu_program_1a             ; OK - top of screen
+       cb   r7,@split_y
+       jhe  gpu_program_2              ; Not OK - bottom
+gpu_program_1a:
+       cb   r8,@hw_sprite_x_max
+       jhe   gpu_program_2             ; Not OK - right
+       ci   r5,32
+       jhe  gpu_program_2              ; Not OK - no more sprites
+*      OK for inclusion in top SAL
+       movb r7,*r3+
+       movb r8,*r3+
+       mov  r1,*r3+
+       inc  r5
+*      Check for inclusion in bottom SAL
+gpu_program_2:
+       cb   r7,@hw_sprite_y_max
+       jhe  gpu_program_3              ; Not OK - top of screen
+       cb   r7,@split_y_top
+       jl   gpu_program_3              ; Not OK - top of screen
+       cb   r8,@hw_sprite_x_max
+       jhe  gpu_program_3              ; Not OK - right
+       ci   r6,32
+       jhe  gpu_program_3              ; Not OK - no more sprites
+*      OK for inclusion in bottom SAL
+       movb r7,*r4+
+       movb r8,*r4+
+       mov  r1,*r4+
+       inc  r6
+*      Next hardware sprite
+gpu_program_3:
+       dec  r2
+       jne  gpu_program_1
+*      Next sprite
+       jmp  gpu_program_0
+*      Record number of sprites in each SAL
+gpu_program_4:
+       swpb r5
+       movb r5,@top_sprites
+       swpb r6
+       movb r6,@bottom_sprites
+**
+*      Handle split screen
+*      Set sprite attribute table 1
+       li   r0,(spratb/>80)*256        ; Value for VR5 (table 1)
+       movb r0,@>6005                  ; Set VR5
+       movb @top_sprites,@>6033        ; Set max sprites (VR51)
+*      Set hsync trigger
+       movb @>6032,r0                  ; Get contens of VR50
+       ori  r0,>4000                   ; Set hsync bit
+       movb r0,@>6032                  ; Set VR50
+*      Return
+gpu_program_5:
+       idle
+*      Hsync handler
+       cb   @>7000,@split_y            ; Check scanline no
+       jne  gpu_program_5              ; Wait if not reached
+*      Set sprite attribute table 2
+       li   r0,(sprat2/>80)*256        ; Value for VR5 (table 2)
+       movb r0,@>6005                  ; Set VR5
+       movb @bottom_sprites,@>6033     ; Set max sprites (VR51)
+*      Clear hsync trigger
+       movb @>6032,r0                  ; Get contens of VR50
+       andi r0,>bfff                   ; Clear hsync bit
+       movb r0,@>6032                  ; Set VR50
+*      Return
+       idle
+split_y:
+       byte >90
+split_y_top:
+       byte >80
+hw_sprite_x_max:
+       byte >f0
+hw_sprite_y_max:
+       byte >f0
+top_sprites:
+       byte 0
+bottom_sprites:
+       byte 0
+       aorg
+gpu_program_end:
+       equ  $
+*// gpu_program
