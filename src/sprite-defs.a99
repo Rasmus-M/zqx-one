@@ -53,7 +53,7 @@ sprite_defs:
 ;       data 1076,1076,158,0,sprite_type_blue_plane
 ;       data 1096,1096-48,161,0,sprite_type_rocket_launch_1
 ;       data 1142,1142,167,0,sprite_type_silo
-;       data 1154,1154,89,0,sprite_type_shield
+        data 1154,1308,72,8,sprite_type_shield
 ;       data 1174,1174,137,0,sprite_type_silo
 ;       data 1226,1226,183,0,sprite_type_blue_gun
 ;       data 1228,1228,73,0,sprite_type_green_gun_2

@@ -82,10 +82,14 @@ gpu_program_0:
        s    r13,r11                    ; y0 - x0
        sra  r11,1                      ; (y0 - x0) / 2
        s    r12,r11                    ; (y0 - x0) / 2 - z0
-       ai   r11,isometric_z0
+       ai   r11,isometric_z0           ; Adjust zero height level
        ai   r10,isometric_x0           ; Adjust for screen layout
+       ci   r10,screen_width*scale
+       jgt  gpu_program_0              ; Skip
        sla  r10,8-decimals             ; To fixed point 8.8
        ai   r11,isometric_y0           ; Adjust for screen layout
+       ci   r11,screen_height*scale
+       jgt  gpu_program_0              ; Skip
        sla  r11,8-decimals             ; To fixed point 8.8
 *      Locate sprite attributes
        sla  r0,1                       ; Index to word offset
