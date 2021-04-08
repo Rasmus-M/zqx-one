@@ -1,75 +1,79 @@
-sprite_def_x:
+sprite_def_scroll_x:
        equ  0
-sprite_def_y:
+sprite_def_x:
        equ  2
-sprite_def_delay:
+sprite_def_y:
        equ  4
-sprite_def_type:
+sprite_def_z:
        equ  6
-sprite_def_size:
+sprite_def_type:
        equ  8
+sprite_def_size:
+       equ  10
 
-* Sort by x + delay
-* Measure position on Zaxxon-level1.png
-* Subtract 14 from x and 8 from y
-*
+plane_def:
+       data 0,0,isometric_center_y,16,sprite_type_plane
+shadow_def:
+       data 0,0,isometric_center_y,0,sprite_type_shadow
+
 sprite_defs:
-       data 60,27,0,sprite_type_wall_left
-       data 156,123,0,sprite_type_wall_right
-       data 252,87,0,sprite_type_blue_gun
-       data 272-48,123,48,sprite_type_rocket_launch_1
-       data 290,185,0,sprite_type_radar
-       data 324,185,0,sprite_type_green_gun
-       data 361-48,91,48,sprite_type_rocket_launch_1
-       data 366,88,0,sprite_type_silo
-       data 382,128,0,sprite_type_silo
-       data 464-48,178,48,sprite_type_rocket_launch_1
-       data 476,177,0,sprite_type_silo
-       data 476,122,0,sprite_type_wall_right
-       data 500,146,0,sprite_type_wall_right
-       data 522,135,0,sprite_type_green_gun
-       data 524,170,0,sprite_type_wall_right
-       data 588,89,0,sprite_type_silo
-       data 608-48,154,48,sprite_type_rocket_launch_1
-       data 629,183,0,sprite_type_silo
-       data 661,185,0,sprite_type_green_gun
-       data 672,114,0,sprite_type_silo
-       data 688-48,114,48,sprite_type_rocket_launch_1
-       data 733,144,0,sprite_type_blue_gun
-       data 770,87,0,sprite_type_silo
-       data 776,185,0,sprite_type_blue_gun
-       data 784-48,82,48,sprite_type_rocket_launch_1
-       data 828,74,0,sprite_type_wall_right
-       data 848-48,178,48,sprite_type_rocket_launch_1
-       data 852,98,0,sprite_type_wall_right
-       data 876,122,0,sprite_type_wall_left
-       data 992,81,0,sprite_type_blue_gun
-       data 1010-48,189,47,sprite_type_rocket_launch_1
-       data 1068,104,0,sprite_type_blue_plane
-       data 1076,158,0,sprite_type_blue_plane
-       data 1096-48,161,47,sprite_type_rocket_launch_1
-       data 1142,167,0,sprite_type_silo
-       data 1154,89,0,sprite_type_shield
-       data 1174,137,0,sprite_type_silo
-       data 1226,183,0,sprite_type_blue_gun
-       data 1228,73,0,sprite_type_green_gun_2
-       data 1240,113,0,sprite_type_radar
-       data 1320-48,81,48,sprite_type_rocket_launch_1
-       data 1332,73,0,sprite_type_green_gun_2
-       data 1342,137,0,sprite_type_silo
-       data 1350-48,161,48,sprite_type_rocket_launch_1
-       data 1400,104,0,sprite_type_blue_plane
-       data 1414-48,105,48,sprite_type_rocket_launch_1
-       data 1446,84,0,sprite_type_blue_plane
-       data 1470-48,169,48,sprite_type_rocket_launch_1
-       data 1488,185,0,sprite_type_blue_gun
-       data 1492,108,0,sprite_type_blue_plane
-       data 1550,157,0,sprite_type_silo
-       data 1596,26,0,sprite_type_wall_left
-       data 1616-48,98,48,sprite_type_rocket_launch_1
-       data 1624,145,0,sprite_type_silo
-       data 1660,181,0,sprite_type_radar
-       data 1692,122,0,sprite_type_wall_right
+       data 60,228,72,56,sprite_type_wall_left
+       data 156,228,168,56,sprite_type_wall_right
+       data 252,418,74,0,sprite_type_blue_gun
+       data 272,354,110,0,sprite_type_rocket_launch_1
+       data 290,356,172,0,sprite_type_radar
+       data 324,388,175,0,sprite_type_green_gun
+       data 361,472,78,0,sprite_type_rocket_launch_1
+       data >7fff,0,0,0
+       data 366,366,88,0,sprite_type_silo
+       data 382,382,128,0,sprite_type_silo
+       data 464,464-48,178,0,sprite_type_rocket_launch_1
+       data 476,476,177,0,sprite_type_silo
+       data 476,476,122,0,sprite_type_wall_right
+       data 500,500,146,0,sprite_type_wall_right
+       data 522,522,135,0,sprite_type_green_gun
+       data 524,524,170,0,sprite_type_wall_right
+       data 588,588,89,0,sprite_type_silo
+       data 608,608-48,154,0,sprite_type_rocket_launch_1
+       data 629,629,183,0,sprite_type_silo
+       data 661,661,185,0,sprite_type_green_gun
+       data 672,672,114,0,sprite_type_silo
+       data 688,688-48,114,0,sprite_type_rocket_launch_1
+       data 733,733,144,0,sprite_type_blue_gun
+       data 770,770,87,0,sprite_type_silo
+       data 776,776,185,0,sprite_type_blue_gun
+       data 784,784-48,82,0,sprite_type_rocket_launch_1
+       data 828,828,74,0,sprite_type_wall_right
+       data 848,848-48,178,0,sprite_type_rocket_launch_1
+       data 852,852,98,0,sprite_type_wall_right
+       data 876,876,122,0,sprite_type_wall_left
+       data 992,992,81,0,sprite_type_blue_gun
+       data 1010,1010-48,189,0,sprite_type_rocket_launch_1
+       data 1068,1068,104,0,sprite_type_blue_plane
+       data 1076,1076,158,0,sprite_type_blue_plane
+       data 1096,1096-48,161,0,sprite_type_rocket_launch_1
+       data 1142,1142,167,0,sprite_type_silo
+       data 1154,1154,89,0,sprite_type_shield
+       data 1174,1174,137,0,sprite_type_silo
+       data 1226,1226,183,0,sprite_type_blue_gun
+       data 1228,1228,73,0,sprite_type_green_gun_2
+       data 1240,1240,113,0,sprite_type_radar
+       data 1320,1320-48,81,0,sprite_type_rocket_launch_1
+       data 1332,1332,73,0,sprite_type_green_gun_2
+       data 1342,1342,137,0,sprite_type_silo
+       data 1350,1350-48,161,0,sprite_type_rocket_launch_1
+       data 1400,1400,104,0,sprite_type_blue_plane
+       data 1414,1414-48,105,0,sprite_type_rocket_launch_1
+       data 1446,1446,84,0,sprite_type_blue_plane
+       data 1470,1470-48,169,0,sprite_type_rocket_launch_1
+       data 1488,1488,185,0,sprite_type_blue_gun
+       data 1492,1492,108,0,sprite_type_blue_plane
+       data 1550,1550,157,0,sprite_type_silo
+       data 1596,1596,26,0,sprite_type_wall_left
+       data 1616,1616-48,98,0,sprite_type_rocket_launch_1
+       data 1624,1624,145,0,sprite_type_silo
+       data 1660,1660,181,0,sprite_type_radar
+       data 1692,1692,122,0,sprite_type_wall_right
 *      End of list
        data >7fff,0,0,0
 

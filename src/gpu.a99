@@ -82,6 +82,7 @@ gpu_program_0:
        s    r13,r11                    ; y0 - x0
        sra  r11,1                      ; (y0 - x0) / 2
        s    r12,r11                    ; (y0 - x0) / 2 - z0
+       ai   r11,isometric_z0
        ai   r10,isometric_x0           ; Adjust for screen layout
        sla  r10,8-decimals             ; To fixed point 8.8
        ai   r11,isometric_y0           ; Adjust for screen layout

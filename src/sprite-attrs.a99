@@ -15,17 +15,14 @@ sprite_attrs_table:
        data sprite_attrs_explosion_1-$
        data sprite_attrs_explosion_2-$
        data sprite_attrs_plane-$
-
+       data sprite_attrs_shadow-$
+       data sprite_attrs_hit_1-$
+       data sprite_attrs_hit_2-$
        data sprite_attrs_cinders-$
-
-;       data sprite_attrs_shadow-$
-;       data sprite_attrs_hit_1-$
-;       data sprite_attrs_hit_2-$
-;       data sprite_attrs_cinders-$
-;       data sprite_attrs_cinders_500-$
-;       data sprite_attrs_green_shot-$
-;       data sprite_attrs_red_shot-$
-;       data sprite_attrs_small_explosion-$
+       data sprite_attrs_cinders_500-$
+       data sprite_attrs_green_shot-$
+       data sprite_attrs_red_shot-$
+       data sprite_attrs_small_explosion-$
 
 sprite_attrs:
        equ  $
