@@ -84,32 +84,41 @@ gpu_program_0:
        s    r12,r11                    ; (y0 - x0) / 2 - z0
        ai   r11,isometric_z0           ; Adjust zero height level
        ai   r10,isometric_x0           ; Adjust for screen layout
-       ci   r10,screen_width*scale
+       c    r10,@hw_sprite_x_max
        jgt  gpu_program_0              ; Skip
-       sla  r10,8-decimals             ; To fixed point 8.8
        ai   r11,isometric_y0           ; Adjust for screen layout
-       ci   r11,screen_height*scale
+       c    r11,@hw_sprite_y_max
        jgt  gpu_program_0              ; Skip
-       sla  r11,8-decimals             ; To fixed point 8.8
 *      Locate sprite attributes
        sla  r0,1                       ; Index to word offset
        ai   r0,sprabf                  ; Index entry
        a    *r0,r0                     ; Add offset to sprite attributes
        mov  *r0+,r2                    ; Number of hardware sprites for this sprite
 gpu_program_1:
-       movb *r0+,r7                    ; Get y
-       ab   r11,r7                     ; Add y0
-       movb *r0+,r8                    ; Get x
-       ab   r10,r8                     ; Add x0
+*      Calculate position
+       movb *r0+,r7                    ; Get dy
+       sra  r7,8
+       movb *r0+,r8                    ; Get dx
+       sra  r8,8
        mov  *r0+,r1                    ; Get pattern and color
+       a    r11,r7                     ; y0 + dy
+*      Check position
+       c    r7,@hw_sprite_y_min
+       jlt  gpu_program_3              ; Out of screen top
+       c    r7,@hw_sprite_y_max
+       jgt  gpu_program_3              ; Out of screen bottom
+       swpb r7
+       a    r10,r8                     ; x0 + dy
+       jlt  gpu_program_3              ; Out of screen left
+       c    r8,@hw_sprite_x_max
+       jgt  gpu_program_3              ; Out of screen right
+       swpb r8
 *      Check for inclusion in top SAL
-       cb   r7,@hw_sprite_y_max
+       cb   r7,@hw_sprite_y_max+1
        jh   gpu_program_1a             ; OK - top of screen
        cb   r7,@split_y
        jhe  gpu_program_2              ; Not OK - bottom
 gpu_program_1a:
-       cb   r8,@hw_sprite_x_max
-       jhe   gpu_program_2             ; Not OK - right
        ci   r5,32
        jhe  gpu_program_2              ; Not OK - no more sprites
 *      OK for inclusion in top SAL
@@ -119,12 +128,10 @@ gpu_program_1a:
        inc  r5
 *      Check for inclusion in bottom SAL
 gpu_program_2:
-       cb   r7,@hw_sprite_y_max
+       cb   r7,@hw_sprite_y_max+1
        jhe  gpu_program_3              ; Not OK - top of screen
        cb   r7,@split_y_top
        jl   gpu_program_3              ; Not OK - top of screen
-       cb   r8,@hw_sprite_x_max
-       jhe  gpu_program_3              ; Not OK - right
        ci   r6,32
        jhe  gpu_program_3              ; Not OK - no more sprites
 *      OK for inclusion in bottom SAL
@@ -175,9 +182,11 @@ split_y:
 split_y_top:
        byte >80
 hw_sprite_x_max:
-       byte >f0
+       data 240-1
+hw_sprite_y_min:
+       data -16
 hw_sprite_y_max:
-       byte >f0
+       data 240-1
 top_sprites:
        byte 0
 bottom_sprites:

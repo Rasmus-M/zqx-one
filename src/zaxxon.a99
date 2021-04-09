@@ -91,16 +91,12 @@ n_sprite_patterns:
        equ  64
 max_uploaded_chars_per_frame:
        equ  4
-scale:
-       equ  16
-decimals:
-       equ  4
 isometric_x0:
-       equ  16*scale
+       equ  16
 isometric_y0:
-       equ  80*scale
+       equ  80
 isometric_z0:
-       equ  16*scale
+       equ  16
 isometric_center_y:
        equ  128
 
@@ -252,8 +248,6 @@ upload_sprites_1:
        c    r4,@sprites_end_ptr
        jeq  upload_sprites_4
        mov  @sprite_type(r4),r6
-       jeq  upload_sprites_3
-       abs  @sprite_visible(r4)
        jeq  upload_sprites_3
        mov  @sprite_type_index(r6),r1
        movb r1,*r15
@@ -436,7 +430,7 @@ move_player:
        .proc
        mov  @player_sprite,r4
        mov  @player_shadow,r5
-       li   r1,1*scale                 ; Constant forward velocity
+       li   r1,1                       ; Constant forward velocity
        a    r1,@sprite_x(r4)
        a    r1,@sprite_x(r5)
 *      Check joystick
@@ -448,33 +442,29 @@ move_player:
 move_player_1:
        tb   1
        jeq  move_player_2
-       li   r1,1*scale
-       s    r1,@sprite_y(r4)
-       s    r1,@sprite_y(r5)
+       dec  @sprite_y(r4)
+       dec  @sprite_y(r5)
        jmp  move_player_3
 *      Right
 move_player_2:
        tb   2
        jeq  move_player_3
-       li   r1,1*scale
-       a    r1,@sprite_y(r4)
-       a    r1,@sprite_y(r5)
+       inc  @sprite_y(r4)
+       inc  @sprite_y(r5)
 *      Down
 move_player_3:
        tb   3
        jeq  move_player_4
-       li   r1,1*scale
-       a    r1,@sprite_z(r4)
+       inc  @sprite_z(r4)
        jmp  move_player_5
 *      Up
 move_player_4:
        tb   4
        jeq  move_player_5
        mov  @sprite_z(r4),r0
-       ci   r0,8*scale
+       ci   r0,8
        jle  move_player_5
-       li   r1,1*scale
-       s    r1,@sprite_z(r4)
+       dec  @sprite_z(r4)
 move_player_5:
        .endproc
 *// move_player
@@ -486,7 +476,7 @@ move_player_5:
 move_sprites:
        .proc
        mov  @scroll_pos,r8
-       ai   r8,-24*scale
+       ai   r8,-24
        li   r4,sprites+(sprite_size*2)
 move_sprites_1:
        c    r4,@sprites_end_ptr
@@ -519,7 +509,7 @@ move_sprites_3:
 move_sprites_4:
        .endproc
 sprite_z_max:
-       data 128*scale                  ; Fixed point
+       data 128
 *// move_sprites
 
 *********************************************************************
@@ -554,20 +544,15 @@ create_sprite:
 create_sprite_1:
        mov  @sprite_def_type(r6),r7
        mov  r7,@sprite_type(r4)
-       seto @sprite_visible(r4)
 *      x
-       mov  @sprite_def_x(r6),r1
-       sla  r1,decimals
-       mov  r1,@sprite_x(r4)
+       mov  @sprite_def_x(r6),@sprite_x(r4)
 *      y
        mov  @sprite_def_y(r6),r1
        s    @sprite_type_cy(r7),r1
-       sla  r1,decimals
        mov  r1,@sprite_y(r4)
 *      z
        mov  @sprite_def_z(r6),r1
        a    @sprite_type_cz(r7),r1
-       sla  r1,decimals
        mov  r1,@sprite_z(r4)
 *      Handler
        mov  @sprite_type_handler(r7),r0
@@ -622,16 +607,12 @@ align_sprites:
        mov  @sprite_type(r5),r7
        mov  @sprite_x(r4),@sprite_x(r5)
        mov  @sprite_y(r4),r0
-       srl  r0,decimals
        a    @sprite_type_cy(r6),r0
        s    @sprite_type_cy(r7),r0
-       sla  r0,decimals
        mov  r0,@sprite_y(r5)
        mov  @sprite_z(r4),r0
-       srl  r0,decimals
        a    @sprite_type_cz(r6),r0
        s    @sprite_type_cz(r7),r0
-       sla  r0,decimals
        mov  r0,@sprite_z(r5)
        rt
 *// allign_sprites
@@ -647,11 +628,9 @@ align_sprites:
 align_sprites_types:
        mov  @sprite_type_cy(r2),r0
        s    @sprite_type_cy(r1),r0
-       sla  r0,decimals
        a    r0,@sprite_y(r4)
        mov  @sprite_type_cz(r2),r0
        s    @sprite_type_cz(r1),r0
-       sla  r0,decimals
        a    r0,@sprite_z(r4)
        rt
 *// align_sprites_types
@@ -662,13 +641,11 @@ align_sprites_types:
 *
 scroll:
        .proc
-       li   r0,1*scale
-       a    r0,@scroll_pos
+       inc  @scroll_pos
        mov  @scroll_pos,r1
        li   r0,scrlpv                  ; Update VPD variable
        bl   @vsbw                      ; High byte
        movb @r1lb,*r15                 ; Low byte
-       srl  r1,decimals
        mov  r1,@scroll_x
        andi r1,1
        jne  scroll_1
