@@ -57,13 +57,15 @@ sprite_defs:
        data 1096,1212,122,0,sprite_type_rocket_launch_1
        data 1142,1228,156,0,sprite_type_silo
        data 1154,1308,72,8,sprite_type_shield
-;       data 1174,1174,137,0,sprite_type_silo
-;       data 1226,1226,183,0,sprite_type_blue_gun
-;       data 1228,1228,73,0,sprite_type_green_gun_2
-;       data 1240,1240,113,0,sprite_type_radar
-;       data 1320,1320-48,81,0,sprite_type_rocket_launch_1
-;       data 1332,1332,73,0,sprite_type_green_gun_2
-;       data 1342,1342,137,0,sprite_type_silo
+       data 1174,1296,128,0,sprite_type_silo
+       data 1226,1290,170,0,sprite_type_blue_gun
+       data 1228,1410,60,0,sprite_type_green_gun_2
+       data 1220,1380,100,0,sprite_type_radar
+       data 1276,1442,70,0,sprite_type_rocket_launch_1
+       data 1320,1394,152,0,sprite_type_rocket_launch_1
+       data 1332,1514,60,0,sprite_type_green_gun_2
+       data 1342,1458,126,0,sprite_type_silo
+
 ;       data 1350,1350-48,161,0,sprite_type_rocket_launch_1
 ;       data 1400,1400,104,0,sprite_type_blue_plane
 ;       data 1414,1414-48,105,0,sprite_type_rocket_launch_1

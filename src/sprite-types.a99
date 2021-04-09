@@ -60,7 +60,7 @@ sprite_type_green_gun:
 sprite_type_green_gun_2:
        data 9
        data 8                          ; cy
-       data 10                         ; cz
+       data 4                         ; cz
        data no_handler
 sprite_type_green_rocket_1:
        data 10
