@@ -8,6 +8,26 @@
 
 *********************************************************************
 *
+* Plane handler
+*
+plane_handler:
+       inc  @sprite_x(r4)
+       rt
+*// plane_handler
+
+*********************************************************************
+*
+* Shadow handler
+*
+shadow_handler:
+       mov  @player_sprite,r5
+       mov  @sprite_x(r5),@sprite_x(r4)
+       mov  @sprite_y(r5),@sprite_y(r4)
+       rt
+*// shadow_handler
+
+*********************************************************************
+*
 * Rocker launch handler
 *
 rocket_launch_handler:

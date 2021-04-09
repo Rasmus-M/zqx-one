@@ -429,10 +429,6 @@ draw_column_3:
 move_player:
        .proc
        mov  @player_sprite,r4
-       mov  @player_shadow,r5
-       li   r1,1                       ; Constant forward velocity
-       a    r1,@sprite_x(r4)
-       a    r1,@sprite_x(r5)
 *      Check joystick
        li   r0,KEY_FI
        bl   @check_key
@@ -442,22 +438,29 @@ move_player:
 move_player_1:
        tb   1
        jeq  move_player_2
+       mov  @sprite_y(r4),r0
+       ci   r0,1
+       jle  move_player_3
        dec  @sprite_y(r4)
-       dec  @sprite_y(r5)
        jmp  move_player_3
 *      Right
 move_player_2:
        tb   2
        jeq  move_player_3
+       mov  @sprite_y(r4),r0
+       ci   r0,186
+       jhe  move_player_3
        inc  @sprite_y(r4)
-       inc  @sprite_y(r5)
-*      Down
+*      Down (plane up)
 move_player_3:
        tb   3
        jeq  move_player_4
+       mov  @sprite_z(r4),r0
+       ci   r0,128
+       jhe  move_player_5
        inc  @sprite_z(r4)
        jmp  move_player_5
-*      Up
+*      Up (plane down)
 move_player_4:
        tb   4
        jeq  move_player_5
@@ -477,25 +480,23 @@ move_sprites:
        .proc
        mov  @scroll_pos,r8
        ai   r8,-32
-       li   r4,sprites+(sprite_size*2)
+       li   r4,sprites
 move_sprites_1:
        c    r4,@sprites_end_ptr
        jhe  move_sprites_4
        mov  @sprite_type(r4),r7
        jeq  move_sprites_3
+*      Handler
+       mov  @sprite_type_handler(r7),r0
+       jeq  move_sprites_2
+       bl   *r0
+*      Check if out of bounds
+move_sprites_2:
        mov  @sprite_x(r4),r0
        a    @sprite_y(r4),r0
        c    r0,r8
-       jlt  move_sprites_2
-;       c    @sprite_z(r4),@sprite_z_max
-;       jgt  move_sprites_2
-*      Handler
-       mov  @sprite_type_handler(r7),r0
-       jeq  move_sprites_3
-       bl   *r0
-       jmp  move_sprites_3
+       jgt  move_sprites_3
 *      Remove
-move_sprites_2:
        clr  @sprite_type(r4)           ; Remove sprite
        mov  @sprites_end_ptr,r5
        ai   r5,-sprite_size
@@ -508,8 +509,6 @@ move_sprites_3:
        jmp  move_sprites_1
 move_sprites_4:
        .endproc
-sprite_z_max:
-       data 128
 *// move_sprites
 
 *********************************************************************

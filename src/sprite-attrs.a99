@@ -1,4 +1,6 @@
 sprite_attrs_table:
+       data sprite_attrs_plane-$
+       data sprite_attrs_shadow-$
        data sprite_attrs_silo-$
        data sprite_attrs_radar-$
        data sprite_attrs_rocket_launch_2-$
@@ -14,8 +16,6 @@ sprite_attrs_table:
        data sprite_attrs_blue_plane-$
        data sprite_attrs_explosion_1-$
        data sprite_attrs_explosion_2-$
-       data sprite_attrs_plane-$
-       data sprite_attrs_shadow-$
        data sprite_attrs_hit_1-$
        data sprite_attrs_hit_2-$
        data sprite_attrs_cinders-$
@@ -26,6 +26,14 @@ sprite_attrs_table:
 
 sprite_attrs:
        equ  $
+sprite_attrs_plane:
+       data 2
+       byte 0,0,>00,>04
+       byte 0,16,>04,>04
+sprite_attrs_shadow:
+       data 2
+       byte 0,0,>10,>06
+       byte 0,16,>14,>06
 sprite_attrs_silo:
        data 4
        byte 0,0,>08,>08
@@ -106,14 +114,6 @@ sprite_attrs_explosion_2:
        byte 0,16,>6c,>04
        byte 16,0,>78,>04
        byte 16,16,>7c,>04
-sprite_attrs_plane:
-       data 2
-       byte 0,0,>00,>04
-       byte 0,16,>04,>04
-sprite_attrs_shadow:
-       data 2
-       byte 0,0,>10,>06
-       byte 0,16,>14,>06
 sprite_attrs_hit_1:
        data 4
        byte 0,0,>a0,>04

@@ -12,91 +12,91 @@ sprite_type_size:
 no_handler:
        equ  0
 
-sprite_type_silo:
+sprite_type_plane:
        data 0
+       data 8                          ; cy
+       data 8                          ; cz
+       data plane_handler
+sprite_type_shadow:
+       data 1
+       data 8                          ; cy
+       data 8                          ; cz
+       data shadow_handler
+sprite_type_silo:
+       data 2
        data 15                         ; cy
        data 18                         ; cz
        data silo_handler
 sprite_type_radar:
-       data 1
+       data 3
        data 15                         ; cy
        data 20                         ; cz
        data no_handler
 sprite_type_rocket_launch_2:
-       data 2
+       data 4
        data 15                         ; cy
        data 17                         ; cz
        data rocket_launch_handler
 sprite_type_rocket_launch_1:
-       data 3
+       data 5
        data 15                         ; cy
        data 17                         ; cz
        data rocket_launch_handler
 sprite_type_blue_gun:
-       data 4
+       data 6
        data 19                         ; cy
        data 0                          ; cz
        data no_handler
 sprite_type_shield:
-       data 5
+       data 7
        data 0                          ; cy
        data 18                         ; cz
        data shield_handler
 sprite_type_green_gun:
-       data 6
+       data 8
        data 20                         ; cy
        data 16                         ; cz
        data no_handler
 sprite_type_green_gun_2:
-       data 7
+       data 9
        data 8                          ; cy
        data 10                         ; cz
        data no_handler
 sprite_type_green_rocket_1:
-       data 8
+       data 10
        data 7                          ; cy
        data 16                         ; cz
        data green_rocket_handler
 sprite_type_green_rocket_2:
-       data 9
+       data 11
        data 7                          ; cy
        data 16                         ; cz
        data green_rocket_handler
 sprite_type_wall_left:
-       data 10
+       data 12
        data 12                         ; cy
        data 16                         ; cz
        data no_handler
 sprite_type_wall_right:
-       data 11
+       data 13
        data 12                         ; cy
        data 16                         ; cz
        data no_handler
 sprite_type_blue_plane:
-       data 12
+       data 14
        data 12                         ; cy
        data 2                          ; cz
        data no_handler
 sprite_type_explosion_1:
-       data 13
+       data 15
        data 16                         ; cy
        data 15                         ; cz
        data explosion_handler
 sprite_type_explosion_2:
-       data 14
+       data 16
        data 15                         ; cy
        data 16                         ; cz
        data explosion_handler
-sprite_type_plane:
-       data 15
-       data 8                          ; cy
-       data 8                          ; cz
-       data no_handler
-sprite_type_shadow:
-       data 16
-       data 8                          ; cy
-       data 8                          ; cz
-       data no_handler
 sprite_type_hit_1:
        data 17
        data 8                          ; cy
