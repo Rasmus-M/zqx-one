@@ -39,16 +39,19 @@ sprite_defs:
        data 644,778,100,0,sprite_type_rocket_launch_1
        data 661,728,175,0,sprite_type_green_gun
        data 672,810,104,0,sprite_type_silo
-;       data 733,733,144,0,sprite_type_blue_gun
-;       data 770,770,87,0,sprite_type_silo
-;       data 776,776,185,0,sprite_type_blue_gun
-;       data 784,784-48,82,0,sprite_type_rocket_launch_1
-;       data 828,828,74,0,sprite_type_wall_right
-;       data 848,848-48,178,0,sprite_type_rocket_launch_1
-;       data 852,852,98,0,sprite_type_wall_right
-;       data 876,876,122,0,sprite_type_wall_left
-;       data 992,992,81,0,sprite_type_blue_gun
-;       data 1010,1010-48,189,0,sprite_type_rocket_launch_1
+       data 733,844,132,0,sprite_type_blue_gun
+       data 736,905,74,0,sprite_type_rocket_launch_1
+       data 770,934,74,0,sprite_type_silo
+       data 776,844,170,0,sprite_type_blue_gun
+       data 804,873,169,0,sprite_type_rocket_launch_1
+       data 828,996,72,8,sprite_type_wall_right
+       data 852,996,96,8,sprite_type_wall_right
+       data 876,996,120,8,sprite_type_wall_left
+       data 904,1056,86,0,sprite_type_rocket_launch_1
+       data 924,1008,152,0,sprite_type_blue_gun
+       data 960,1026,174,0,sprite_type_rocket_launch_1
+       data 996,1168,67,0,sprite_type_blue_gun
+;       data 1052,0,0,0,sprite_type_rocket_launch_1
 ;       data 1068,1068,104,0,sprite_type_blue_plane
 ;       data 1076,1076,158,0,sprite_type_blue_plane
 ;       data 1096,1096-48,161,0,sprite_type_rocket_launch_1
