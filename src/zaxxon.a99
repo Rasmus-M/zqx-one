@@ -476,7 +476,7 @@ move_player_5:
 move_sprites:
        .proc
        mov  @scroll_pos,r8
-       ai   r8,-24
+       ai   r8,-32
        li   r4,sprites+(sprite_size*2)
 move_sprites_1:
        c    r4,@sprites_end_ptr
