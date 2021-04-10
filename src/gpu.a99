@@ -82,11 +82,13 @@ gpu_program_0:
        s    r13,r11                    ; y0 - x0
        sra  r11,1                      ; (y0 - x0) / 2
        s    r12,r11                    ; (y0 - x0) / 2 - z0
+*      Adjust for screen layout
        ai   r11,isometric_z0           ; Adjust zero height level
        ai   r10,isometric_x0           ; Adjust for screen layout
+       ai   r11,isometric_y0           ; Adjust for screen layout
+*      Check if whole sprite is out of screen
        c    r10,@hw_sprite_x_max
        jgt  gpu_program_0              ; Skip
-       ai   r11,isometric_y0           ; Adjust for screen layout
        c    r11,@hw_sprite_y_max
        jgt  gpu_program_0              ; Skip
 *      Locate sprite attributes
