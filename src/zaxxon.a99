@@ -74,9 +74,9 @@ map_height:
 map_size:
        equ  map_width*map_height
 tl2_first_char:
-       equ  250
+       equ  249
 tl2_chars:
-       equ  6
+       equ  7
 max_sprites:
        equ  16
 level_1_map:
@@ -439,8 +439,8 @@ move_player_1:
        tb   1
        jeq  move_player_2
        mov  @sprite_y(r4),r0
-       ci   r0,1
-       jle  move_player_3
+       ci   r0,-8
+       jlt  move_player_3
        dec  @sprite_y(r4)
        jmp  move_player_3
 *      Right
@@ -448,15 +448,15 @@ move_player_2:
        tb   2
        jeq  move_player_3
        mov  @sprite_y(r4),r0
-       ci   r0,186
-       jhe  move_player_3
+       ci   r0,168
+       jgt  move_player_3
        inc  @sprite_y(r4)
 *      Down (plane up)
 move_player_3:
        tb   3
        jeq  move_player_4
        mov  @sprite_z(r4),r0
-       ci   r0,128
+       ci   r0,80
        jhe  move_player_5
        inc  @sprite_z(r4)
        jmp  move_player_5
@@ -772,6 +772,7 @@ vdp_registers:
        byte >06,sprptb/>800            ; Sprite pattern table
        byte >07,backdrop_color         ; Backdrop color
        byte >31,>fb                    ; Reg 49: Enhanced color mode (ECM3 tiles and sprites, 30 rows, tl2, real y coord)
+       byte >32,>01                    ; TL2 vs sprite priority considered
        byte >1b,>00                    ; Reg 27: Horizontal scroll offset
        byte >1c,>00                    ; Reg 28: Vertical scroll offset
        byte >1d,>01                    ; Reg 29: Page size (2K between sprite patten tables, 1 x 2 scroll size)
@@ -873,11 +874,11 @@ init_tl2:
        li   r2,960
        bl   @vmbw
        li   r0,ptrnt0+(tl2_first_char*8)
-       li   r1,P0_250x
+       li   r1,P0_249x
        li   r2,tl2_chars*8
        bl   @vmbw
        li   r0,tilatb+tl2_first_char
-       li   r1,TAT250x
+       li   r1,TAT249x
        li   r2,tl2_chars
        bl   @vmbw
        .endproc

@@ -1,6 +1,7 @@
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
+import javax.imageio.ImageIO;
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.*;
 
 /**
@@ -12,6 +13,8 @@ public class Encode implements Runnable {
     private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
     private static final int[] MAP_WIDTHS = {228, 224};
+    private static final int TILES = 702;
+    private static final int MAX_CHARS = 249;
 
     private final int level;
     private final String fileName;
@@ -38,11 +41,13 @@ public class Encode implements Runnable {
             System.out.println("Map " + fileName);
             System.out.println("****************");
             FileInputStream fis = new FileInputStream(this.fileName);
-            byte[] buffer = new byte[0x4000];
+            byte[] buffer = new byte[0x8000];
             int len = fis.read(buffer);
             fis.close();
             if (len == width * height * 2) {
                 System.out.println(len + " bytes loaded.");
+                // Read tile patterns
+                int[][][] tilePatterns = readTilePatterns("tile-patterns.png");
                 // Process map
                 int[][] map = new int[height][width];
                 int n = 0;
@@ -55,7 +60,7 @@ public class Encode implements Runnable {
                 StringBuilder out = new StringBuilder();
                 StringBuilder diff_out = new StringBuilder();
                 int[][] newMap = new int[height][width + WINDOW_WIDTH];
-                Integer[] runningChars = new Integer[256];
+                Integer[] runningChars = new Integer[MAX_CHARS];
                 int maxSize = 0;
                 int maxIndex = 0;
                 int screen = 0;
@@ -98,6 +103,11 @@ public class Encode implements Runnable {
                                     }
                                 }
                             }
+                            // Find best match
+                            if (runningIndex == null) {
+                                runningIndex = findClosestTilePattern(ch, runningChars, tilePatterns);
+                                if (VERBOSE) System.out.println("Char " + runningIndex + " selected instead of " + ch);
+                            }
                             // Record in map
                             if (runningIndex != null) {
                                 int ix = x + WINDOW_WIDTH;
@@ -122,7 +132,7 @@ public class Encode implements Runnable {
                             iMax = i;
                         }
                     }
-                    maxSize = Math.max(maxSize, used.size());
+                    maxSize = Math.max(maxSize, countUsed(runningChars));
 
                     if (VERBOSE) System.out.print("Add: ");
                     diff_out.append("level_").append(level).append("_").append(to3Digits(screen)).append("_add:\n");
@@ -188,6 +198,36 @@ public class Encode implements Runnable {
         }
     }
 
+    private int countUsed(Integer[] runningChars) {
+        int used = 0;
+        for (Integer c : runningChars) {
+            if (c != null) {
+                used++;
+            }
+        }
+        return used;
+    }
+
+    private int[][][] readTilePatterns(String filename) throws IOException {
+        int[][][] patterns = new int[TILES][8][8];
+        BufferedImage image = ImageIO.read(new File(filename));
+        int i = 0;
+        for (int y0 = 0; y0 < image.getHeight(); y0 += 8) {
+            for (int x0 = 0; x0 < image.getWidth(); x0 += 8) {
+                if (i < TILES) {
+                    int[][] pattern = patterns[i];
+                    for (int y = 0; y < 8; y++) {
+                        for (int x = 0; x < 8; x++) {
+                            pattern[y][x] = image.getRGB(x0 + x, y0 + y);
+                        }
+                    }
+                    i++;
+                }
+            }
+        }
+        return patterns;
+    }
+
     private int getMapChar(int[][] map, int x, int y) {
         return x < 0 || x >= map[0].length ? 0 : map[y][x];
     }
@@ -219,4 +259,40 @@ public class Encode implements Runnable {
         }
         return ">" + s.toString();
     }
+
+    private int findClosestTilePattern(int n, Integer[] runningChars, int[][][] tilePatterns) {
+        int[][] tilePattern = tilePatterns[n];
+        int closest = 0;
+        double minDist = Double.MAX_VALUE;
+        for (int i = 0; i < runningChars.length; i++) {
+            Integer ch = runningChars[i];
+            if (ch != null) {
+                double dist = gridColorDistance(tilePattern, tilePatterns[ch]);
+                if (dist < minDist) {
+                    minDist = dist;
+                    closest = ch;
+                }
+            }
+        }
+        return closest;
+    }
+
+    private double gridColorDistance(int[][] grid1, int[][] grid2) {
+        double dist = 0;
+        for (int y = 0; y < grid1.length; y++) {
+            for (int x = 0; x < grid1[0].length; x++) {
+                dist += colorDistance(grid1[y][x], grid2[y][x]);
+            }
+        }
+        return dist;
+    }
+
+    private double colorDistance(int color1, int color2) {
+        return colorDistance(new Color(color1, true), new Color(color2, true));
+    }
+
+    private double colorDistance(Color c1, Color c2) {
+        return Math.sqrt(Math.pow(c1.getRed() - c2.getRed(), 2) + Math.pow(c1.getGreen() - c2.getGreen(), 2) + Math.pow(c1.getBlue() - c2.getBlue(), 2));
+    }
+
 }
