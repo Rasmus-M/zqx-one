@@ -36,7 +36,7 @@ sprite_defs:
        data 560,658,142,0,sprite_type_rocket_launch_1
        data 588,748,80,0,sprite_type_silo
        data 629,698,172,0,sprite_type_silo
-       data 644,778,100,0,sprite_type_rocket_launch_1
+       data 644,777,101,0,sprite_type_rocket_launch_1
        data 661,728,175,0,sprite_type_green_gun
        data 672,810,104,0,sprite_type_silo
        data 733,844,132,0,sprite_type_blue_gun
@@ -65,20 +65,19 @@ sprite_defs:
        data 1320,1394,152,0,sprite_type_rocket_launch_1
        data 1332,1514,60,0,sprite_type_green_gun_2
        data 1342,1458,126,0,sprite_type_silo
-
-;       data 1350,1350-48,161,0,sprite_type_rocket_launch_1
-;       data 1400,1400,104,0,sprite_type_blue_plane
-;       data 1414,1414-48,105,0,sprite_type_rocket_launch_1
-;       data 1446,1446,84,0,sprite_type_blue_plane
-;       data 1470,1470-48,169,0,sprite_type_rocket_launch_1
-;       data 1488,1488,185,0,sprite_type_blue_gun
-;       data 1492,1492,108,0,sprite_type_blue_plane
-;       data 1550,1550,157,0,sprite_type_silo
-;       data 1596,1596,26,0,sprite_type_wall_left
-;       data 1616,1616-48,98,0,sprite_type_rocket_launch_1
-;       data 1624,1624,145,0,sprite_type_silo
-;       data 1660,1660,181,0,sprite_type_radar
-;       data 1692,1692,122,0,sprite_type_wall_right
+       data 1350,1514,94,0,sprite_type_rocket_launch_1
+       data 1400,1550,90,0,sprite_type_blue_plane
+       data 1414,1515,151,0,sprite_type_rocket_launch_1
+       data 1446,1620,70,0,sprite_type_blue_plane
+       data 1488,1558,172,0,sprite_type_blue_gun
+       data 1492,1634,92,0,sprite_type_blue_plane
+       data 1500,1722,90,0,sprite_type_rocket_launch_1
+       data 1530,1698,142,0,sprite_type_rocket_launch_1
+       data 1550,1646,148,0,sprite_type_silo
+       data 1596,1764,72,56,sprite_type_wall_left
+       data 1628,1732,136,0,sprite_type_silo
+       data 1664,1732,164,0,sprite_type_radar
+       data 1692,1764,168,56,sprite_type_wall_right
 *      End of list
        data >7fff,0,0,0
 
