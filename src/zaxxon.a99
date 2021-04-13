@@ -439,7 +439,7 @@ move_player_1:
        tb   1
        jeq  move_player_2
        mov  @sprite_y(r4),r0
-       ci   r0,-8
+       ci   r0,65
        jlt  move_player_3
        dec  @sprite_y(r4)
        jmp  move_player_3
@@ -448,7 +448,7 @@ move_player_2:
        tb   2
        jeq  move_player_3
        mov  @sprite_y(r4),r0
-       ci   r0,168
+       ci   r0,169
        jgt  move_player_3
        inc  @sprite_y(r4)
 *      Down (plane up)
@@ -456,8 +456,8 @@ move_player_3:
        tb   3
        jeq  move_player_4
        mov  @sprite_z(r4),r0
-       ci   r0,80
-       jhe  move_player_5
+       ci   r0,87
+       jgt  move_player_5
        inc  @sprite_z(r4)
        jmp  move_player_5
 *      Up (plane down)
@@ -465,8 +465,8 @@ move_player_4:
        tb   4
        jeq  move_player_5
        mov  @sprite_z(r4),r0
-       ci   r0,8
-       jle  move_player_5
+       ci   r0,17
+       jlt  move_player_5
        dec  @sprite_z(r4)
 move_player_5:
        .endproc
