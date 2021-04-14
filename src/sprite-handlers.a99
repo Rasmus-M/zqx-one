@@ -124,9 +124,6 @@ explosion_handler:
        mov  r0,@sprite_counter(r4)
        ci   r0,32
        jl   explosion_handler_0
-       mov  @sprite_type(r4),r1
-       li   r2,sprite_type_cinders
-       bl   @align_sprites_types
        li   r0,sprite_type_cinders
        jmp  explosion_handler_2
 explosion_handler_0:

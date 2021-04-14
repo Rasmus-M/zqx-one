@@ -256,9 +256,11 @@ upload_sprites_1:
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
        mov  @sprite_y(r4),r1
+       s    @sprite_type_cy(r6),r1
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
        mov  @sprite_z(r4),r1
+       a    @sprite_type_cz(r6),r1
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
 upload_sprites_3:
@@ -439,7 +441,7 @@ move_player_1:
        tb   1
        jeq  move_player_2
        mov  @sprite_y(r4),r0
-       ci   r0,65
+       ci   r0,73
        jlt  move_player_3
        dec  @sprite_y(r4)
        jmp  move_player_3
@@ -448,7 +450,7 @@ move_player_2:
        tb   2
        jeq  move_player_3
        mov  @sprite_y(r4),r0
-       ci   r0,169
+       ci   r0,177
        jgt  move_player_3
        inc  @sprite_y(r4)
 *      Down (plane up)
@@ -456,7 +458,7 @@ move_player_3:
        tb   3
        jeq  move_player_4
        mov  @sprite_z(r4),r0
-       ci   r0,87
+       ci   r0,79
        jgt  move_player_5
        inc  @sprite_z(r4)
        jmp  move_player_5
@@ -465,7 +467,7 @@ move_player_4:
        tb   4
        jeq  move_player_5
        mov  @sprite_z(r4),r0
-       ci   r0,17
+       ci   r0,9
        jlt  move_player_5
        dec  @sprite_z(r4)
 move_player_5:
@@ -543,16 +545,9 @@ create_sprite:
 create_sprite_1:
        mov  @sprite_def_type(r6),r7
        mov  r7,@sprite_type(r4)
-*      x
        mov  @sprite_def_x(r6),@sprite_x(r4)
-*      y
-       mov  @sprite_def_y(r6),r1
-       s    @sprite_type_cy(r7),r1
-       mov  r1,@sprite_y(r4)
-*      z
-       mov  @sprite_def_z(r6),r1
-       a    @sprite_type_cz(r7),r1
-       mov  r1,@sprite_z(r4)
+       mov  @sprite_def_y(r6),@sprite_y(r4)
+       mov  @sprite_def_z(r6),@sprite_z(r4)
 *      Handler
        mov  @sprite_type_handler(r7),r0
        jeq  create_sprite_2
@@ -602,37 +597,11 @@ allocate_sprite_4:
 * r5: sprite to align
 *
 align_sprites:
-       mov  @sprite_type(r4),r6
-       mov  @sprite_type(r5),r7
        mov  @sprite_x(r4),@sprite_x(r5)
-       mov  @sprite_y(r4),r0
-       a    @sprite_type_cy(r6),r0
-       s    @sprite_type_cy(r7),r0
-       mov  r0,@sprite_y(r5)
-       mov  @sprite_z(r4),r0
-       a    @sprite_type_cz(r6),r0
-       s    @sprite_type_cz(r7),r0
-       mov  r0,@sprite_z(r5)
+       mov  @sprite_y(r4),@sprite_y(r5)
+       mov  @sprite_z(r4),@sprite_z(r5)
        rt
 *// allign_sprites
-
-*********************************************************************
-*
-* Allign sprite position to a new sprite type
-*
-* r1: From type
-* r2: To type
-* r4: sprite to align
-*
-align_sprites_types:
-       mov  @sprite_type_cy(r2),r0
-       s    @sprite_type_cy(r1),r0
-       a    r0,@sprite_y(r4)
-       mov  @sprite_type_cz(r2),r0
-       s    @sprite_type_cz(r1),r0
-       a    r0,@sprite_z(r4)
-       rt
-*// align_sprites_types
 
 *********************************************************************
 *
