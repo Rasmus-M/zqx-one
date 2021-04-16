@@ -119,9 +119,9 @@ sprite_type_cinders_500:
        data no_handler
 sprite_type_green_shot:
        data 21
-       data 7                          ; cy
-       data 8                          ; cz
-       data no_handler
+       data 0                          ; cy
+       data 12                         ; cz
+       data green_shot_handler
 sprite_type_red_shot:
        data 22
        data 6                          ; cy
