@@ -186,6 +186,7 @@ loop:
        bl   @fire
        bl   @move_sprites
        bl   @create_sprites
+       bl   @bullet_collisions
        bl   @upload_sprites            ; Max 5786/Avr 2285 cycles
        bl   @scroll
        c    @scroll_x,@scroll_max
@@ -495,7 +496,7 @@ fire:
        bl   @allocate_sprite
        mov  r4,r5
        jeq  fire_1
-       li   r6,sprite_type_green_shot
+       li   r6,sprite_type_green_bullet
        mov  r6,@sprite_type(r5)
        mov  @player_sprite,r4
        bl   @align_sprites
@@ -544,6 +545,62 @@ move_sprites_3:
 move_sprites_4:
        .endproc
 *// move_sprites
+
+*********************************************************************
+*
+* Bullet collisions
+*
+bullet_collisions:
+       .proc
+       li   r4,sprites+(2*sprite_size)
+bullet_collisions_1:
+       c    r4,@sprites_end_ptr
+       jhe  bullet_collisions_5
+       mov  @sprite_type(r4),r6
+       ci   r6,sprite_type_green_bullet
+       jne  bullet_collisions_4
+       mov  @sprite_x(r4),r1
+       mov  @sprite_y(r4),r2
+       mov  @sprite_z(r4),r3
+       li   r5,sprites+(2*sprite_size)
+bullet_collisions_2:
+       c    r5,@sprites_end_ptr
+       jhe  bullet_collisions_4
+       mov  @sprite_type(r5),r7
+       jeq  bullet_collisions_3
+       mov  @sprite_type_hit_handler(r7),r8
+       jeq  bullet_collisions_3
+       mov  @sprite_x(r5),r0
+       s    r1,r0
+       abs  r0
+       ci   r0,16
+       jgt  bullet_collisions_3
+       mov  @sprite_y(r5),r0
+       s    r2,r0
+       abs  r0
+       ci   r0,16
+       jgt  bullet_collisions_3
+       mov  @sprite_z(r5),r0
+       s    r3,r0
+       abs  r0
+       ci   r0,16
+       jgt  bullet_collisions_3
+*      Collision
+       clr  @sprite_type(r4)
+       mov  r5,r4
+       bl   *r8
+       jmp  bullet_collisions_5
+*      Next inner
+bullet_collisions_3:
+       ai   r5,sprite_size
+       jmp  bullet_collisions_2
+*      Next outer
+bullet_collisions_4:
+       ai   r4,sprite_size
+       jmp  bullet_collisions_1
+bullet_collisions_5:
+       .endproc
+*// bullet_collisions
 
 *********************************************************************
 *

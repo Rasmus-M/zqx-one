@@ -28,24 +28,24 @@ shadow_handler:
 
 *********************************************************************
 *
-* Green shot handler
+* Green bullet handler
 *
-green_shot_handler:
+green_bullet_handler:
        mov  @sprite_x(r4),r0
        mov  r0,r1
        a    @sprite_y(r4),r1
        s    @scroll_pos,r1
        ci   r1,240
-       jgt  green_shot_handler_1
-green_shot_handler_0:
+       jgt  green_bullet_handler_1
+green_bullet_handler_0:
        ai   r0,8
        mov  r0,@sprite_x(r4)
-       jmp  green_shot_handler_2
-green_shot_handler_1:
+       jmp  green_bullet_handler_2
+green_bullet_handler_1:
        clr  @sprite_type(r4)
-green_shot_handler_2:
+green_bullet_handler_2:
        rt
-*// green_shot_handler
+*// green_bullet_handler
 
 *********************************************************************
 *
@@ -176,3 +176,14 @@ silo_handler:
 silo_handler_1:
        .endproc
 *// silo_handler
+
+*********************************************************************
+*
+* Explode handler
+*
+explode_handler:
+       li   r0,sprite_type_explosion_1
+       mov  r0,@sprite_type(r4)
+       seto @sprite_counter(r4)
+       rt
+*// explode_handler
