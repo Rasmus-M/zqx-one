@@ -63,7 +63,44 @@ gpu_program_copy:
 gpu_program_start:
        xorg gpuprg
 **
+*      Sort sprites front to back
+       li   r3,sprbuf
+gpu_program_7:
+       mov  *r3+,r0                    ; Get sprite type index
+       jlt  gpu_program_6              ; -1 = End
+       mov  *r3+,r1                    ; x
+       s    *r3+,r1                    ; -y
+       inct r3                         ; Skip z
+       mov  r3,r4
+gpu_program_8:
+       mov  *r4+,r0                    ; Get sprite type index
+       jlt  gpu_program_7              ; -1 = End
+       mov  *r4+,r2                    ; x
+       s    *r4+,r2                    ; -y
+       inct r4                         ; Skip z
+       c    r1,r2
+       jlt  gpu_program_8
+*      Swap sprites
+       mov  r3,r5
+       ai   r5,-8
+       mov  r4,r6
+       ai   r6,-8
+       mov  *r5,r0
+       mov  *r6,*r5+
+       mov  r0,*r6+
+       mov  *r5,r0
+       mov  *r6,*r5+
+       mov  r0,*r6+
+       mov  *r5,r0
+       mov  *r6,*r5+
+       mov  r0,*r6+
+       mov  *r5,r0
+       mov  *r6,*r5+
+       mov  r0,*r6+
+       jmp  gpu_program_8
+**
 *      Generate sprite attribute tables
+gpu_program_6:
        li   r3,spratb                  ; Top dest
        li   r4,sprat2                  ; Bottom dest
        clr  r5                         ; Number of top sprites
