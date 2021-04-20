@@ -80,49 +80,49 @@ sprite_type_silo:
        data 15                         ; cy
        data 18                         ; cz
        data silo_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_radar:
        data sprite_type_index_radar
        data 15                         ; cy
        data 20                         ; cz
        data no_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_blue_gun:
        data sprite_type_index_blue_gun
        data 19                         ; cy
        data 0                          ; cz
        data no_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_green_gun:
        data sprite_type_index_green_gun
        data 20                         ; cy
        data 16                         ; cz
        data no_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_green_gun_2:
        data sprite_type_index_green_gun_2
        data 8                          ; cy
        data 4                          ; cz
        data no_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_blue_plane:
        data sprite_type_index_blue_plane
        data 12                         ; cy
        data 2                          ; cz
        data no_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_green_rocket_1:
        data sprite_type_index_green_rocket_1
        data 7                          ; cy
        data 16                         ; cz
        data green_rocket_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_green_rocket_2:
        data sprite_type_index_green_rocket_2
        data 7                          ; cy
        data 16                         ; cz
        data green_rocket_handler
-       data explode_handler            ; Hit handler
+       data explode_hit_handler            ; Hit handler
 sprite_type_rocket_launch_1:
        data sprite_type_index_rocket_launch_1
        data 15                         ; cy
@@ -146,13 +146,13 @@ sprite_type_wall_left:
        data 12                         ; cy
        data 16                         ; cz
        data no_handler
-       data no_handler                 ; Hit handler
+       data wall_hit_handler           ; Hit handler
 sprite_type_wall_right:
        data sprite_type_index_wall_right
        data 12                         ; cy
        data 16                         ; cz
        data no_handler
-       data no_handler                 ; Hit handler
+       data wall_hit_handler           ; Hit handler
 sprite_type_explosion_1:
        data sprite_type_index_explosion_1
        data 16                         ; cy
@@ -175,13 +175,13 @@ sprite_type_hit_1:
        data sprite_type_index_hit_1
        data 8                          ; cy
        data 16                         ; cz
-       data no_handler
+       data hit_handler
        data no_handler                 ; Hit handler
 sprite_type_hit_2:
        data sprite_type_index_hit_2
        data 13                         ; cy
        data 9                          ; cz
-       data no_handler
+       data hit_handler
        data no_handler                 ; Hit handler
 sprite_type_cinders:
        data sprite_type_index_cinders

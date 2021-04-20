@@ -126,7 +126,7 @@ sprite_attrs_hit_1:
 sprite_attrs_hit_2:
        data 2
        byte 0,0,>e8,>04
-       byte 0,16,>f8,>04
+       byte 16,0,>f8,>04
 sprite_attrs_cinders:
        data 2
        byte 0,0,>d8,>0c

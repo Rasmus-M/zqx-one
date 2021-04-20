@@ -586,9 +586,7 @@ bullet_collisions_2:
        ci   r0,16
        jgt  bullet_collisions_3
 *      Collision
-       clr  @sprite_type(r4)
-       mov  r5,r4
-       bl   *r8
+       bl   *r8                        ; Call hit handler
        jmp  bullet_collisions_5
 *      Next inner
 bullet_collisions_3:

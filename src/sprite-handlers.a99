@@ -93,7 +93,6 @@ rocket_launch_handler_5:
 * Green rocket handler
 *
 green_rocket_handler:
-       .proc
        inc  @sprite_z(r4)
        mov  @sprite_counter(r4),r0
        inc  r0
@@ -106,7 +105,7 @@ green_rocket_handler_1:
        li   r0,sprite_type_green_rocket_2
 green_rocket_handler_2:
        mov  r0,@sprite_type(r4)
-       .endproc
+       rt
 *// green_rocket_handler
 
 *********************************************************************
@@ -114,7 +113,6 @@ green_rocket_handler_2:
 * Shield handler
 *
 shield_handler:
-       .proc
        mov  @sprite_counter(r4),r0
        jlt  shield_handler_2           ; Reset
        jeq  shield_handler_1           ; Move back
@@ -131,7 +129,7 @@ shield_handler_2:
        li   r0,4
        mov  r0,@sprite_counter(r4)
 shield_handler_3:
-       .endproc
+       rt
 *// shield_handler
 
 *********************************************************************
@@ -139,7 +137,6 @@ shield_handler_3:
 * Explosion handler
 *
 explosion_handler:
-       .proc
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
@@ -156,7 +153,7 @@ explosion_handler_1:
        li   r0,sprite_type_explosion_2
 explosion_handler_2:
        mov  r0,@sprite_type(r4)
-       .endproc
+       rt
 *// explosion_handler
 
 *********************************************************************
@@ -164,7 +161,6 @@ explosion_handler_2:
 * Silo handler
 *
 silo_handler:
-       .proc
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
@@ -174,16 +170,55 @@ silo_handler:
        mov  r0,@sprite_type(r4)
        seto @sprite_counter(r4)
 silo_handler_1:
-       .endproc
+       rt
 *// silo_handler
 
 *********************************************************************
 *
-* Explode handler
+* Hit handler
 *
-explode_handler:
-       li   r0,sprite_type_explosion_1
+hit_handler:
+       mov  @sprite_counter(r4),r0
+       inc  r0
+       mov  r0,@sprite_counter(r4)
+       ci   r0,16
+       jne  hit_handler_1
+       clr  @sprite_type(r4)
+       jmp  hit_handler_2
+hit_handler_1:
+       ci   r0,8
+       jne  hit_handler_2
+       li   r0,sprite_type_hit_1
        mov  r0,@sprite_type(r4)
+hit_handler_2:
+       rt
+*// hit_handler
+
+*********************************************************************
+*
+* Explode hit handler
+*
+* r4: bullet sprite
+* r5: sprite that's hit
+*
+explode_hit_handler:
+       clr  @sprite_type(r4)           ; Remove bullet
+       li   r0,sprite_type_explosion_1
+       mov  r0,@sprite_type(r5)        ; Change sprite that's hit to explosion
+       seto @sprite_counter(r5)
+       rt
+*// explode_hit_handler
+
+*********************************************************************
+*
+* Wall hit handler
+*
+* r4: bullet sprite
+* r5: wall that's hit
+*
+wall_hit_handler:
+       li   r0,sprite_type_hit_2
+       mov  r0,@sprite_type(r4)        ; Change bullet to hit sprite
        seto @sprite_counter(r4)
        rt
-*// explode_handler
+*// wall_hit_handler
