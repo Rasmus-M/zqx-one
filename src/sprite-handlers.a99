@@ -32,18 +32,18 @@ shadow_handler:
 *
 green_bullet_handler:
        mov  @sprite_x(r4),r0
-       mov  r0,r1
-       a    @sprite_y(r4),r1
+       mov  @sprite_y(r4),r1
+       a    r0,r1
        s    @scroll_pos,r1
        ci   r1,240
-       jgt  green_bullet_handler_1
-green_bullet_handler_0:
+       jgt  green_bullet_handler_2
+green_bullet_handler_1:
        ai   r0,8
        mov  r0,@sprite_x(r4)
-       jmp  green_bullet_handler_2
-green_bullet_handler_1:
-       clr  @sprite_type(r4)
+       jmp  green_bullet_handler_3
 green_bullet_handler_2:
+       clr  @sprite_type(r4)
+green_bullet_handler_3:
        rt
 *// green_bullet_handler
 
@@ -97,16 +97,37 @@ green_rocket_handler:
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
-       andi r0,>0008
+       ci   r0,80
        jne  green_rocket_handler_1
-       li   r0,sprite_type_green_rocket_1
-       jmp  green_rocket_handler_2
+       seto @sprite_counter(r4)
+       li   r0,sprite_type_small_explosion
+       jmp  green_rocket_handler_3
 green_rocket_handler_1:
-       li   r0,sprite_type_green_rocket_2
+       andi r0,>0008
+       jne  green_rocket_handler_2
+       li   r0,sprite_type_green_rocket_1
+       jmp  green_rocket_handler_3
 green_rocket_handler_2:
+       li   r0,sprite_type_green_rocket_2
+green_rocket_handler_3:
        mov  r0,@sprite_type(r4)
        rt
 *// green_rocket_handler
+
+*********************************************************************
+*
+* Small explosion handler
+*
+small_explosion_handler:
+       mov  @sprite_counter(r4),r0
+       inc  r0
+       mov  r0,@sprite_counter(r4)
+       ci   r0,16
+       jlt  small_explosion_1
+       clr  @sprite_type(r4)
+small_explosion_1:
+       rt
+*// small_explosion_handler
 
 *********************************************************************
 *
@@ -141,37 +162,40 @@ explosion_handler:
        inc  r0
        mov  r0,@sprite_counter(r4)
        ci   r0,32
-       jl   explosion_handler_0
+       jl   explosion_handler_1
+       seto @sprite_counter(r4)
        li   r0,sprite_type_cinders
-       jmp  explosion_handler_2
-explosion_handler_0:
-       andi r0,>0008
-       jne  explosion_handler_1
-       li   r0,sprite_type_explosion_1
-       jmp  explosion_handler_2
+       mov  @sprite_y(r4),r1
+       ci   r1,170
+       jlt  explosion_handler_3
+       li   r0,sprite_type_cinders_500
+       jmp  explosion_handler_3
 explosion_handler_1:
-       li   r0,sprite_type_explosion_2
+       andi r0,>0008
+       jne  explosion_handler_2
+       li   r0,sprite_type_explosion_1
+       jmp  explosion_handler_3
 explosion_handler_2:
+       li   r0,sprite_type_explosion_2
+explosion_handler_3:
        mov  r0,@sprite_type(r4)
        rt
 *// explosion_handler
 
 *********************************************************************
 *
-* Silo handler
+* Cinders handler
 *
-silo_handler:
+cinders_handler:
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
-       ci   r0,128
-       jlt  silo_handler_1
-       li   r0,sprite_type_explosion_1
-       mov  r0,@sprite_type(r4)
-       seto @sprite_counter(r4)
-silo_handler_1:
+       ci   r0,64
+       jlt  cinders_handler_1
+       clr  @sprite_type(r4)
+cinders_handler_1:
        rt
-*// silo_handler
+*// cinders_handler
 
 *********************************************************************
 *

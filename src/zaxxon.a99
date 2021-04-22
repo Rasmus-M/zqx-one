@@ -555,48 +555,62 @@ bullet_collisions:
        li   r4,sprites+(2*sprite_size)
 bullet_collisions_1:
        c    r4,@sprites_end_ptr
-       jhe  bullet_collisions_5
+       jhe  bullet_collisions_7
        mov  @sprite_type(r4),r6
        ci   r6,sprite_type_green_bullet
-       jne  bullet_collisions_4
+       jne  bullet_collisions_6
        mov  @sprite_x(r4),r1
        mov  @sprite_y(r4),r2
        mov  @sprite_z(r4),r3
-       li   r5,sprites+(2*sprite_size)
+*      Check for collision with walls
+       mov  r1,r0
+       andi r0,>fff8
+       ci   r0,224-8
+       jeq  bullet_collisions_2
+       ci   r0,1760-8
+       jne  bullet_collisions_3
 bullet_collisions_2:
+       ci   r3,56
+       jgt  bullet_collisions_3
+       bl   @wall_hit_handler
+       jmp  bullet_collisions_7
+bullet_collisions_3:
+*      Check for collision with sprites
+       li   r5,sprites+(2*sprite_size)
+bullet_collisions_4:
        c    r5,@sprites_end_ptr
-       jhe  bullet_collisions_4
+       jhe  bullet_collisions_6
        mov  @sprite_type(r5),r7
-       jeq  bullet_collisions_3
+       jeq  bullet_collisions_5
        mov  @sprite_type_hit_handler(r7),r8
-       jeq  bullet_collisions_3
+       jeq  bullet_collisions_5
        mov  @sprite_x(r5),r0
        s    r1,r0
        abs  r0
        ci   r0,16
-       jgt  bullet_collisions_3
+       jgt  bullet_collisions_5
        mov  @sprite_y(r5),r0
        s    r2,r0
        abs  r0
        ci   r0,16
-       jgt  bullet_collisions_3
+       jgt  bullet_collisions_5
        mov  @sprite_z(r5),r0
        s    r3,r0
        abs  r0
        ci   r0,16
-       jgt  bullet_collisions_3
+       jgt  bullet_collisions_5
 *      Collision
        bl   *r8                        ; Call hit handler
-       jmp  bullet_collisions_5
+       jmp  bullet_collisions_7
 *      Next inner
-bullet_collisions_3:
+bullet_collisions_5:
        ai   r5,sprite_size
-       jmp  bullet_collisions_2
+       jmp  bullet_collisions_4
 *      Next outer
-bullet_collisions_4:
+bullet_collisions_6:
        ai   r4,sprite_size
        jmp  bullet_collisions_1
-bullet_collisions_5:
+bullet_collisions_7:
        .endproc
 *// bullet_collisions
 
