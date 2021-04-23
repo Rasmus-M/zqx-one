@@ -155,8 +155,10 @@ player_shadow:
        equ  player_sprite+2
 player_fire:
        equ  player_shadow+2
-pad_max:
+player_status:
        equ  player_fire+2
+pad_max:
+       equ  player_status+2
 
 ***************************************************************
 *
@@ -186,8 +188,11 @@ loop:
        bl   @fire
        bl   @move_sprites
        bl   @create_sprites
+       bl   @player_collisions
        bl   @bullet_collisions
        bl   @upload_sprites            ; Max 5786/Avr 2285 cycles
+       mov  @player_status,r0
+       jne  restart
        bl   @scroll
        c    @scroll_x,@scroll_max
        jl   loop
@@ -500,7 +505,7 @@ fire:
        mov  r6,@sprite_type(r5)
        mov  @player_sprite,r4
        bl   @align_sprites
-       li   r0,8
+       li   r0,12
        a    r0,@sprite_x(r5)
        neg  @player_fire
 fire_1:
@@ -548,6 +553,65 @@ move_sprites_4:
 
 *********************************************************************
 *
+* Player collisions
+*
+player_collisions:
+       .proc
+       mov  @player_sprite,r4
+       mov  @sprite_x(r4),r1
+       mov  @sprite_y(r4),r2
+       mov  @sprite_z(r4),r3
+*      Check for collision with walls
+       mov  r1,r0
+       andi r0,>fff8
+       ci   r0,224-8
+       jeq  player_collisions_1
+       ci   r0,1760-8
+       jne  player_collisions_2
+player_collisions_1:
+       ci   r3,56
+       jle  player_collisions_4
+player_collisions_2:
+*      Check for collision with sprites
+       li   r5,sprites+(2*sprite_size)
+player_collisions_3:
+       c    r5,@sprites_end_ptr
+       jhe  player_collisions_6
+       c    r4,r5
+       jeq  player_collisions_5
+       mov  @sprite_type(r5),r7
+       jeq  player_collisions_5
+       mov  @sprite_type_lethal(r7),r8
+       jeq  player_collisions_5
+       mov  @sprite_x(r5),r0
+       s    r1,r0
+       abs  r0
+       ci   r0,8
+       jgt  player_collisions_5
+       mov  @sprite_y(r5),r0
+       s    r2,r0
+       abs  r0
+       ci   r0,8
+       jgt  player_collisions_5
+       mov  @sprite_z(r5),r0
+       s    r3,r0
+       abs  r0
+       ci   r0,8
+       jgt  player_collisions_5
+*      Collision
+player_collisions_4:
+       seto @player_status
+       jmp  player_collisions_6
+*      Next sprite
+player_collisions_5:
+       ai   r5,sprite_size
+       jmp  player_collisions_3
+player_collisions_6:
+       .endproc
+*// player_collisions
+
+*********************************************************************
+*
 * Bullet collisions
 *
 bullet_collisions:
@@ -580,6 +644,8 @@ bullet_collisions_3:
 bullet_collisions_4:
        c    r5,@sprites_end_ptr
        jhe  bullet_collisions_6
+       c    r4,r5
+       jeq  bullet_collisions_5
        mov  @sprite_type(r5),r7
        jeq  bullet_collisions_5
        mov  @sprite_type_hit_handler(r7),r8
@@ -884,6 +950,7 @@ init_level:
        mov  r0,@sprite_def_ptr
        seto @map_bank_select
        clr  @player_fire
+       clr  @player_status
 *      Create player plane
        li   r6,plane_def
        bl   @create_sprite

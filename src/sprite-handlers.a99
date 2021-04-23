@@ -68,6 +68,8 @@ rocket_launch_handler:
        li   r0,sprite_type_green_rocket_1
        mov  r0,@sprite_type(r5)
        bl   @align_sprites
+       inct @sprite_x(r5)
+       dect @sprite_y(r5)
        seto @sprite_counter(r5)
        jmp  rocket_launch_handler_5
 rocket_launch_handler_1:
