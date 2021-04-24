@@ -31,11 +31,10 @@ nametb equ  >0000                      ; Name table base
 namet0 equ  >0000                      ; Name table page 0
 scrlpv equ  >03c0                      ; Scroll VDP variable
 tilatb equ  >0400                      ; Tile attribute table
+gputmp equ  >0500                      ; GPU program temporary location
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
-sprabf equ  >0600                      ; Sprite attributes buffer
-gputmp equ  >0600                      ; GPU program temporary location
-sprbuf equ  >0780                      ; Sprite buffer (128 bytes: 16 sprites)
+sprbuf equ  >0600                      ; Sprite buffer (128 bytes: 16 sprites, 128 bytes free)
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
 ptrntb equ  >1000                      ; Pattern table base
@@ -78,7 +77,7 @@ tl2_first_char:
 tl2_chars:
        equ  7
 max_sprites:
-       equ  16
+       equ  18
 level_1_map:
        equ  >6000
 map_bank_select:
@@ -285,6 +284,7 @@ upload_sprites_3:
        jmp  upload_sprites_1
 upload_sprites_4:
        seto *r15
+upload_sprites_5:
        .endproc
 *// upload_sprites
 
@@ -1053,7 +1053,6 @@ diff_end:
        copy "chars1.a99"
        copy "tile-attrs.a99"
        copy "sprite-types.a99"
-       copy "sprite-attrs.a99"
        copy "sprite-defs.a99"
        copy "sprites.a99"
        copy "palettes.a99"
