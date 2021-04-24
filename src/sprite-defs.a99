@@ -19,8 +19,8 @@ shadow_def:
 * sprite_def_scroll_x = sprite_def_x + sprite_def_y - 240 + (sprite_type_rocket_launch_1 ? 48 : 0)
 
 sprite_defs:
-       data 60,228,72,56,sprite_type_wall_left
-       data 156,228,168,56,sprite_type_wall_right
+       data 60,wall_1_x,72,wall_height,sprite_type_wall_left
+       data 156,wall_1_x,168,wall_height,sprite_type_wall_right
        data 252,418,74,0,sprite_type_blue_gun
        data 272,354,110,0,sprite_type_rocket_launch_1
        data 288,356,172,0,sprite_type_radar
@@ -74,12 +74,12 @@ sprite_defs:
        data 1486,1634,92,0,sprite_type_blue_plane
        data 1490,1558,172,0,sprite_type_blue_gun
        data 1554,1646,148,0,sprite_type_silo
-       data 1596,1764,72,56,sprite_type_wall_left
+       data 1596,wall_2_x,72,wall_height,sprite_type_wall_left
        data 1620,1722,90,0,sprite_type_rocket_launch_1
        data 1628,1732,136,0,sprite_type_silo
        data 1648,1698,142,0,sprite_type_rocket_launch_1
        data 1656,1732,164,0,sprite_type_radar
-       data 1692,1764,168,56,sprite_type_wall_right
+       data 1692,wall_2_x,168,wall_height,sprite_type_wall_right
 *      End of list
        data >7fff,0,0,0
 

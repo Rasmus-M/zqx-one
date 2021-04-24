@@ -62,6 +62,8 @@ gpu_program_copy:
        idle
 gpu_program_start:
        xorg gpuprg
+       li   r0,>0500                   ; Blue border
+       mov  r0,@>6007
 **
 *      Sort sprites front to back
        li   r3,sprbuf
@@ -101,6 +103,8 @@ gpu_program_8:
 **
 *      Generate sprite attribute tables
 gpu_program_6:
+       li   r0,>0600                   ; Yellow border
+       mov  r0,@>6007
        li   r3,spratb                  ; Top dest
        li   r4,sprat2                  ; Bottom dest
        clr  r5                         ; Number of top sprites
@@ -192,6 +196,7 @@ gpu_program_4:
        movb r6,@bottom_sprites
 **
 *      Handle split screen
+       clr    @>6007                   ; Black border
 *      Set sprite attribute table 1
        li   r0,(spratb/>80)*256        ; Value for VR5 (table 1)
        movb r0,@>6005                  ; Set VR5

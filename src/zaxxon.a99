@@ -99,6 +99,12 @@ isometric_z0:
        equ  16
 isometric_center_y:
        equ  128
+wall_1_x:
+       equ  228
+wall_2_x:
+       equ  1764
+wall_height:
+       equ  56
 
 **
 * Scratch pad
@@ -182,15 +188,15 @@ loop:
        bl   @vsync
        bl   @set_vdp_regs
        bl   @gpu_run
-       bl   @upload_characters         ; Max 10324/Avr 2578 cycles
-       bl   @draw_column               ; Max 5126/Avr 5092 cycles
+       bl   @upload_characters
+       bl   @draw_column
        bl   @move_player
        bl   @fire
        bl   @move_sprites
        bl   @create_sprites
        bl   @player_collisions
        bl   @bullet_collisions
-       bl   @upload_sprites            ; Max 5786/Avr 2285 cycles
+       bl   @upload_sprites
        mov  @player_status,r0
        jne  restart
        bl   @scroll
@@ -258,6 +264,8 @@ upload_sprites_1:
        jeq  upload_sprites_4
        mov  @sprite_type(r4),r6
        jeq  upload_sprites_3
+       mov  @sprite_z(r4),r3
+       jlt  upload_sprites_3
        mov  @sprite_type_index(r6),r1
        movb r1,*r15
        movb *r2,*r15
@@ -268,7 +276,7 @@ upload_sprites_1:
        s    @sprite_type_cy(r6),r1
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
-       mov  @sprite_z(r4),r1
+       mov  r3,r1                      ; z
        a    @sprite_type_cz(r6),r1
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
@@ -564,12 +572,12 @@ player_collisions:
 *      Check for collision with walls
        mov  r1,r0
        andi r0,>fff8
-       ci   r0,224-8
+       ci   r0,wall_1_x-4
        jeq  player_collisions_1
-       ci   r0,1760-8
+       ci   r0,wall_2_x-4
        jne  player_collisions_2
 player_collisions_1:
-       ci   r3,56
+       ci   r3,wall_height-8
        jle  player_collisions_4
 player_collisions_2:
 *      Check for collision with sprites
@@ -629,12 +637,12 @@ bullet_collisions_1:
 *      Check for collision with walls
        mov  r1,r0
        andi r0,>fff8
-       ci   r0,224-8
+       ci   r0,wall_1_x-12
        jeq  bullet_collisions_2
-       ci   r0,1760-8
+       ci   r0,wall_2_x-12
        jne  bullet_collisions_3
 bullet_collisions_2:
-       ci   r3,56
+       ci   r3,wall_height
        jgt  bullet_collisions_3
        bl   @wall_hit_handler
        jmp  bullet_collisions_7
