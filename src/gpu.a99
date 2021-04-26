@@ -57,26 +57,33 @@ gpu_program_copy:
        idle
 gpu_program_start:
        xorg gpuprg
-       li   r0,>0500                   ; Blue border
-       mov  r0,@>6007
+       call @sort_sprites
+       call @generate_sals
+       call @split_screen
+*      Return
+       idle
 **
 *      Sort sprites front to back
+*
+sort_sprites:
+       li   r0,>0500                   ; Blue border
+       movb r0,@>6007
        li   r3,sprbuf
-gpu_program_7:
+sort_sprites_1:
        mov  *r3+,r0                    ; Get sprite type index
-       jlt  gpu_program_6              ; -1 = End
+       jlt  sort_sprites_3             ; -1 = End
        mov  *r3+,r1                    ; x
        s    *r3+,r1                    ; -y
        inct r3                         ; Skip z
        mov  r3,r4
-gpu_program_8:
+sort_sprites_2:
        mov  *r4+,r0                    ; Get sprite type index
-       jlt  gpu_program_7              ; -1 = End
+       jlt  sort_sprites_1             ; -1 = End
        mov  *r4+,r2                    ; x
        s    *r4+,r2                    ; -y
        inct r4                         ; Skip z
        c    r1,r2
-       jlt  gpu_program_8
+       jlt  sort_sprites_2
 *      Swap sprites
        mov  r3,r5
        ai   r5,-8
@@ -94,20 +101,23 @@ gpu_program_8:
        mov  *r5,r0
        mov  *r6,*r5+
        mov  r0,*r6+
-       jmp  gpu_program_8
+       jmp  sort_sprites_2
+sort_sprites_3:
+       ret
 **
-*      Generate sprite attribute tables
-gpu_program_6:
+*      Generate sprite attribute lists
+*
+generate_sals:
        li   r0,>0600                   ; Yellow border
-       mov  r0,@>6007
+       movb r0,@>6007
        li   r3,spratb                  ; Top dest
        li   r4,sprat2                  ; Bottom dest
        clr  r5                         ; Number of top sprites
        clr  r6                         ; Number of bottom sprites
        li   r9,sprbuf
-gpu_program_0:
+generate_sals_1:
        mov  *r9+,r0                    ; Get sprite type index
-       jlt  gpu_program_4              ; -1 = End
+       jlt  generate_sals_6            ; -1 = End
        mov  *r9+,r10                   ; Get x0
        mov  *r9+,r11                   ; Get y0
        mov  *r9+,r12                   ; Get z0
@@ -124,15 +134,15 @@ gpu_program_0:
        ai   r11,isometric_y0           ; Adjust for screen layout
 *      Check if whole sprite is out of screen
        c    r10,@hw_sprite_x_max
-       jgt  gpu_program_0              ; Skip
+       jgt  generate_sals_1            ; Skip
        c    r11,@hw_sprite_y_max
-       jgt  gpu_program_0              ; Skip
+       jgt  generate_sals_1            ; Skip
 *      Locate sprite attributes
        sla  r0,1                       ; Index to word offset
        ai   r0,sprite_attrs_table      ; Index entry
        a    *r0,r0                     ; Add offset to sprite attributes
        mov  *r0+,r2                    ; Number of hardware sprites for this sprite
-gpu_program_1:
+generate_sals_2:
 *      Calculate position
        movb *r0+,r7                    ; Get dy
        sra  r7,8
@@ -142,56 +152,60 @@ gpu_program_1:
        a    r11,r7                     ; y0 + dy
 *      Check position
        c    r7,@hw_sprite_y_min
-       jlt  gpu_program_3              ; Out of screen top
+       jlt  generate_sals_5            ; Out of screen top
        c    r7,@hw_sprite_y_max
-       jgt  gpu_program_3              ; Out of screen bottom
+       jgt  generate_sals_5            ; Out of screen bottom
        swpb r7
        a    r10,r8                     ; x0 + dy
-       jlt  gpu_program_3              ; Out of screen left
+       jlt  generate_sals_5            ; Out of screen left
        c    r8,@hw_sprite_x_max
-       jgt  gpu_program_3              ; Out of screen right
+       jgt  generate_sals_5            ; Out of screen right
        swpb r8
 *      Check for inclusion in top SAL
        cb   r7,@hw_sprite_y_max+1
-       jh   gpu_program_1a             ; OK - top of screen
+       jh   generate_sals_3            ; OK - top of screen
        cb   r7,@split_y
-       jhe  gpu_program_2              ; Not OK - bottom
-gpu_program_1a:
+       jhe  generate_sals_4            ; Not OK - bottom
+generate_sals_3:
        ci   r5,32
-       jhe  gpu_program_2              ; Not OK - no more sprites
+       jhe  generate_sals_4            ; Not OK - no more sprites
 *      OK for inclusion in top SAL
        movb r7,*r3+
        movb r8,*r3+
        mov  r1,*r3+
        inc  r5
 *      Check for inclusion in bottom SAL
-gpu_program_2:
+generate_sals_4:
        cb   r7,@hw_sprite_y_max+1
-       jhe  gpu_program_3              ; Not OK - top of screen
+       jhe  generate_sals_5            ; Not OK - top of screen
        cb   r7,@split_y_top
-       jl   gpu_program_3              ; Not OK - top of screen
+       jl   generate_sals_5            ; Not OK - top of screen
        ci   r6,32
-       jhe  gpu_program_3              ; Not OK - no more sprites
+       jhe  generate_sals_5            ; Not OK - no more sprites
 *      OK for inclusion in bottom SAL
        movb r7,*r4+
        movb r8,*r4+
        mov  r1,*r4+
        inc  r6
 *      Next hardware sprite
-gpu_program_3:
+generate_sals_5:
        dec  r2
-       jne  gpu_program_1
+       jne  generate_sals_2
 *      Next sprite
-       jmp  gpu_program_0
+       jmp  generate_sals_1
 *      Record number of sprites in each SAL
-gpu_program_4:
+generate_sals_6:
        swpb r5
        movb r5,@top_sprites
        swpb r6
        movb r6,@bottom_sprites
+       ret
 **
 *      Handle split screen
-       clr    @>6007                   ; Black border
+*
+split_screen:
+       clr  r0
+       movb r0,@>6007                  ; Black border
 *      Set sprite attribute table 1
        li   r0,(spratb/>80)*256        ; Value for VR5 (table 1)
        movb r0,@>6005                  ; Set VR5
@@ -201,11 +215,11 @@ gpu_program_4:
        ori  r0,>4000                   ; Set hsync bit
        movb r0,@>6032                  ; Set VR50
 *      Return
-gpu_program_5:
+split_screen_1:
        idle
 *      Hsync handler
-       cb   @>7000,@split_y            ; Check scanline no
-       jne  gpu_program_5              ; Wait if not reached
+       cb   @>7000,@split_y            ; Check scanline number
+       jne  split_screen_1             ; Wait if not reached
 *      Set sprite attribute table 2
        li   r0,(sprat2/>80)*256        ; Value for VR5 (table 2)
        movb r0,@>6005                  ; Set VR5
@@ -215,7 +229,8 @@ gpu_program_5:
        andi r0,>bfff                   ; Clear hsync bit
        movb r0,@>6032                  ; Set VR50
 *      Return
-       idle
+       ret
+
 split_y:
        byte >90
 split_y_top:
