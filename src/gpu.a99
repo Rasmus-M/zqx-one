@@ -217,6 +217,24 @@ sprite_collisions_1:
        mov  @gpu_sprite_x(r4),r1       ; Get x
        mov  @gpu_sprite_y(r4),r2       ; Get y
        mov  @gpu_sprite_z(r4),r3       ; Get z
+*      Collision with walls
+       ci   r1,wall_1_x-8
+       jlt  sprite_collisions_1b
+       ci   r1,wall_1_x
+       jlt  sprite_collisions_1a
+       ci   r1,wall_2_x-8
+       jlt  sprite_collisions_1b
+       ci   r1,wall_2_x
+       jgt  sprite_collisions_1b
+sprite_collisions_1a:
+       ci   r3,wall_height-8
+       jgt  sprite_collisions_1b
+       mov  *r4,*r6+                   ; Write sprite index 1
+       li   r0,max_sprites
+       mov  r0,*r6+
+       jmp  sprite_collisions_2a
+*      Collision with sprites
+sprite_collisions_1b:
        mov  r4,r5
        ai   r5,gpu_sprite_size
 sprite_collisions_2:
@@ -240,6 +258,7 @@ sprite_collisions_2:
 *      Collision
        mov  *r4,*r6+                   ; Write sprite index 1
        mov  *r5,*r6+                   ; Write sprite index 2
+sprite_collisions_2a:
        ci   r6,collsv+62
        jeq  sprite_collisions_5
 *      Next inner
