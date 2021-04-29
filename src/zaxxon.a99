@@ -570,56 +570,32 @@ move_sprites_4:
 *
 player_collisions:
        .proc
-       mov  @player_sprite,r4
-       mov  @sprite_x(r4),r1
-       mov  @sprite_y(r4),r2
-       mov  @sprite_z(r4),r3
-*      Check for collision with walls
-       mov  r1,r0
-       andi r0,>fff8
-       ci   r0,wall_1_x-4
-       jeq  player_collisions_1
-       ci   r0,wall_2_x-4
-       jne  player_collisions_2
+       li   r0,collsv
+       bl   @vrad
 player_collisions_1:
-       ci   r3,wall_height-8
-       jle  player_collisions_4
-player_collisions_2:
-*      Check for collision with sprites
-       li   r5,sprites+(2*sprite_size)
-player_collisions_3:
-       c    r5,@sprites_end_ptr
-       jhe  player_collisions_6
-       c    r4,r5
-       jeq  player_collisions_5
-       mov  @sprite_type(r5),r7
-       jeq  player_collisions_5
-       mov  @sprite_type_lethal(r7),r8
-       jeq  player_collisions_5
-       mov  @sprite_x(r5),r0
-       s    r1,r0
-       abs  r0
-       ci   r0,8
-       jgt  player_collisions_5
-       mov  @sprite_y(r5),r0
-       s    r2,r0
-       abs  r0
-       ci   r0,8
-       jgt  player_collisions_5
-       mov  @sprite_z(r5),r0
-       s    r3,r0
-       abs  r0
-       ci   r0,8
-       jgt  player_collisions_5
+       movb @vdprd,r1
+       swpb r1
+       movb @vdprd,r1
+       swpb r1
+       mov  r1,r1
+       jne  player_collisions_3
+       movb @vdprd,r2
+       swpb r2
+       movb @vdprd,r2
+       swpb r2
+       ci   r2,max_sprites
+       jeq  player_collisions_2
+       li   r0,sprite_size
+       mpy  r0,r2
+       ai   r3,sprites
+       mov  @sprite_type(r3),r4
+       mov  @sprite_type_lethal(r4),r5
+       jeq  player_collisions_1
 *      Collision
-player_collisions_4:
+player_collisions_2:
        seto @player_status
-       jmp  player_collisions_6
-*      Next sprite
-player_collisions_5:
-       ai   r5,sprite_size
        jmp  player_collisions_3
-player_collisions_6:
+player_collisions_3:
        .endproc
 *// player_collisions
 
