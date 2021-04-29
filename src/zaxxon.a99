@@ -29,12 +29,13 @@ grmwa  equ  >9C02                      ; GROM address write
 *
 nametb equ  >0000                      ; Name table base
 namet0 equ  >0000                      ; Name table page 0
+gputmp equ  >0000                      ; GPU program temporary location
 scrlpv equ  >03c0                      ; Scroll VDP variable
+collsv equ  >03c2                      ; Collision results
 tilatb equ  >0400                      ; Tile attribute table
-gputmp equ  >0500                      ; GPU program temporary location
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
-sprbuf equ  >0600                      ; Sprite buffer (128 bytes: 16 sprites, 128 bytes free)
+sprbuf equ  >0600                      ; Sprite buffer (162 bytes for 16 sprites)
 namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
 nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
 ptrntb equ  >1000                      ; Pattern table base
@@ -258,6 +259,7 @@ upload_sprites:
        bl   @vwad
        li   r2,r1lb
        li   r4,sprites
+       clr  r5                         ; Index
 upload_sprites_1:
        c    r4,@sprites_end_ptr
        jeq  upload_sprites_4
@@ -265,7 +267,9 @@ upload_sprites_1:
        jeq  upload_sprites_3
        mov  @sprite_z(r4),r3
        jlt  upload_sprites_3
-       mov  @sprite_type_index(r6),r1
+       movb r5,*r15                    ; Index
+       movb @r5lb,*r15
+       mov  @sprite_type_index(r6),r1  ; Type index
        movb r1,*r15
        movb *r2,*r15
        mov  @sprite_x(r4),r1
@@ -280,6 +284,7 @@ upload_sprites_1:
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
 upload_sprites_3:
+       inc  r5
        ai   r4,sprite_size
        jmp  upload_sprites_1
 upload_sprites_4:
@@ -935,8 +940,8 @@ init_level:
        li   r0,>01a2                   ; Displaÿ off
        bl   @vwtr
        bl   @upload_sprite_patterns
-       bl   @clear_vdp_ram
        bl   @upload_gpu_program
+       bl   @clear_vdp_ram
        bl   @init_tl2
        bl   @vsync
        li   r0,>01e2                   ; Displaÿ on
@@ -982,7 +987,7 @@ clear_vdp_ram:
        clr  r1
        li   r2,sprptb
        bl   @vsmw
-       li   r0,>3300                  ; Disable sprites
+       li   r0,>3300                   ; Disable sprites
        bl   @vwtr
        .endproc
 *// clear_vdp_ram
