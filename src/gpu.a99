@@ -2,7 +2,7 @@
 *
 * Structure of sprites in sprbuf
 *
-gpu_sprite_index:
+gpu_sprite_addr:
        equ  0
 gpu_sprite_type_index:
        equ  2
@@ -21,16 +21,26 @@ gpu_sprite_size:
 *
 upload_gpu_program:
        .proc
+*      Stop GPU
+       li   r0,>3800
+       bl   @vwtr
 *      Upload to tmp location
        li   r0,gputmp
        li   r1,gpu_program
        li   r2,gpu_program_end-gpu_program
-*      Move to final location
        bl   @vmbw
+*      Move to final location
        li   r0,gputmp/256+>3600
        bl   @vwtr
        li   r0,gputmp%256+>3700
        bl   @vwtr
+*      Wait until done
+upload_gpu_program_1:
+       li   r0,gputmp
+       bl   @vsbr
+       andi r1,>ff00
+       ci   r1,>ff00
+       jne  upload_gpu_program_1
        .endproc
 *// upload_gpu_program
 
@@ -60,12 +70,14 @@ gpu_program_copy:
        mov  *r0+,*r1+
        dect r2
        jne  gpu_program_copy
+       seto @gputmp                    ; Signal done
        idle
 gpu_program_start:
        xorg gpuprg
+       li   r15,>47fe
+       call @sprite_collisions         ; Before sorting so we know the player is reported first
        call @sort_sprites
        call @generate_sals
-       call @sprite_collisions
        call @split_screen
 *      Return
        idle
@@ -77,16 +89,16 @@ sort_sprites:
        movb r0,@>6007
        li   r3,sprbuf
 sort_sprites_1:
-       mov  *r3+,r0                    ; Get sprite index
-       jlt  sort_sprites_4             ; -1 = End
+       mov  *r3+,r0                    ; Get sprite address
+       jeq  sort_sprites_4             ; 0 = End
        inct r3                         ; Skip sprite type index
        mov  *r3+,r1                    ; x
        s    *r3+,r1                    ; -y
        inct r3                         ; Skip z
        mov  r3,r4
 sort_sprites_2:
-       mov  *r4+,r0                    ; Get sprite index
-       jlt  sort_sprites_1             ; -1 = End
+       mov  *r4+,r0                    ; Get sprite address
+       jeq  sort_sprites_1             ; 0 = End
        inct r4                         ; Skip sprite type index
        mov  *r4+,r2                    ; x
        s    *r4+,r2                    ; -y
@@ -120,9 +132,14 @@ generate_sals:
        clr  r6                         ; Number of bottom sprites
        li   r9,sprbuf
 generate_sals_1:
-       mov  *r9+,r0                    ; Get sprite index
-       jlt  generate_sals_6            ; -1 = End
+       mov  *r9+,r0                    ; Get sprite address
+       jeq  generate_sals_6            ; 0 = End
+*      Locate sprite attributes
        mov  *r9+,r0                    ; Get sprite type index
+       sla  r0,1                       ; Index to word offset
+       ai   r0,sprite_attrs_table      ; Index entry
+       a    *r0,r0                     ; Add offset to sprite attributes
+*      Isometric coordinates
        mov  *r9+,r10                   ; Get x0
        mov  *r9+,r11                   ; Get y0
        mov  *r9+,r12                   ; Get z0
@@ -134,18 +151,18 @@ generate_sals_1:
        sra  r11,1                      ; (y0 - x0) / 2
        s    r12,r11                    ; (y0 - x0) / 2 - z0
 *      Adjust for screen layout
-       ai   r11,isometric_z0           ; Adjust zero height level
        ai   r10,isometric_x0           ; Adjust for screen layout
        ai   r11,isometric_y0           ; Adjust for screen layout
+       ai   r11,isometric_z0           ; Adjust zero height level
+*      Adjust for sprite center
+       s    *r0+,r10                   ; Cx
+       s    *r0+,r11                   ; Cy
 *      Check if whole sprite is out of screen
        c    r10,@hw_sprite_x_max
        jgt  generate_sals_1            ; Skip
        c    r11,@hw_sprite_y_max
        jgt  generate_sals_1            ; Skip
-*      Locate sprite attributes
-       sla  r0,1                       ; Index to word offset
-       ai   r0,sprite_attrs_table      ; Index entry
-       a    *r0,r0                     ; Add offset to sprite attributes
+*      Process individual hardware sprites
        mov  *r0+,r2                    ; Number of hardware sprites for this sprite
 generate_sals_2:
 *      Calculate position
@@ -212,8 +229,8 @@ sprite_collisions:
        li   r6,collsv
        li   r4,sprbuf
 sprite_collisions_1:
-       mov  *r4,r0                     ; Get sprite index
-       jlt  sprite_collisions_5        ; -1 = End
+       mov  *r4,r0                     ; Get sprite address
+       jeq  sprite_collisions_5        ; 0 = End
        mov  @gpu_sprite_x(r4),r1       ; Get x
        mov  @gpu_sprite_y(r4),r2       ; Get y
        mov  @gpu_sprite_z(r4),r3       ; Get z
@@ -229,17 +246,16 @@ sprite_collisions_1:
 sprite_collisions_1a:
        ci   r3,wall_height-8
        jgt  sprite_collisions_1b
-       mov  *r4,*r6+                   ; Write sprite index 1
-       li   r0,max_sprites
-       mov  r0,*r6+
+       mov  *r4,*r6+                   ; Write sprite address 1
+       clr  *r6+                       ; Zero means wall
        jmp  sprite_collisions_2a
 *      Collision with sprites
 sprite_collisions_1b:
        mov  r4,r5
        ai   r5,gpu_sprite_size
 sprite_collisions_2:
-       mov  *r5,r0                     ; Get sprite index
-       jlt  sprite_collisions_4        ; -1 = End
+       mov  *r5,r0                     ; Get sprite address
+       jeq  sprite_collisions_4        ; 0 = End
        mov  @gpu_sprite_x(r5),r0
        s    r1,r0
        abs  r0
@@ -256,10 +272,10 @@ sprite_collisions_2:
        ci   r0,16
        jgt  sprite_collisions_3
 *      Collision
-       mov  *r4,*r6+                   ; Write sprite index 1
-       mov  *r5,*r6+                   ; Write sprite index 2
+       mov  *r4,*r6+                   ; Write sprite address 1
+       mov  *r5,*r6+                   ; Write sprite address 2
 sprite_collisions_2a:
-       ci   r6,collsv+62
+       ci   r6,collsv+62               ; That's all the space there is
        jeq  sprite_collisions_5
 *      Next inner
 sprite_collisions_3:
@@ -270,7 +286,7 @@ sprite_collisions_4:
        ai   r4,gpu_sprite_size
        jmp  sprite_collisions_1
 sprite_collisions_5:
-       seto *r6
+       clr  *r6
        ret
 **
 *      Handle split screen

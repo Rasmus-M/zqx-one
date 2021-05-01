@@ -259,16 +259,15 @@ upload_sprites:
        bl   @vwad
        li   r2,r1lb
        li   r4,sprites
-       clr  r5                         ; Index
 upload_sprites_1:
        c    r4,@sprites_end_ptr
        jeq  upload_sprites_4
        mov  @sprite_type(r4),r6
        jeq  upload_sprites_3
        mov  @sprite_z(r4),r3
-       jlt  upload_sprites_3
-       movb r5,*r15                    ; Index
-       movb @r5lb,*r15
+       jlt  upload_sprites_3           ; Skip if z < 0
+       movb r4,*r15                    ; Sprite address
+       movb @r4lb,*r15
        mov  @sprite_type_index(r6),r1  ; Type index
        movb r1,*r15
        movb *r2,*r15
@@ -276,19 +275,17 @@ upload_sprites_1:
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
        mov  @sprite_y(r4),r1
-       s    @sprite_type_cy(r6),r1
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
        mov  r3,r1                      ; z
-       a    @sprite_type_cz(r6),r1
        movb r1,*r15
        movb *r2,*r15                   ; Low byte
 upload_sprites_3:
-       inc  r5
        ai   r4,sprite_size
        jmp  upload_sprites_1
 upload_sprites_4:
-       seto *r15
+       clr  *r15
+       clr  *r15
 upload_sprites_5:
        .endproc
 *// upload_sprites
@@ -573,28 +570,29 @@ player_collisions:
        li   r0,collsv
        bl   @vrad
 player_collisions_1:
-       movb @vdprd,r1
-       swpb r1
-       movb @vdprd,r1
-       swpb r1
-       mov  r1,r1
+*      Get 1st sprite involved in collision
+       movb @vdprd,r4
+       swpb r4
+       movb @vdprd,r4
+       swpb r4
+*      Check if it's the player
+       c    r4,@player_sprite
        jne  player_collisions_3
-       movb @vdprd,r2
-       swpb r2
-       movb @vdprd,r2
-       swpb r2
-       ci   r2,max_sprites
-       jeq  player_collisions_2
-       li   r0,sprite_size
-       mpy  r0,r2
-       ai   r3,sprites
-       mov  @sprite_type(r3),r4
-       mov  @sprite_type_lethal(r4),r5
+*      Get 2nd sprite involved in collision
+       movb @vdprd,r5
+       swpb r5
+       movb @vdprd,r5
+       swpb r5
+*      Check if 2nd sprite is in fact a wall
+       mov  r5,r5
+       jeq  player_collisions_2        ; Wall
+*      Check if 2nd sprite is lethal
+       mov  @sprite_type(r5),r7
+       mov  @sprite_type_lethal(r7),r0
        jeq  player_collisions_1
 *      Collision
 player_collisions_2:
        seto @player_status
-       jmp  player_collisions_3
 player_collisions_3:
        .endproc
 *// player_collisions
@@ -605,67 +603,38 @@ player_collisions_3:
 *
 bullet_collisions:
        .proc
-       li   r4,sprites+(2*sprite_size)
+       li   r0,collsv
+       bl   @vrad
 bullet_collisions_1:
-       c    r4,@sprites_end_ptr
-       jhe  bullet_collisions_7
+*      Get 1st sprite involved in collision
+       movb @vdprd,r4
+       swpb r4
+       movb @vdprd,r4
+       swpb r4
+       mov  r4,r4
+       jeq  bullet_collisions_3
+*      Get 2nd sprite involved in collision
+       movb @vdprd,r5
+       swpb r5
+       movb @vdprd,r5
+       swpb r5
+*      Check if 1st sprite is a bullet
        mov  @sprite_type(r4),r6
        ci   r6,sprite_type_green_bullet
-       jne  bullet_collisions_6
-       mov  @sprite_x(r4),r1
-       mov  @sprite_y(r4),r2
-       mov  @sprite_z(r4),r3
-*      Check for collision with walls
-       mov  r1,r0
-       andi r0,>fff8
-       ci   r0,wall_1_x-12
-       jeq  bullet_collisions_2
-       ci   r0,wall_2_x-12
-       jne  bullet_collisions_3
-bullet_collisions_2:
-       ci   r3,wall_height
-       jgt  bullet_collisions_3
+       jne  bullet_collisions_1
+*      Check if 2nd sprite is in fact a wall
+       mov  r5,r5
+       jne  bullet_collisions_2
+*      Collision with wall
        bl   @wall_hit_handler
-       jmp  bullet_collisions_7
-bullet_collisions_3:
-*      Check for collision with sprites
-       li   r5,sprites+(2*sprite_size)
-bullet_collisions_4:
-       c    r5,@sprites_end_ptr
-       jhe  bullet_collisions_6
-       c    r4,r5
-       jeq  bullet_collisions_5
+       jmp  bullet_collisions_3
+*      Collision with other sprite
+bullet_collisions_2:
        mov  @sprite_type(r5),r7
-       jeq  bullet_collisions_5
-       mov  @sprite_type_hit_handler(r7),r8
-       jeq  bullet_collisions_5
-       mov  @sprite_x(r5),r0
-       s    r1,r0
-       abs  r0
-       ci   r0,16
-       jgt  bullet_collisions_5
-       mov  @sprite_y(r5),r0
-       s    r2,r0
-       abs  r0
-       ci   r0,16
-       jgt  bullet_collisions_5
-       mov  @sprite_z(r5),r0
-       s    r3,r0
-       abs  r0
-       ci   r0,16
-       jgt  bullet_collisions_5
-*      Collision
-       bl   *r8                        ; Call hit handler
-       jmp  bullet_collisions_7
-*      Next inner
-bullet_collisions_5:
-       ai   r5,sprite_size
-       jmp  bullet_collisions_4
-*      Next outer
-bullet_collisions_6:
-       ai   r4,sprite_size
-       jmp  bullet_collisions_1
-bullet_collisions_7:
+       mov  @sprite_type_hit_handler(r7),r8    ; Can the sprite be hit?
+       jeq  bullet_collisions_1
+       bl   *r8
+bullet_collisions_3:
        .endproc
 *// bullet_collisions
 
@@ -913,14 +882,14 @@ vdp_registers:
 *
 init_level:
        .proc
-       li   r0,>01a2                   ; Displaÿ off
+       li   r0,>01a2                   ; Display off
        bl   @vwtr
        bl   @upload_sprite_patterns
        bl   @upload_gpu_program
        bl   @clear_vdp_ram
        bl   @init_tl2
        bl   @vsync
-       li   r0,>01e2                   ; Displaÿ on
+       li   r0,>01e2                   ; Display on
        bl   @vwtr
        clr  @scroll_pos
        li   r0,scrlpv
@@ -948,8 +917,9 @@ init_level:
        bl   @create_sprite
        mov  r4,@player_shadow
        li   r0,sprbuf
-       seto r1
-       bl   @vsbw
+       bl   @vwad
+       clr  *r15
+       clr  *r15
        .endproc
 *// init_level
 

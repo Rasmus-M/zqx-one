@@ -1,3 +1,14 @@
+sprite_attrs_cx:
+       equ  0
+sprite_attrs_cy:
+       equ  2
+sprite_attrs_n_sprites:
+       equ  4
+sprite_attrs_attributes:
+       equ  6
+sprite_attrs_size:
+       equ  6                          ; Actual size is 6 + 4 * n_sprites
+
 sprite_attrs_table:
        data sprite_attrs_plane-$
        data sprite_attrs_shadow-$
@@ -27,121 +38,169 @@ sprite_attrs_table:
 sprite_attrs:
        equ  $
 sprite_attrs_plane:
-       data 2
+       data 8                          ; cx
+       data 12                         ; cy
+       data 2                          ; n sprites
        byte 0,0,>00,>04
        byte 0,16,>04,>04
 sprite_attrs_shadow:
-       data 2
+       data 8                          ; cx
+       data 12                         ; cy
+       data 2                          ; n sprites
        byte 0,0,>10,>06
        byte 0,16,>14,>06
 sprite_attrs_silo:
-       data 4
+       data 15                         ; cx
+       data 25                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>08,>08
        byte 0,16,>0c,>08
        byte 16,0,>18,>08
        byte 16,16,>1c,>08
 sprite_attrs_radar:
-       data 4
+       data 15                         ; cx
+       data 27                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>80,>08
        byte 0,16,>84,>08
        byte 16,0,>90,>08
        byte 16,16,>94,>08
 sprite_attrs_blue_gun:
-       data 3
+       data 19                         ; cx
+       data 9                          ; cy
+       data 3                          ; n sprites
        byte 0,0,>28,>0a
        byte 0,16,>2c,>0a
        byte 16,0,>38,>0a
 sprite_attrs_green_gun:
-       data 3
+       data 20                         ; cx
+       data 26                         ; cy
+       data 3                          ; n sprites
        byte 0,0,>20,>06
        byte 16,0,>30,>06
        byte 16,16,>34,>06
 sprite_attrs_green_gun_2:
-       data 2
+       data 8                          ; cx
+       data 8                          ; cy
+       data 2                          ; n sprites
        byte 0,0,>24,>06
        byte 8,16,>3c,>06
 sprite_attrs_blue_plane:
-       data 2
+       data 12                         ; cx
+       data 8                          ; cy
+       data 2                          ; n sprites
        byte 0,0,>a8,>0a
        byte 0,16,>ac,>0a
 sprite_attrs_green_rocket_1:
-       data 2
+       data 7                          ; cx
+       data 19                         ; cy
+       data 2                          ; n sprites
        byte 0,0,>e0,>0e
        byte 16,0,>f0,>0e
 sprite_attrs_green_rocket_2:
-       data 2
+       data 7                          ; cx
+       data 19                         ; cy
+       data 2                          ; n sprites
        byte 0,0,>e0,>0e
        byte 16,0,>f4,>0e
 sprite_attrs_rocket_launch_1:
-       data 4
+       data 15                         ; cx
+       data 24                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>48,>08
        byte 0,16,>4c,>08
        byte 16,0,>58,>08
        byte 16,16,>5c,>08
 sprite_attrs_rocket_launch_2:
-       data 4
+       data 15                         ; cx
+       data 24                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>40,>08
        byte 0,16,>44,>08
        byte 16,0,>50,>08
        byte 16,16,>54,>08
 sprite_attrs_shield:
-       data 4
+       data 0                          ; cx
+       data 18                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>88,>04
        byte 0,16,>8c,>04
        byte 16,0,>98,>04
        byte 16,16,>9c,>04
 sprite_attrs_wall_left:
-       data 4
+       data 12                         ; cx
+       data 22                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>c0,>0c
        byte 0,16,>c4,>0c
        byte 16,0,>d0,>0c
        byte 16,16,>d4,>0c
 sprite_attrs_wall_right:
-       data 4
+       data 12                         ; cx
+       data 22                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>c0,>0c
        byte 0,16,>b8,>0c
        byte 16,0,>d0,>0c
        byte 16,16,>bc,>0c
 sprite_attrs_explosion_1:
-       data 4
+       data 16                         ; cx
+       data 23                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>60,>04
        byte 0,16,>64,>04
        byte 16,0,>70,>04
        byte 16,16,>74,>04
 sprite_attrs_explosion_2:
-       data 4
+       data 15                         ; cx
+       data 23                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>68,>04
        byte 0,16,>6c,>04
        byte 16,0,>78,>04
        byte 16,16,>7c,>04
 sprite_attrs_small_explosion:
-       data 1
+       data 7                          ; cx
+       data 7                          ; cy
+       data 1                          ; n sprites
        byte 0,0,>e4,>04
 sprite_attrs_hit_1:
-       data 4
+       data 16                         ; cx
+       data 16                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>a0,>04
        byte 0,16,>a4,>04
        byte 16,0,>b0,>04
        byte 16,16,>b4,>04
 sprite_attrs_hit_2:
-       data 2
+       data 13                         ; cx
+       data 15                         ; cy
+       data 2                          ; n sprites
        byte 0,0,>e8,>04
        byte 16,0,>f8,>04
 sprite_attrs_cinders:
-       data 2
+       data 15                         ; cx
+       data 9                          ; cy
+       data 2                          ; n sprites
        byte 0,0,>d8,>0c
        byte 0,16,>dc,>0c
 sprite_attrs_cinders_500:
-       data 4
+       data 15                         ; cx
+       data 17                         ; cy
+       data 4                          ; n sprites
        byte 0,0,>c8,>0c
        byte 0,16,>cc,>0c
        byte 8,0,>d8,>0c
        byte 8,16,>dc,>0c
 sprite_attrs_green_bullet:
-       data 1
+       data 0                          ; cx
+       data 12                         ; cy
+       data 1                          ; n sprites
        byte 0,0,>ec,>06
 sprite_attrs_red_bullet:
-       data 1
+       data 6                          ; cx
+       data 11                         ; cy
+       data 1                          ; n sprites
        byte 0,0,>fc,>04
 
 sprite_attrs_end:

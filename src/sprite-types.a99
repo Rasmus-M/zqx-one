@@ -1,17 +1,13 @@
 sprite_type_index:
        equ  0
-sprite_type_cy:
-       equ  2
-sprite_type_cz:
-       equ  4
 sprite_type_handler:
-       equ  6
+       equ  2
 sprite_type_hit_handler:
-       equ  8
+       equ  4
 sprite_type_lethal:
-       equ  10
+       equ  6
 sprite_type_size:
-       equ  12
+       equ  8
 
 sprite_type_index_plane:
        equ  0
@@ -67,169 +63,121 @@ no_handler:
 
 sprite_type_plane:
        data sprite_type_index_plane
-       data 8                          ; cy
-       data 8                          ; cz
        data plane_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_shadow:
        data sprite_type_index_shadow
-       data 8                          ; cy
-       data 8                          ; cz
        data shadow_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_silo:
        data sprite_type_index_silo
-       data 15                         ; cy
-       data 18                         ; cz
        data no_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_radar:
        data sprite_type_index_radar
-       data 15                         ; cy
-       data 20                         ; cz
        data no_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_gun:
        data sprite_type_index_blue_gun
-       data 19                         ; cy
-       data 0                          ; cz
        data no_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_gun:
        data sprite_type_index_green_gun
-       data 20                         ; cy
-       data 16                         ; cz
        data no_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_gun_2:
        data sprite_type_index_green_gun_2
-       data 8                          ; cy
-       data 4                          ; cz
        data no_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane:
        data sprite_type_index_blue_plane
-       data 12                         ; cy
-       data 2                          ; cz
        data no_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_rocket_1:
        data sprite_type_index_green_rocket_1
-       data 7                          ; cy
-       data 16                         ; cz
        data green_rocket_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_rocket_2:
        data sprite_type_index_green_rocket_2
-       data 7                          ; cy
-       data 16                         ; cz
        data green_rocket_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_rocket_launch_1:
        data sprite_type_index_rocket_launch_1
-       data 15                         ; cy
-       data 17                         ; cz
        data rocket_launch_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_rocket_launch_2:
        data sprite_type_index_rocket_launch_2
-       data 15                         ; cy
-       data 17                         ; cz
        data rocket_launch_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_shield:
        data sprite_type_index_shield
-       data 0                          ; cy
-       data 18                         ; cz
        data shield_handler
        data no_handler                 ; Hit handler
        data 1                          ; Lethal
 sprite_type_wall_left:
        data sprite_type_index_wall_left
-       data 12                         ; cy
-       data 16                         ; cz
        data no_handler
        data wall_hit_handler           ; Hit handler
        data 1                          ; Lethal
 sprite_type_wall_right:
        data sprite_type_index_wall_right
-       data 12                         ; cy
-       data 16                         ; cz
        data no_handler
        data wall_hit_handler           ; Hit handler
        data 1                          ; Lethal
 sprite_type_explosion_1:
        data sprite_type_index_explosion_1
-       data 16                         ; cy
-       data 15                         ; cz
        data explosion_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_explosion_2:
        data sprite_type_index_explosion_2
-       data 15                         ; cy
-       data 16                         ; cz
        data explosion_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_small_explosion:
        data sprite_type_index_small_explosion
-       data 7                          ; cy
-       data 4                          ; cz
        data small_explosion_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_hit_1:
        data sprite_type_index_hit_1
-       data 16                          ; cy
-       data 8                           ; cz
        data hit_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_hit_2:
        data sprite_type_index_hit_2
-       data 13                         ; cy
-       data 9                          ; cz
        data hit_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_cinders:
        data sprite_type_index_cinders
-       data 15                         ; cy
-       data 2                          ; cz
        data cinders_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_cinders_500:
        data sprite_type_index_cinders_500
-       data 15                         ; cy
-       data 10                         ; cz
        data cinders_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_green_bullet:
        data sprite_type_index_green_bullet
-       data 0                          ; cy
-       data 12                         ; cz
        data green_bullet_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_red_bullet:
        data sprite_type_index_red_bullet
-       data 6                          ; cy
-       data 8                          ; cz
        data no_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
