@@ -30,8 +30,8 @@ sprite_attrs_table:
        data sprite_attrs_small_explosion-$
        data sprite_attrs_hit_1-$
        data sprite_attrs_hit_2-$
-       data sprite_attrs_cinders-$
-       data sprite_attrs_cinders_500-$
+       data sprite_attrs_debris-$
+       data sprite_attrs_debris_500-$
        data sprite_attrs_green_bullet-$
        data sprite_attrs_red_bullet-$
 
@@ -178,13 +178,13 @@ sprite_attrs_hit_2:
        data 2                          ; n sprites
        byte 0,0,>e8,>04
        byte 16,0,>f8,>04
-sprite_attrs_cinders:
+sprite_attrs_debris:
        data 15                         ; cx
        data 9                          ; cy
        data 2                          ; n sprites
        byte 0,0,>d8,>0c
        byte 0,16,>dc,>0c
-sprite_attrs_cinders_500:
+sprite_attrs_debris_500:
        data 15                         ; cx
        data 17                         ; cy
        data 4                          ; n sprites

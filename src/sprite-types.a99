@@ -49,9 +49,9 @@ sprite_type_index_hit_1:
        equ  18
 sprite_type_index_hit_2:
        equ  19
-sprite_type_index_cinders:
+sprite_type_index_debris:
        equ  20
-sprite_type_index_cinders_500:
+sprite_type_index_debris_500:
        equ  21
 sprite_type_index_green_bullet:
        equ  22
@@ -104,12 +104,12 @@ sprite_type_blue_plane:
 sprite_type_green_rocket_1:
        data sprite_type_index_green_rocket_1
        data green_rocket_handler
-       data explode_hit_handler        ; Hit handler
+       data small_explode_hit_handler   ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_rocket_2:
        data sprite_type_index_green_rocket_2
        data green_rocket_handler
-       data explode_hit_handler        ; Hit handler
+       data small_explode_hit_handler  ; Hit handler
        data 1                          ; Lethal
 sprite_type_rocket_launch_1:
        data sprite_type_index_rocket_launch_1
@@ -161,14 +161,14 @@ sprite_type_hit_2:
        data hit_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
-sprite_type_cinders:
-       data sprite_type_index_cinders
-       data cinders_handler
+sprite_type_debris:
+       data sprite_type_index_debris
+       data debris_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
-sprite_type_cinders_500:
-       data sprite_type_index_cinders_500
-       data cinders_handler
+sprite_type_debris_500:
+       data sprite_type_index_debris_500
+       data debris_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_green_bullet:

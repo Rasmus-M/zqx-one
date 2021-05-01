@@ -182,11 +182,11 @@ explosion_handler:
        ci   r0,32
        jl   explosion_handler_1
        seto @sprite_counter(r4)
-       li   r0,sprite_type_cinders
+       li   r0,sprite_type_debris
        mov  @sprite_y(r4),r1
        ci   r1,170
        jlt  explosion_handler_3
-       li   r0,sprite_type_cinders_500
+       li   r0,sprite_type_debris_500
        jmp  explosion_handler_3
 explosion_handler_1:
        andi r0,>0008
@@ -204,16 +204,16 @@ explosion_handler_3:
 *
 * Cinders handler
 *
-cinders_handler:
+debris_handler:
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
        ci   r0,64
-       jlt  cinders_handler_1
+       jlt  debris_handler_1
        clr  @sprite_type(r4)
-cinders_handler_1:
+debris_handler_1:
        rt
-*// cinders_handler
+*// debris_handler
 
 *********************************************************************
 *
@@ -250,6 +250,21 @@ explode_hit_handler:
        seto @sprite_counter(r5)
        rt
 *// explode_hit_handler
+
+*********************************************************************
+*
+* Small explode hit handler
+*
+* r4: bullet sprite
+* r5: sprite that's hit
+*
+small_explode_hit_handler:
+       clr  @sprite_type(r4)           ; Remove bullet
+       li   r0,sprite_type_small_explosion
+       mov  r0,@sprite_type(r5)        ; Change sprite that's hit to small explosion
+       seto @sprite_counter(r5)
+       rt
+*// small_explode_hit_handler
 
 *********************************************************************
 *

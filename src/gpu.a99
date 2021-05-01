@@ -267,6 +267,7 @@ sprite_collisions_1a:
        jmp  sprite_collisions_2a
 *      Collision with sprites
 sprite_collisions_1b:
+       ai   r3,-8                      ; Adjust for minimum height of plane
        mov  r4,r5
        ai   r5,gpu_sprite_size
 sprite_collisions_2:
