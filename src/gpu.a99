@@ -21,9 +21,10 @@ gpu_sprite_size:
 *
 upload_gpu_program:
        .proc
-*      Stop GPU
-       li   r0,>3800
-       bl   @vwtr
+*      Set GPU status
+       li   r0,gpusta
+       seto r1
+       bl   @vsbw
 *      Upload to tmp location
        li   r0,gputmp
        li   r1,gpu_program
@@ -35,14 +36,23 @@ upload_gpu_program:
        li   r0,gputmp%256+>3700
        bl   @vwtr
 *      Wait until done
-upload_gpu_program_1:
-       li   r0,gputmp
-       bl   @vsbr
-       andi r1,>ff00
-       ci   r1,>ff00
-       jne  upload_gpu_program_1
+       bl   @wait_gpu
        .endproc
 *// upload_gpu_program
+
+***************************************************************
+*
+* Wait for GPU to finish
+*
+wait_gpu:
+       .proc
+wait_gpu_1:
+       li   r0,gpusta
+       bl   @vsbr
+       andi r1,>ff00
+       jne  wait_gpu_1
+       .endproc
+*// wait_gpu
 
 ***************************************************************
 *
@@ -50,6 +60,10 @@ upload_gpu_program_1:
 *
 gpu_run:
        .proc
+*      Set GPU status
+       li   r0,gpusta
+       seto r1
+       bl   @vsbw
 *      Set the GPU PC which also triggers it
        li   r0,gpuprg/256+>3600
        bl   @vwtr
@@ -70,7 +84,7 @@ gpu_program_copy:
        mov  *r0+,*r1+
        dect r2
        jne  gpu_program_copy
-       seto @gputmp                    ; Signal done
+       clr  @gpusta                    ; Signal done
        idle
 gpu_program_start:
        xorg gpuprg
@@ -78,6 +92,7 @@ gpu_program_start:
        call @sprite_collisions         ; Before sorting so we know the player is reported first
        call @sort_sprites
        call @generate_sals
+       clr  @gpusta                    ; Signal done
        call @split_screen
 *      Return
        idle
@@ -143,7 +158,7 @@ generate_sals_1:
        mov  *r9+,r10                   ; Get x0
        mov  *r9+,r11                   ; Get y0
        mov  *r9+,r12                   ; Get z0
-       s    @scrlpv,r10                ; Adjust for scrolling
+       s    @scrlps,r10                ; Adjust for scrolling
 *      Isometric projection
        mov  r10,r13                    ; Save x0
        a    r11,r10                    ; x0 + y0
@@ -226,7 +241,7 @@ generate_sals_6:
 *      Sprite collisions
 *
 sprite_collisions:
-       li   r6,collsv
+       li   r6,collis
        li   r4,sprbuf
 sprite_collisions_1:
        mov  *r4,r0                     ; Get sprite address
@@ -275,7 +290,7 @@ sprite_collisions_2:
        mov  *r4,*r6+                   ; Write sprite address 1
        mov  *r5,*r6+                   ; Write sprite address 2
 sprite_collisions_2a:
-       ci   r6,collsv+62               ; That's all the space there is
+       ci   r6,collis+62               ; That's all the space there is
        jeq  sprite_collisions_5
 *      Next inner
 sprite_collisions_3:

@@ -29,9 +29,9 @@ grmwa  equ  >9C02                      ; GROM address write
 *
 nametb equ  >0000                      ; Name table base
 namet0 equ  >0000                      ; Name table page 0
-gputmp equ  >0000                      ; GPU program temporary location
-scrlpv equ  >03c0                      ; Scroll VDP variable
-collsv equ  >03c2                      ; Collision results
+gpusta equ  >03c0                      ; GPU status
+scrlps equ  >03c2                      ; Scroll position
+collis equ  >03c4                      ; Collision results
 tilatb equ  >0400                      ; Tile attribute table
 spratb equ  >0500                      ; Sprite attribute table
 sprat2 equ  >0580                      ; Sprite attribute table 2
@@ -42,6 +42,7 @@ ptrntb equ  >1000                      ; Pattern table base
 ptrnt0 equ  >1000                      ; Pattern table plane 0
 ptrnt1 equ  >1800                      ; Pattern table plane 1
 ptrnt2 equ  >2000                      ; Pattern table plane 2
+gputmp equ  >2800                      ; GPU program temporary location
 sprptb equ  >2800                      ; Sprite pattern table base
 sprpt0 equ  >2800                      ; Sprite pattern table plane 0
 sprpt1 equ  >3000                      ; Sprite pattern table plane 1
@@ -181,7 +182,7 @@ main:
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
        li   r15,vdpwd                  ; Constant for writing to VDP
-       bl   @graphics_mode
+       bl   @one_time_init
 restart:
        bl   @init_level
 loop:
@@ -194,6 +195,7 @@ loop:
        bl   @fire
        bl   @move_sprites
        bl   @create_sprites
+       bl   @wait_gpu
        bl   @player_collisions
        bl   @bullet_collisions
        bl   @upload_sprites
@@ -567,7 +569,7 @@ move_sprites_4:
 *
 player_collisions:
        .proc
-       li   r0,collsv
+       li   r0,collis
        bl   @vrad
 player_collisions_1:
 *      Get 1st sprite involved in collision
@@ -603,7 +605,7 @@ player_collisions_3:
 *
 bullet_collisions:
        .proc
-       li   r0,collsv
+       li   r0,collis
        bl   @vrad
 bullet_collisions_1:
 *      Get 1st sprite involved in collision
@@ -736,7 +738,7 @@ scroll:
        .proc
        inc  @scroll_pos
        mov  @scroll_pos,r1
-       li   r0,scrlpv                  ; Update VPD variable
+       li   r0,scrlps                  ; Update VPD variable
        bl   @vsbw                      ; High byte
        movb @r1lb,*r15                 ; Low byte
        mov  r1,@scroll_x
@@ -831,6 +833,18 @@ check_key:
 
 *********************************************************************
 *
+* One time initializations
+*
+one_time_init:
+       .proc
+       bl   @graphics_mode
+       bl   @upload_gpu_program
+       bl   @upload_sprite_patterns
+       .endproc
+*// one_time_init
+
+*********************************************************************
+*
 * Set graphics mode
 *
 graphics_mode:
@@ -884,15 +898,13 @@ init_level:
        .proc
        li   r0,>01a2                   ; Display off
        bl   @vwtr
-       bl   @upload_sprite_patterns
-       bl   @upload_gpu_program
        bl   @clear_vdp_ram
        bl   @init_tl2
        bl   @vsync
        li   r0,>01e2                   ; Display on
        bl   @vwtr
        clr  @scroll_pos
-       li   r0,scrlpv
+       li   r0,scrlps
        clr  r1
        bl   @vsbw
        clr  *r15
