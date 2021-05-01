@@ -29,6 +29,7 @@ grmwa  equ  >9C02                      ; GROM address write
 *
 nametb equ  >0000                      ; Name table base
 namet0 equ  >0000                      ; Name table page 0
+vdpvar equ  >03c0                      ; VDP variables
 gpusta equ  >03c0                      ; GPU status
 scrlps equ  >03c2                      ; Scroll position
 collis equ  >03c4                      ; Collision results
@@ -191,13 +192,13 @@ loop:
        bl   @gpu_run
        bl   @upload_characters
        bl   @draw_column
+       bl   @wait_gpu
+       bl   @player_collisions
+       bl   @bullet_collisions
        bl   @move_player
        bl   @fire
        bl   @move_sprites
        bl   @create_sprites
-       bl   @wait_gpu
-       bl   @player_collisions
-       bl   @bullet_collisions
        bl   @upload_sprites
        mov  @player_status,r0
        jne  restart

@@ -290,8 +290,8 @@ sprite_collisions_2:
        mov  *r4,*r6+                   ; Write sprite address 1
        mov  *r5,*r6+                   ; Write sprite address 2
 sprite_collisions_2a:
-       ci   r6,collis+62               ; That's all the space there is
-       jeq  sprite_collisions_5
+       ci   r6,vdpvar+60               ; That's all the space there is
+       jhe  sprite_collisions_5
 *      Next inner
 sprite_collisions_3:
        ai   r5,gpu_sprite_size
