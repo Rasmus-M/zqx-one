@@ -109,7 +109,7 @@ sort_sprites_1:
        inct r3                         ; Skip sprite type index
        mov  *r3+,r1                    ; x
        s    *r3+,r1                    ; -y
-       inct r3                         ; Skip z
+       s    *r3+,r1                    ; -z
        mov  r3,r4
 sort_sprites_2:
        mov  *r4+,r0                    ; Get sprite address
@@ -117,7 +117,7 @@ sort_sprites_2:
        inct r4                         ; Skip sprite type index
        mov  *r4+,r2                    ; x
        s    *r4+,r2                    ; -y
-       inct r4                         ; Skip z
+       s    *r4+,r2                    ; -z
        c    r1,r2
        jlt  sort_sprites_2
 *      Swap sprites
@@ -132,6 +132,7 @@ sort_sprites_3:
        mov  r0,*r6+
        dec  r7
        jne  sort_sprites_3
+       mov  r2,r1
        jmp  sort_sprites_2
 sort_sprites_4:
        ret
