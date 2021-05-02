@@ -124,7 +124,7 @@ sprite_type_rocket_launch_2:
 sprite_type_shield:
        data sprite_type_index_shield
        data shield_handler
-       data no_handler                 ; Hit handler
+       data wall_hit_handler           ; Hit handler
        data 1                          ; Lethal
 sprite_type_wall_left:
        data sprite_type_index_wall_left
