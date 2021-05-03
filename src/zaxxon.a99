@@ -624,8 +624,17 @@ bullet_collisions_1:
 *      Check if 1st sprite is a bullet
        mov  @sprite_type(r4),r6
        ci   r6,sprite_type_green_bullet
+       jeq  bullet_collisions_1a
+*      Check if 2nd sprite is a bullet
+       mov  @sprite_type(r5),r6
+       ci   r6,sprite_type_green_bullet
        jne  bullet_collisions_1
+*      Swap 1st and 2nd
+       mov  r4,r0
+       mov  r5,r4
+       mov  r0,r5
 *      Check if 2nd sprite is in fact a wall
+bullet_collisions_1a:
        mov  r5,r5
        jne  bullet_collisions_2
 *      Collision with wall

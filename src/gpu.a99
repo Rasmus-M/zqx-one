@@ -247,6 +247,7 @@ sprite_collisions:
 sprite_collisions_1:
        mov  *r4,r0                     ; Get sprite address
        jeq  sprite_collisions_5        ; 0 = End
+       mov  @gpu_sprite_type_index(r4),r0
        mov  @gpu_sprite_x(r4),r1       ; Get x
        mov  @gpu_sprite_y(r4),r2       ; Get y
        mov  @gpu_sprite_z(r4),r3       ; Get z
@@ -267,7 +268,17 @@ sprite_collisions_1a:
        jmp  sprite_collisions_2a
 *      Collision with sprites
 sprite_collisions_1b:
-       ai   r3,-8                      ; Adjust for minimum height of plane
+       li   r7,16                      ; Default presicion for detecting collision
+       ci   r0,sprite_type_index_plane
+       jne  sprite_collisions_1c
+       li   r7,12                      ; Increased precision for colllision with plane
+       jmp  sprite_collisions_1d
+sprite_collisions_1c:
+       ci   r0,sprite_type_index_green_bullet
+       jne  sprite_collisions_1e
+sprite_collisions_1d:
+       ai   r3,-8                      ; Adjust z for minimum height of plane
+sprite_collisions_1e:
        mov  r4,r5
        ai   r5,gpu_sprite_size
 sprite_collisions_2:
@@ -276,17 +287,17 @@ sprite_collisions_2:
        mov  @gpu_sprite_x(r5),r0
        s    r1,r0
        abs  r0
-       ci   r0,16
+       c    r0,r7
        jgt  sprite_collisions_3
        mov  @gpu_sprite_y(r5),r0
        s    r2,r0
        abs  r0
-       ci   r0,16
+       c    r0,r7
        jgt  sprite_collisions_3
        mov  @gpu_sprite_z(r5),r0
        s    r3,r0
        abs  r0
-       ci   r0,16
+       c    r0,r7
        jgt  sprite_collisions_3
 *      Collision
        mov  *r4,*r6+                   ; Write sprite address 1
