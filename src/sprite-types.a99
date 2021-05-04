@@ -83,7 +83,7 @@ sprite_type_radar:
        data 1                          ; Lethal
 sprite_type_blue_gun:
        data sprite_type_index_blue_gun
-       data no_handler
+       data blue_gun_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_gun:
@@ -178,6 +178,6 @@ sprite_type_green_bullet:
        data 0                          ; Lethal
 sprite_type_red_bullet:
        data sprite_type_index_red_bullet
-       data no_handler
+       data red_bullet_handler
        data no_handler                 ; Hit handler
-       data 0                          ; Lethal
+       data 1                          ; Lethal

@@ -217,6 +217,45 @@ debris_handler_1:
 
 *********************************************************************
 *
+* Blue gun handler
+*
+blue_gun_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       jlt  blue_gun_handler_0
+       dec  @sprite_counter(r4)
+       jgt  blue_gun_handler_1
+*      Create rocket
+       .push r4
+       bl   @allocate_sprite
+       mov  r4,r5
+       .pop r4
+       mov  r5,r5
+       jeq  blue_gun_handler_1
+       li   r0,sprite_type_red_bullet
+       mov  r0,@sprite_type(r5)
+       bl   @align_sprites
+       li   r0,24
+       s    r0,@sprite_x(r5)
+blue_gun_handler_0:
+       bl   @rand
+       andi r0,127
+       mov  r0,@sprite_counter(r4)
+blue_gun_handler_1:
+       .endproc
+*// blue_gun_handler
+
+*********************************************************************
+*
+* Red bullet handler
+*
+red_bullet_handler:
+       dec  @sprite_x(r4)
+       rt
+*// red_bullet_handler
+
+*********************************************************************
+*
 * Hit handler
 *
 hit_handler:

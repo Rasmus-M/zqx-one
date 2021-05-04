@@ -143,8 +143,10 @@ padvar:
        equ  padcon+2                   ; Start of pad variables
 vdp_status:
        equ  padvar
-scroll_pos:
+rand_no:
        equ  vdp_status+2
+scroll_pos:
+       equ  rand_no+2
 scroll_x:
        equ  scroll_pos+2
 scroll_y:
@@ -183,6 +185,7 @@ main:
        lwpi wrksp                      ; Setup workspace
        li   r10,stack                  ; Setup stack pointer
        li   r15,vdpwd                  ; Constant for writing to VDP
+       mov  @rndsd,@rand_no            ; Save random number seed
        bl   @one_time_init
 restart:
        bl   @init_level
@@ -840,6 +843,20 @@ check_key:
        tb   0                          ; Test key, EQ if not pressed
        rt
 *// check_key
+
+*********************************************************************
+*
+* Random number generator
+*
+rand:
+       li   r0,28643                   ; A prime number to multiply by
+       mpy  @rand_no,r0
+       ai   r1,31873                   ; Add a prime number
+       src  r1,7                       ; Shift to break odd/even pattern
+       mov  r1,@rand_no
+       mov  r1,r0
+       rt
+*// rand
 
 *********************************************************************
 *
