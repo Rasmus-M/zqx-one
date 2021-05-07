@@ -84,62 +84,61 @@ public class Encode implements Runnable {
                     if (VERBOSE) System.out.println("Used: " + used.size());
                     // Process screen
                     for (int y = 0; y < height; y++) {
-                        for (int x = x0; x < x0 + WINDOW_WIDTH; x++) {
-                            int ch = getMapChar(map, x, y);
-                            // Is char in current set?
-                            Integer runningIndex = null;
+                        int x = x0 + WINDOW_WIDTH - 1;
+                        int ch = getMapChar(map, x, y);
+                        // Is char in current set?
+                        Integer runningIndex = null;
+                        for (int i = 0; i < runningChars.length && runningIndex == null; i++) {
+                            Integer globalIndex = runningChars[i];
+                            if (globalIndex != null && globalIndex == ch) {
+                                runningIndex = i;
+                            }
+                        }
+                        // If not, add it if there is space
+                        if (runningIndex == null) {
                             for (int i = 0; i < runningChars.length && runningIndex == null; i++) {
-                                Integer globalIndex = runningChars[i];
-                                if (globalIndex != null && globalIndex == ch) {
+                                Integer oldGlobalIndex = runningChars[i];
+                                if (oldGlobalIndex == null || !used.contains(oldGlobalIndex)) {
                                     runningIndex = i;
+                                    Integer globalIndex = ch;
+                                    runningChars[runningIndex] = globalIndex;
+                                    maxIndex = Math.max(maxIndex, runningIndex);
+                                    added.put(runningIndex, globalIndex);
                                 }
                             }
-                            // If not, add it if there is space
-                            if (runningIndex == null) {
-                                for (int i = 0; i < runningChars.length && runningIndex == null; i++) {
-                                    Integer oldGlobalIndex = runningChars[i];
-                                    if (oldGlobalIndex == null || !used.contains(oldGlobalIndex)) {
-                                        runningIndex = i;
-                                        Integer globalIndex = ch;
-                                        runningChars[runningIndex] = globalIndex;
-                                        maxIndex = Math.max(maxIndex, runningIndex);
-                                        added.put(runningIndex, globalIndex);
+                        }
+                        // If not, find best match in current set
+                        if (runningIndex == null) {
+                            runningIndex = findClosestTilePattern(ch, runningChars, used, tilePatterns);
+                            int globalIndex = runningChars[runningIndex];
+                            if (VERBOSE) {
+                                System.out.println("*** Pattern " + globalIndex + " (" + runningIndex + ") selected instead of " + ch);
+                                System.out.println("x=" + x + " y=" + y);
+                                boolean found = false;
+                                for (int[] pair : replacements) {
+                                    if (pair[0] == ch && pair[1] == globalIndex) {
+                                        found = true;
+                                        break;
                                     }
                                 }
-                            }
-                            // If not, find best match in current set
-                            if (runningIndex == null) {
-                                runningIndex = findClosestTilePattern(ch, runningChars, used, tilePatterns);
-                                int globalIndex = runningChars[runningIndex];
-                                if (VERBOSE) {
-                                    System.out.println("*** Pattern " + globalIndex + " (" + runningIndex + ") selected instead of " + ch);
-                                    System.out.println("x=" + x + " y=" + y);
-                                    boolean found = false;
-                                    for (int[] pair : replacements) {
-                                        if (pair[0] == ch && pair[1] == globalIndex) {
-                                            found = true;
-                                            break;
-                                        }
-                                    }
-                                    if (!found) {
-                                        replacements.add(new int[] {ch, globalIndex});
-                                    }
+                                if (!found) {
+                                    replacements.add(new int[] {ch, globalIndex});
                                 }
                             }
-                            // Record in map
-                            if (runningIndex != null) {
-                                int ix = x + WINDOW_WIDTH;
-                                if (ix >= 0 && ix < newMap[y].length) {
-                                    newMap[y][ix] = runningIndex;
-                                    if (x==157 && y==24) {
-                                        System.out.println("Write " + runningIndex + " (" + runningChars[runningIndex] + ") to x="+ix + ", y=" + y);
-                                    }
-                                } else {
-                                    throw new Exception("Index out of range: " + ix);
+                        }
+                        // Record in map
+                        if (runningIndex != null) {
+                            int ix = x + WINDOW_WIDTH;
+                            if (ix >= 0 && ix < newMap[y].length) {
+                                newMap[y][ix] = runningIndex;
+                                if (x==157 && y==24) {
+                                    System.out.println("Write " + runningIndex + " (" + runningChars[runningIndex] + ") to x="+ix + ", y=" + y);
                                 }
                             } else {
-                                throw new Exception("No room found for key " + hexWord(ch));
+                                throw new Exception("Index out of range: " + ix);
                             }
+                        } else {
+                            throw new Exception("No room found for key " + hexWord(ch));
                         }
                     }
                     int iMax = 0;
