@@ -1003,12 +1003,13 @@ level_1_156_add:
        byte >b8, >02, >0a              ; >020a
        byte >9d, >01, >76              ; >0176
 level_1_157_add:
-       byte >08
+       byte >09
        byte >f5, >02, >70              ; >0270
        byte >f6, >00, >fd              ; >00fd
        byte >f7, >02, >42              ; >0242
        byte >f8, >00, >95              ; >0095
        byte >b9, >01, >5b              ; >015b
+       byte >f9, >01, >ee              ; >01ee
        byte >ba, >02, >85              ; >0285
        byte >bb, >01, >48              ; >0148
        byte >1c, >02, >b7              ; >02b7

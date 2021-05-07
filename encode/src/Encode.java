@@ -16,7 +16,7 @@ public class Encode implements Runnable {
     private static final int MAP_HEIGHT = 26;
     private static final int[] MAP_WIDTHS = {228, 224};
     private static final int[] TILES = {702, 0};
-    private static final int MAX_CHARS = 249;
+    private static final int MAX_CHARS = 250;
 
     private final int level;
     private final String fileName;

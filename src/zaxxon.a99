@@ -76,9 +76,9 @@ map_height:
 map_size:
        equ  map_width*map_height
 tl2_first_char:
-       equ  249
+       equ  250
 tl2_chars:
-       equ  7
+       equ  6
 max_sprites:
        equ  18
 level_1_map:
@@ -1010,11 +1010,11 @@ init_tl2:
        li   r2,960
        bl   @vmbw
        li   r0,ptrnt0+(tl2_first_char*8)
-       li   r1,P0_249x
+       li   r1,P0_250x
        li   r2,tl2_chars*8
        bl   @vmbw
        li   r0,tilatb+tl2_first_char
-       li   r1,TAT249x
+       li   r1,TAT250x
        li   r2,tl2_chars
        bl   @vmbw
        .endproc
