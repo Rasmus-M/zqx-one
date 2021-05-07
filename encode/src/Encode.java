@@ -15,7 +15,7 @@ public class Encode implements Runnable {
     private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
     private static final int[] MAP_WIDTHS = {228, 224};
-    private static final int TILES = 702;
+    private static final int[] TILES = {702, 0};
     private static final int MAX_CHARS = 249;
 
     private final int level;
@@ -49,7 +49,7 @@ public class Encode implements Runnable {
             if (len == width * height * 2) {
                 System.out.println(len + " bytes loaded.");
                 // Read tile patterns
-                int[][][] tilePatterns = readTilePatterns("tile-patterns.png");
+                int[][][] tilePatterns = readTilePatterns("tile-patterns-" + level + ".png");
                 // Process map
                 int[][] map = new int[height][width];
                 int n = 0;
@@ -71,7 +71,7 @@ public class Encode implements Runnable {
                     // Process screen
                     if (VERBOSE) System.out.println("Screen " + screen + ":");
                     Map<Integer, Integer> added = new HashMap<>();
-                    for (int y = 0; y < height; y++) {
+                    for (int y = height - 1; y >= 0; y--) { // Backwards to favor bottom of screen
                         int x = x0 + WINDOW_WIDTH - 1;
                         int ch = getMapChar(map, x, y);
                         // Is char in current set?
@@ -243,12 +243,13 @@ public class Encode implements Runnable {
     }
 
     private int[][][] readTilePatterns(String filename) throws IOException {
-        int[][][] patterns = new int[TILES][8][8];
+        int nTiles = TILES[level - 1];
+        int[][][] patterns = new int[nTiles][8][8];
         BufferedImage image = ImageIO.read(new File(filename));
         int i = 0;
         for (int y0 = 0; y0 < image.getHeight(); y0 += 8) {
             for (int x0 = 0; x0 < image.getWidth(); x0 += 8) {
-                if (i < TILES) {
+                if (i < nTiles) {
                     int[][] pattern = patterns[i];
                     for (int y = 0; y < 8; y++) {
                         for (int x = 0; x < 8; x++) {
