@@ -1,20 +1,22 @@
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.awt.image.WritableRaster;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 
 /**
  * Created by Rasmus on 16-02-2021.
  */
 public class Encode implements Runnable {
 
-    private static final boolean VERBOSE = false;
+    private static final boolean VERBOSE = true;
     private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
     private static final int[] MAP_WIDTHS = {228, 224};
     private static final int TILES = 702;
-    private static final int MAX_CHARS = 249;
+    private static final int MAX_CHARS = 248;
 
     private final int level;
     private final String fileName;
@@ -61,6 +63,7 @@ public class Encode implements Runnable {
                 StringBuilder diff_out = new StringBuilder();
                 int[][] newMap = new int[height][width + WINDOW_WIDTH];
                 Integer[] runningChars = new Integer[MAX_CHARS];
+                List<int[]> replacements = new ArrayList<>();
                 int maxSize = 0;
                 int maxIndex = 0;
                 int screen = 0;
@@ -73,7 +76,9 @@ public class Encode implements Runnable {
                     for (int y = 0; y < height; y++) {
                         for (int x = x0; x < x0 + WINDOW_WIDTH; x++) {
                             int ch = getMapChar(map, x, y);
-                            used.add(ch);
+                            if (used.size() < MAX_CHARS) {
+                                used.add(ch);
+                            }
                         }
                     }
                     if (VERBOSE) System.out.println("Used: " + used.size());
@@ -89,7 +94,7 @@ public class Encode implements Runnable {
                                     runningIndex = i;
                                 }
                             }
-                            // If not, add it
+                            // If not, add it if there is space
                             if (runningIndex == null) {
                                 for (int i = 0; i < runningChars.length && runningIndex == null; i++) {
                                     Integer oldGlobalIndex = runningChars[i];
@@ -99,22 +104,38 @@ public class Encode implements Runnable {
                                         runningChars[runningIndex] = globalIndex;
                                         maxIndex = Math.max(maxIndex, runningIndex);
                                         added.put(runningIndex, globalIndex);
-                                        used.add(globalIndex);
                                     }
                                 }
                             }
-                            // Find best match
+                            // If not, find best match in current set
                             if (runningIndex == null) {
-                                runningIndex = findClosestTilePattern(ch, runningChars, tilePatterns);
-                                if (VERBOSE) System.out.println("Char " + runningIndex + " selected instead of " + ch);
+                                runningIndex = findClosestTilePattern(ch, runningChars, used, tilePatterns);
+                                int globalIndex = runningChars[runningIndex];
+                                if (VERBOSE) {
+                                    System.out.println("*** Pattern " + globalIndex + " (" + runningIndex + ") selected instead of " + ch);
+                                    System.out.println("x=" + x + " y=" + y);
+                                    boolean found = false;
+                                    for (int[] pair : replacements) {
+                                        if (pair[0] == ch && pair[1] == globalIndex) {
+                                            found = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!found) {
+                                        replacements.add(new int[] {ch, globalIndex});
+                                    }
+                                }
                             }
                             // Record in map
                             if (runningIndex != null) {
                                 int ix = x + WINDOW_WIDTH;
                                 if (ix >= 0 && ix < newMap[y].length) {
                                     newMap[y][ix] = runningIndex;
+                                    if (x==157 && y==24) {
+                                        System.out.println("Write " + runningIndex + " (" + runningChars[runningIndex] + ") to x="+ix + ", y=" + y);
+                                    }
                                 } else {
-                                    System.out.println("Index out of range: " + ix);
+                                    throw new Exception("Index out of range: " + ix);
                                 }
                             } else {
                                 throw new Exception("No room found for key " + hexWord(ch));
@@ -147,10 +168,10 @@ public class Encode implements Runnable {
                     if (VERBOSE) System.out.print("Delete: ");
 //                    diff_out.append("level_" + level + "_" + to3Digits(screen) + "_delete:\n");
 //                    diff_out.append("       byte " + hexByte(deleted.size()) + "\n");
-//                    for (Integer i : deleted) {
-//                        if (VERBOSE) System.out.print(hexByte(i) + " ");
+                    for (Integer i : deleted) {
+                        if (VERBOSE) System.out.print(hexByte(i) + " ");
 //                        diff_out.append("       byte " + hexByte(i) + "\n");
-//                    }
+                    }
                     if (VERBOSE) System.out.println();
 
                     if (VERBOSE) System.out.println("Deleted: " + deleted.size() + ", Added: " + added.size() + ", Used = "+ used.size() + " of " + (iMax + 1));
@@ -189,6 +210,18 @@ public class Encode implements Runnable {
                 System.out.println("Max index: " + maxIndex);
                 System.out.println("Map width: " + (newMap[0].length - WINDOW_WIDTH));
                 System.out.println();
+
+                if (VERBOSE && replacements.size() > 0) {
+                    BufferedImage image = new BufferedImage(17, replacements.size() * 9 - 1, BufferedImage.TYPE_INT_ARGB);
+                    WritableRaster raster = image.getRaster();
+                    int y0 = 0;
+                    for (int[] pair : replacements) {
+                        writePatternToRaster(raster, 0, y0, tilePatterns[pair[0]]);
+                        writePatternToRaster(raster, 9, y0, tilePatterns[pair[1]]);
+                        y0 += 9;
+                    }
+                    ImageIO.write(image, "png", new File("replacements.png"));
+                }
             } else {
                 throw new Exception("Error: " + len + " bytes found. Expected " + (width * height) + " bytes.");
             }
@@ -260,17 +293,17 @@ public class Encode implements Runnable {
         return ">" + s.toString();
     }
 
-    private int findClosestTilePattern(int n, Integer[] runningChars, int[][][] tilePatterns) {
+    private int findClosestTilePattern(int n, Integer[] runningChars, Set<Integer> used, int[][][] tilePatterns) {
         int[][] tilePattern = tilePatterns[n];
         int closest = 0;
         double minDist = Double.MAX_VALUE;
         for (int i = 0; i < runningChars.length; i++) {
             Integer ch = runningChars[i];
-            if (ch != null) {
+            if (ch != null && used.contains(ch)) {
                 double dist = gridColorDistance(tilePattern, tilePatterns[ch]);
                 if (dist < minDist) {
                     minDist = dist;
-                    closest = ch;
+                    closest = i;
                 }
             }
         }
@@ -295,4 +328,13 @@ public class Encode implements Runnable {
         return Math.sqrt(Math.pow(c1.getRed() - c2.getRed(), 2) + Math.pow(c1.getGreen() - c2.getGreen(), 2) + Math.pow(c1.getBlue() - c2.getBlue(), 2));
     }
 
+    private void writePatternToRaster(WritableRaster raster, int x0, int y0, int[][] pattern) {
+        for (int y = 0; y < 8; y++) {
+            for (int x = 0; x < 8; x++) {
+                Color color = new Color(pattern[y][x]);
+                int[] pixel = new int[] {color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()};
+                raster.setPixel(x + x0, y + y0, pixel);
+            }
+        }
+    }
 }
