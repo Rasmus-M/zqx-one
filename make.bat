@@ -12,17 +12,19 @@ xas99.py -b -w patterns/sprite-patterns.a99 -o bin/sprite-patterns.bin
 xas99.py -b -w patterns/char-patterns1-1.a99 -o bin/char-patterns1-1.bin
 xas99.py -b -w patterns/char-patterns1-2.a99 -o bin/char-patterns1-2.bin
 xas99.py -b -w patterns/char-patterns1-3.a99 -o bin/char-patterns1-3.bin
+xas99.py -b -w patterns/char-patterns2-1.a99 -o bin/char-patterns2-1.bin
+xas99.py -b -w patterns/char-patterns2-2.a99 -o bin/char-patterns2-2.bin
 
 copy /b bin\ZAXXON8.bin + ^
     bin\map1-8k.bin + ^
     bin\map2-8k.bin + ^
     bin\empty.bin + ^
     bin\empty-2k.bin + bin\sprite-patterns.bin + ^
-    bin\empty-2k.bin + bin\char-patterns1-1.bin + ^
-    bin\empty-2k.bin + bin\char-patterns1-2.bin + ^
-    bin\empty-2k.bin + bin\char-patterns1-3.bin + ^
-    bin\empty.bin + ^
-    bin\empty.bin + ^
+    bin\empty-1k.bin + bin\char-patterns1-1.bin + ^
+    bin\empty-1k.bin + bin\char-patterns1-2.bin + ^
+    bin\empty-1k.bin + bin\char-patterns1-3.bin + ^
+    bin\empty-1k.bin + bin\char-patterns2-1.bin + ^
+    bin\empty-1k.bin + bin\char-patterns2-2.bin + ^
     bin\empty.bin + ^
     bin\empty.bin + ^
     bin\empty.bin ^

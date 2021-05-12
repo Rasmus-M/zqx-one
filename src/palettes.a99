@@ -2,6 +2,12 @@ PAL0   DATA >0000,>0DDF,>09BA,>099A    ;
        DATA >0004,>000A,>0DD0,>049A    ;
 PAL1   DATA >0000,>099A,>09BA,>0004    ;
        DATA >000A,>0DD0,>049A,>009F    ;
+
+;PAL0   DATA >0000,>0DDF,>09BA,>099A    ;
+;       DATA >0004,>000A,>049A,>009F    ;
+;PAL1   DATA >0000,>0B0A,>000A,>049A    ;
+;       DATA >000F,>0000,>0000,>0000    ;
+
 sprite_palettes:
        equ  $
 PAL2   DATA >0CEF,>0DD0,>0D0F,>0D90    ;

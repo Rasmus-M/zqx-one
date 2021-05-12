@@ -69,14 +69,20 @@ window_left:
        equ  16
 window_top:
        equ  -36
-map_width:
+map_1_width:
        equ  228
+map_2_width:
+       equ  192
+map_0_width:
+       equ  64
 map_height:
        equ  26
-map_size:
-       equ  map_width*map_height
 map_1_bank_select:
        equ  >6008
+map_2_bank_select:
+       equ  >600A
+map_0_bank_select:
+       equ  >600C
 map:
        equ  >6000
 tl2_first_char:
@@ -95,8 +101,14 @@ n_sprite_patterns:
        equ  64
 patterns_1_bank_select:
        equ  >6010
+patterns_2_bank_select:
+       equ  >6016
+patterns_3_bank_select:
+       equ  >600a
 patterns_base_addr:
        equ  >6800
+tile_attr_base_addr:
+       equ  >6400
 max_uploaded_chars_per_frame:
        equ  4
 isometric_x0:
@@ -151,16 +163,22 @@ vdp_status:
        equ  padvar
 rand_no:
        equ  vdp_status+2
-scroll_pos:
+map_width:
        equ  rand_no+2
+scroll_pos:
+       equ  map_width+2
 scroll_x:
        equ  scroll_pos+2
 scroll_y:
        equ  scroll_x+2
-char_diff_ptr:
+scroll_max:
        equ  scroll_y+2
-chars_to_upload:
+char_diff_ptr:
+       equ  scroll_max+2
+char_diff_end:
        equ  char_diff_ptr+2
+chars_to_upload:
+       equ  char_diff_end+2
 sprite_def_ptr:
        equ  chars_to_upload+2
 sprites_end_ptr:
@@ -177,8 +195,12 @@ player_fire:
        equ  player_shadow+2
 player_status:
        equ  player_fire+2
-pad_max:
+level:
        equ  player_status+2
+sub_level:
+       equ  level+2
+pad_max:
+       equ  sub_level+2
 
 ***************************************************************
 *
@@ -197,6 +219,7 @@ main:
        li   r15,vdpwd                  ; Constant for writing to VDP
        mov  @rndsd,@rand_no            ; Save random number seed
        bl   @one_time_init
+       bl   @init_game
 restart:
        bl   @init_level
 loop:
@@ -219,9 +242,6 @@ loop:
        c    @scroll_x,@scroll_max
        jl   loop
        jmp  restart
-
-scroll_max:
-       data map_width*8+window_width
 
 *********************************************************************
 *
@@ -319,7 +339,7 @@ upload_characters:
        jne  upload_characters_0
 *      Get new characters to upload
        mov  @char_diff_ptr,r5
-       ci   r5,diff_end
+       c    r5,@char_diff_end
        jhe  upload_characters_3
        clr  r6
        movb *r5+,r6
@@ -375,7 +395,7 @@ upload_character:
        seto *r1
 *      Tile attribute
        ai   r0,tilatb
-       movb @TAT0(r4),r1
+       movb @tile_attr_base_addr(r4),r1
        bl   @vsbw
 *      Pattern
        mov  r3,r0
@@ -440,16 +460,18 @@ draw_column:
 *      Map address
        mov  @scroll_x,r1
        srl  r1,3                       ; Offset in characters
-       ci   r1,map_width-1
+       mov  @map_width,r6
+       dec  r6
+       c    r1,r6
        jlt  draw_column_0
-       li   r1,map_width-1
+       mov  r6,r1
 draw_column_0:
        ai   r1,map
 *      Draw column
        li   r2,map_height
 draw_column_1:
        movb *r1,*r15
-       ai   r1,map_width
+       a    @map_width,r1
        inc  r4                         ; Increase vertical offset
        ci   r4,screen_height_chars
        jlt  draw_column_2
@@ -938,6 +960,18 @@ vdp_registers:
 
 *********************************************************************
 *
+* Init game
+*
+init_game:
+       .proc
+       clr  @level
+       clr  @sub_level
+;       inc  @sub_level
+       .endproc
+*// init_game
+
+*********************************************************************
+*
 * Init level
 *
 init_level:
@@ -957,8 +991,6 @@ init_level:
        clr  @scroll_x
        li   r0,>800
        mov  r0,@scroll_y
-       li   r0,level_1_000_add
-       mov  r0,@char_diff_ptr
        clr  @chars_to_upload
        li   r0,sprites
        mov  r0,@sprites_end_ptr
@@ -966,10 +998,19 @@ init_level:
        mov  r0,@sprite_def_ptr
        clr  @player_fire
        clr  @player_status
-       li   r0,map_1_bank_select
-       mov  r0,@map_bank_select
-       li   r0,patterns_1_bank_select
-       mov  r0,@patterns_bank_select
+*      Sub level
+       mov  @sub_level,r1
+       sla  r1,3
+       ai   r1,sub_levels
+       mov  *r1+,@map_bank_select
+       mov  *r1+,@patterns_bank_select
+       mov  *r1+,@char_diff_ptr
+       mov  *r1+,@char_diff_end
+       mov  *r1,@map_width
+       mov  *r1,r0
+       sla  r0,3
+       ai    r0,window_width
+       mov  r0,@scroll_max
 *      Create player plane
        li   r6,plane_def
        bl   @create_sprite
@@ -982,6 +1023,20 @@ init_level:
        clr  *r15
        clr  *r15
        .endproc
+sub_levels:
+       equ  $
+sub_level_1:
+       data map_1_bank_select
+       data patterns_1_bank_select
+       data level_1_000_add
+       data diff_end_1
+       data map_1_width
+sub_level_2:
+       data map_2_bank_select
+       data patterns_2_bank_select
+       data level_2_000_add
+       data diff_end_2
+       data map_2_width
 *// init_level
 
 *********************************************************************
@@ -1060,9 +1115,10 @@ lower_memory_max:
        aorg >a000
 
        copy "diff1.a99"
-diff_end:
+diff_end_1:
+       copy "diff2.a99"
+diff_end_2:
        copy "tl2.a99"
-       copy "tile-attrs1.a99"
        copy "sprite-types.a99"
        copy "sprite-defs.a99"
        copy "sprites.a99"

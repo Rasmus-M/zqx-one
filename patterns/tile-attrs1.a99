@@ -703,3 +703,5 @@ TAT698 BYTE >02                        ;
 TAT699 BYTE >02                        ;
 TAT700 BYTE >02                        ;
 TAT701 BYTE >02                        ;
+       BSS  1024-701-2
+       BYTE >FF
