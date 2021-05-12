@@ -14,8 +14,8 @@ public class Encode implements Runnable {
     private static final boolean VERBOSE = true;
     private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
-    private static final int[] MAP_WIDTHS = {228, 224};
-    private static final int[] TILES = {702, 0};
+    private static final int[] MAP_WIDTHS = {228, 192};
+    private static final int[] TILES = {702, 499};
     private static final int MAX_CHARS = 250;
 
     private final int level;
@@ -24,7 +24,7 @@ public class Encode implements Runnable {
     private final int height;
 
     public static void main(String... args) {
-        for (int level = 1; level <= 1; level++) {
+        for (int level = 1; level <= 2; level++) {
             new Encode(level, "level" + level + ".mgb", MAP_WIDTHS[level - 1], MAP_HEIGHT).run();
         }
     }
@@ -101,7 +101,6 @@ public class Encode implements Runnable {
                             int globalIndex = runningChars[runningIndex];
                             if (VERBOSE) {
                                 System.out.println("*** Pattern " + globalIndex + " (" + runningIndex + ") selected instead of " + ch);
-                                System.out.println("x=" + x + " y=" + y);
                                 boolean found = false;
                                 for (int[] pair : replacements) {
                                     if (pair[0] == ch && pair[1] == globalIndex) {
@@ -118,9 +117,6 @@ public class Encode implements Runnable {
                         int ix = x + WINDOW_WIDTH;
                         if (ix >= 0 && ix < newMap[y].length) {
                             newMap[y][ix] = runningIndex;
-                            if (x==157 && y==24) {
-                                System.out.println("Write " + runningIndex + " (" + runningChars[runningIndex] + ") to x="+ix + ", y=" + y);
-                            }
                         } else {
                             throw new Exception("Index out of range: " + ix);
                         }

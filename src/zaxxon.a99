@@ -75,22 +75,28 @@ map_height:
        equ  26
 map_size:
        equ  map_width*map_height
+map_1_bank_select:
+       equ  >6008
+map:
+       equ  >6000
 tl2_first_char:
        equ  250
 tl2_chars:
        equ  6
 max_sprites:
        equ  18
-level_1_map:
-       equ  >6000
-map_bank_select:
-       equ  >6008
-sprite_bank_select:
-       equ  >600a
+sprite_patterns_bank_select:
+       equ  >600e
+sprite_patters_base_addr:
+       equ  >6800
 sprite_create_x:
        equ  255
 n_sprite_patterns:
        equ  64
+patterns_1_bank_select:
+       equ  >6010
+patterns_base_addr:
+       equ  >6800
 max_uploaded_chars_per_frame:
        equ  4
 isometric_x0:
@@ -159,8 +165,12 @@ sprite_def_ptr:
        equ  chars_to_upload+2
 sprites_end_ptr:
        equ  sprite_def_ptr+2
-player_sprite:
+map_bank_select:
        equ  sprites_end_ptr+2
+patterns_bank_select:
+       equ  map_bank_select+2
+player_sprite:
+       equ  patterns_bank_select+2
 player_shadow:
        equ  player_sprite+2
 player_fire:
@@ -358,17 +368,23 @@ upload_character:
        .proc
        mov  r0,r3
        mov  r1,r4
+*      Select ROM bank
+       andi r1,>0300
+       srl  r1,7
+       a    @patterns_bank_select,r1
+       seto *r1
 *      Tile attribute
        ai   r0,tilatb
-       movb @TAT0(r1),r1
+       movb @TAT0(r4),r1
        bl   @vsbw
 *      Pattern
        mov  r3,r0
        mov  r4,r1
        sla  r0,3
        ai   r0,ptrntb
+       andi r1,>00ff
        sla  r1,3
-       ai   r1,P0_0
+       ai   r1,patterns_base_addr
        li   r2,3
 upload_character_1:
        bl   @vwad
@@ -381,7 +397,7 @@ upload_character_1:
        movb *r1+,*r15
        movb *r1+,*r15
        ai   r0,ptrnt1-ptrnt0
-       ai   r1,P1_0-P0_0-8
+       ai   r1,>800-8
        dec  r2
        jne  upload_character_1
        .endproc
@@ -396,6 +412,9 @@ draw_column:
        mov  @scroll_x,r0
        andi r0,7
        jne  draw_column_3
+*      Select ROM bank
+       mov  @map_bank_select,r0
+       seto *r0
 *      Set VDP address increment
        li   r0,>3020                   ; Set VDP address increment
        bl   @vwtr                      ; to 32
@@ -425,7 +444,7 @@ draw_column:
        jlt  draw_column_0
        li   r1,map_width-1
 draw_column_0:
-       ai   r1,level_1_map
+       ai   r1,map
 *      Draw column
        li   r2,map_height
 draw_column_1:
@@ -945,9 +964,12 @@ init_level:
        mov  r0,@sprites_end_ptr
        li   r0,sprite_defs
        mov  r0,@sprite_def_ptr
-       seto @map_bank_select
        clr  @player_fire
        clr  @player_status
+       li   r0,map_1_bank_select
+       mov  r0,@map_bank_select
+       li   r0,patterns_1_bank_select
+       mov  r0,@patterns_bank_select
 *      Create player plane
        li   r6,plane_def
        bl   @create_sprite
@@ -983,17 +1005,17 @@ clear_vdp_ram:
 *
 upload_sprite_patterns:
        .proc
-       seto @sprite_bank_select
+       seto @sprite_patterns_bank_select
        li   r0,sprpt0
-       li   r1,>6800
+       li   r1,sprite_patters_base_addr
        li   r2,n_sprite_patterns*32
        bl   @vmbw
        li   r0,sprpt1
-       li   r1,>7000
+       li   r1,sprite_patters_base_addr+>800
        li   r2,n_sprite_patterns*32
        bl   @vmbw
        li   r0,sprpt2
-       li   r1,>7800
+       li   r1,sprite_patters_base_addr+>1000
        li   r2,n_sprite_patterns*32
        bl   @vmbw
        .endproc
@@ -1040,8 +1062,7 @@ lower_memory_max:
        copy "diff1.a99"
 diff_end:
        copy "tl2.a99"
-       copy "chars1.a99"
-       copy "tile-attrs.a99"
+       copy "tile-attrs1.a99"
        copy "sprite-types.a99"
        copy "sprite-defs.a99"
        copy "sprites.a99"
