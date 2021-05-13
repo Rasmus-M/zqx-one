@@ -923,17 +923,12 @@ graphics_mode_1:
        jlt  graphics_mode_2
        bl   @vwtr                      ; Set register
        jmp  graphics_mode_1
-*      Load color palettes
+*      Load sprite palettes
 graphics_mode_2:
-       li   r0,>2fc0                   ; Reg 47, DPM = 1, AUTO INC = 1, start PR0
-       bl   @vwtr
-*      Every two bytes written to the VDP now go to the palette registers
-       li   r0,PAL0
-       LI   r2,128                     ; Each of 64 12-bit palette entries requires 2 bytes
-graphics_mode_3:
-       movb *r0+,*r15
-       dec  r2
-       jne  graphics_mode_3
+       li   r0,2
+       li   r1,sprite_palettes
+       li   r2,6
+       bl   @load_palettes
        .endproc
 *      VDP registers
 vdp_registers:
@@ -960,13 +955,53 @@ vdp_registers:
 
 *********************************************************************
 *
+* Load level paletes
+*
+load_level_palettes:
+       .proc
+       clr  r0                         ; Palette index 0
+       mov  @sub_level,r1
+       sla  r1,1
+       mov  @sub_level_palettes(r1),r1
+       li   r2,2
+       bl   @load_palettes
+       .endproc
+* load_level_palettes
+
+*********************************************************************
+*
+* Load palettes
+*
+* r0: Start palette index
+* r1: Color data
+* r2: Number of palettes
+*
+load_palettes:
+       .proc
+       sla  r0,3                       ; 8 bytes per palette
+       ori  r0,>2fc0                   ; Reg 47, DPM = 1, AUTO INC = 1
+       bl   @vwtr
+       sla  r2,4                       ; 16 bytes per palette
+*      Every two bytes written to the VDP now go to the palette registers
+load_palettes_1:
+       movb *r1+,*r15
+       dec  r2
+       jne  load_palettes_1
+*      Exit DPM
+       li   r0,>2f00                   ; Reg 47, DPM = 1, AUTO INC = 0
+       bl   @vwtr
+       .endproc
+*// load_palettes
+
+*********************************************************************
+*
 * Init game
 *
 init_game:
        .proc
        clr  @level
        clr  @sub_level
-;       inc  @sub_level
+       inc  @sub_level
        .endproc
 *// init_game
 
@@ -980,6 +1015,7 @@ init_level:
        bl   @vwtr
        bl   @clear_vdp_ram
        bl   @init_tl2
+       bl   @load_level_palettes
        bl   @vsync
        li   r0,>01e2                   ; Display on
        bl   @vwtr
@@ -1000,14 +1036,14 @@ init_level:
        clr  @player_status
 *      Sub level
        mov  @sub_level,r1
-       sla  r1,3
-       ai   r1,sub_levels
+       sla  r1,1
+       mov  @sub_levels(r1),r1
        mov  *r1+,@map_bank_select
        mov  *r1+,@patterns_bank_select
        mov  *r1+,@char_diff_ptr
        mov  *r1+,@char_diff_end
        mov  *r1,@map_width
-       mov  *r1,r0
+       mov  *r1+,r0
        sla  r0,3
        ai    r0,window_width
        mov  r0,@scroll_max
@@ -1023,8 +1059,12 @@ init_level:
        clr  *r15
        clr  *r15
        .endproc
+**
+*
+* Sub levels
+*
 sub_levels:
-       equ  $
+       data sub_level_1,sub_level_2
 sub_level_1:
        data map_1_bank_select
        data patterns_1_bank_select
