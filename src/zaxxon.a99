@@ -955,46 +955,6 @@ vdp_registers:
 
 *********************************************************************
 *
-* Load level paletes
-*
-load_level_palettes:
-       .proc
-       clr  r0                         ; Palette index 0
-       mov  @sub_level,r1
-       sla  r1,1
-       mov  @sub_level_palettes(r1),r1
-       li   r2,2
-       bl   @load_palettes
-       .endproc
-* load_level_palettes
-
-*********************************************************************
-*
-* Load palettes
-*
-* r0: Start palette index
-* r1: Color data
-* r2: Number of palettes
-*
-load_palettes:
-       .proc
-       sla  r0,3                       ; 8 bytes per palette
-       ori  r0,>2fc0                   ; Reg 47, DPM = 1, AUTO INC = 1
-       bl   @vwtr
-       sla  r2,4                       ; 16 bytes per palette
-*      Every two bytes written to the VDP now go to the palette registers
-load_palettes_1:
-       movb *r1+,*r15
-       dec  r2
-       jne  load_palettes_1
-*      Exit DPM
-       li   r0,>2f00                   ; Reg 47, DPM = 1, AUTO INC = 0
-       bl   @vwtr
-       .endproc
-*// load_palettes
-
-*********************************************************************
-*
 * Init game
 *
 init_game:
@@ -1015,7 +975,6 @@ init_level:
        bl   @vwtr
        bl   @clear_vdp_ram
        bl   @init_tl2
-       bl   @load_level_palettes
        bl   @vsync
        li   r0,>01e2                   ; Display on
        bl   @vwtr
@@ -1030,8 +989,6 @@ init_level:
        clr  @chars_to_upload
        li   r0,sprites
        mov  r0,@sprites_end_ptr
-       li   r0,sprite_defs
-       mov  r0,@sprite_def_ptr
        clr  @player_fire
        clr  @player_status
 *      Sub level
@@ -1042,11 +999,17 @@ init_level:
        mov  *r1+,@patterns_bank_select
        mov  *r1+,@char_diff_ptr
        mov  *r1+,@char_diff_end
-       mov  *r1,@map_width
-       mov  *r1+,r0
+       mov  *r1+,@sprite_def_ptr
+       mov  *r1+,@map_width
+       mov  @map_width,r0
        sla  r0,3
        ai    r0,window_width
        mov  r0,@scroll_max
+*      Load palettes
+       clr  r0                         ; Palette index 0
+       mov  *r1,r1                     ; Palette address
+       li   r2,2                       ; 2 palettes
+       bl   @load_palettes
 *      Create player plane
        li   r6,plane_def
        bl   @create_sprite
@@ -1070,13 +1033,17 @@ sub_level_1:
        data patterns_1_bank_select
        data level_1_000_add
        data diff_end_1
+       data sprite_defs_1
        data map_1_width
+       data char_palettes_1
 sub_level_2:
        data map_2_bank_select
        data patterns_2_bank_select
        data level_2_000_add
        data diff_end_2
+       data sprite_defs_2
        data map_2_width
+       data char_palettes_2
 *// init_level
 
 *********************************************************************
@@ -1136,6 +1103,40 @@ init_tl2:
        bl   @vmbw
        .endproc
 *// init_tl2
+
+*********************************************************************
+*
+* Load level paletes
+*
+load_level_palettes:
+       .proc
+       .endproc
+* load_level_palettes
+
+*********************************************************************
+*
+* Load palettes
+*
+* r0: Start palette index
+* r1: Color data
+* r2: Number of palettes
+*
+load_palettes:
+       .proc
+       sla  r0,3                       ; 8 bytes per palette
+       ori  r0,>2fc0                   ; Reg 47, DPM = 1, AUTO INC = 1
+       bl   @vwtr
+       sla  r2,4                       ; 16 bytes per palette
+*      Every two bytes written to the VDP now go to the palette registers
+load_palettes_1:
+       movb *r1+,*r15
+       dec  r2
+       jne  load_palettes_1
+*      Exit DPM
+       li   r0,>2f00                   ; Reg 47, DPM = 1, AUTO INC = 0
+       bl   @vwtr
+       .endproc
+*// load_palettes
 
 ***************************************************************
 *

@@ -13,10 +13,6 @@ PAL6   DATA >0CEF,>099A,>09BA,>0000    ;
 PAL7   DATA >0CEF,>09D0,>0DD0,>00D0    ;
        DATA >069A,>099A,>0090,>0D40    ;
 
-sub_level_palettes:
-       data char_palettes_1
-       data char_palettes_2
-
 char_palettes_1:
        equ  $
 PAL01  DATA >0000,>0DDF,>09BA,>099A    ;

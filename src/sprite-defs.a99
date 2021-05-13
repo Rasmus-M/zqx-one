@@ -18,7 +18,7 @@ shadow_def:
 
 * sprite_def_scroll_x = sprite_def_x + sprite_def_y - 240 + (sprite_type_rocket_launch_1 ? 48 : 0)
 
-sprite_defs:
+sprite_defs_1:
        data 60,wall_1_x,72,wall_height,sprite_type_wall_left
        data 156,wall_1_x,168,wall_height,sprite_type_wall_right
        data 252,418,74,0,sprite_type_blue_gun
@@ -83,4 +83,9 @@ sprite_defs:
 *      End of list
        data >7fff,0,0,0
 
+sprite_defs_2:
+       data 60,wall_1_x,72,wall_height,sprite_type_wall_left
+       data 156,wall_1_x,168,wall_height,sprite_type_wall_right
+*      End of list
+       data >7fff,0,0,0
 
