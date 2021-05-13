@@ -30,6 +30,6 @@ copy /b bin\ZAXXON8.bin + ^
     bin\empty.bin ^
     .\zaxxon8.bin
 
-java -jar tools/CopyHeader.jar zaxxon8.bin 60 4
+java -jar tools/CopyHeader.jar zaxxon8.bin 60 4 5
 
 :end

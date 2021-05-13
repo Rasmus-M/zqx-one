@@ -39,9 +39,9 @@ public class Encode implements Runnable {
     @Override
     public void run() {
         try {
-            System.out.println("****************");
+            System.out.println("* * * * * * * * * * * * * * * *");
             System.out.println("Map " + fileName);
-            System.out.println("****************");
+            System.out.println("* * * * * * * * * * * * * * * *");
             FileInputStream fis = new FileInputStream(this.fileName);
             byte[] buffer = new byte[0x8000];
             int len = fis.read(buffer);
@@ -59,57 +59,67 @@ public class Encode implements Runnable {
                         n += 2;
                     }
                 }
-                StringBuilder out = new StringBuilder();
-                StringBuilder diff_out = new StringBuilder();
+                StringBuilder mapOut = new StringBuilder();
+                StringBuilder diffOut = new StringBuilder();
                 int[][] newMap = new int[height][width + WINDOW_WIDTH];
                 Integer[] runningChars = new Integer[MAX_CHARS];
                 List<int[]> replacements = new ArrayList<>();
                 int maxSize = 0;
-                int maxIndex = 0;
                 int screen = 0;
                 for (int x0 = -(WINDOW_WIDTH - 1); x0 <= width - WINDOW_WIDTH; x0++) {
                     // Process screen
                     if (VERBOSE) System.out.println("Screen " + screen + ":");
+
+                    // Find chars used on screen
+                    Set<Integer> usedOnScreen = getUsedOnScreen(newMap, x0 + WINDOW_WIDTH);
+
+                    // Delete unused chars
+                    Set<Integer> deleted = new HashSet<>();
+                    for (int i = 0; i < runningChars.length; i++) {
+                        if (runningChars[i] != null && !usedOnScreen.contains(i)) {
+                            runningChars[i] = null;
+                            deleted.add(i);
+                        }
+                    }
+
                     Map<Integer, Integer> added = new HashMap<>();
                     for (int y = height - 1; y >= 0; y--) { // Backwards to favor bottom of screen
                         int x = x0 + WINDOW_WIDTH - 1;
-                        int ch = getMapChar(map, x, y);
+                        int mapChar = getMapChar(map, x, y);
                         // Is char in current set?
                         Integer runningIndex = null;
                         for (int i = 0; i < runningChars.length && runningIndex == null; i++) {
                             Integer globalIndex = runningChars[i];
-                            if (globalIndex != null && globalIndex == ch) {
+                            if (globalIndex != null && globalIndex == mapChar) {
                                 runningIndex = i;
                             }
                         }
                         // If not, add it if there is space
                         if (runningIndex == null) {
                             for (int i = 0; i < runningChars.length && runningIndex == null; i++) {
-                                Integer oldGlobalIndex = runningChars[i];
-                                if (oldGlobalIndex == null) {
+                                if (runningChars[i] == null) {
                                     runningIndex = i;
-                                    Integer globalIndex = ch;
+                                    Integer globalIndex = mapChar;
                                     runningChars[runningIndex] = globalIndex;
-                                    maxIndex = Math.max(maxIndex, runningIndex);
                                     added.put(runningIndex, globalIndex);
                                 }
                             }
                         }
                         // If not, find best match in current set
                         if (runningIndex == null) {
-                            runningIndex = findClosestTilePattern(ch, runningChars, tilePatterns);
+                            runningIndex = findClosestTilePattern(mapChar, runningChars, tilePatterns);
                             int globalIndex = runningChars[runningIndex];
                             if (VERBOSE) {
-                                System.out.println("*** Pattern " + globalIndex + " (" + runningIndex + ") selected instead of " + ch);
+                                System.out.println("*** Pattern " + mapChar + " replaced by " + globalIndex + " (" + runningIndex + ")");
                                 boolean found = false;
                                 for (int[] pair : replacements) {
-                                    if (pair[0] == ch && pair[1] == globalIndex) {
+                                    if (pair[0] == mapChar && pair[1] == globalIndex) {
                                         found = true;
                                         break;
                                     }
                                 }
                                 if (!found) {
-                                    replacements.add(new int[] {ch, globalIndex});
+                                    replacements.add(new int[] {mapChar, globalIndex});
                                 }
                             }
                         }
@@ -124,33 +134,15 @@ public class Encode implements Runnable {
 
                     // Record added
                     if (VERBOSE) System.out.print("Add: ");
-                    diff_out.append("level_").append(level).append("_").append(to3Digits(screen)).append("_add:\n");
-                    diff_out.append("       byte ").append(hexByte(added.size())).append("\n");
+                    diffOut.append("level_").append(level).append("_").append(to3Digits(screen)).append("_add:\n");
+                    diffOut.append("       byte ").append(hexByte(added.size())).append("\n");
                     for (Integer i : added.keySet()) {
                         int globalIndex = added.get(i);
                         if (VERBOSE) System.out.print(hexByte(i) + ":" + hexWord(globalIndex) + " ");
-                        diff_out.append("       byte ").append(hexByte(i)).append(", ").append(hexByte(globalIndex >> 8)).append(", ").append(hexByte(globalIndex & 0xff)).append("              ; ").append(hexWord(globalIndex)).append("\n");
+                        diffOut.append("       byte ").append(hexByte(i)).append(", ").append(hexByte(globalIndex >> 8)).append(", ").append(hexByte(globalIndex & 0xff)).append("              ; ").append(hexWord(globalIndex)).append("\n");
                     }
                     if (VERBOSE) System.out.println();
 
-                    // Find chars used on screen
-                    Set<Integer> used = new HashSet<>();
-                    int newX0 = x0 + WINDOW_WIDTH;
-                    for (int y = 0; y < height; y++) {
-                        for (int x = newX0; x < newX0 + WINDOW_WIDTH; x++) {
-                            used.add(newMap[y][x]);
-                        }
-                    }
-                    if (VERBOSE) System.out.println("Used: " + used.size());
-
-                    // Delete unused chars
-                    Set<Integer> deleted = new HashSet<>();
-                    for (int i = 0; i < runningChars.length; i++) {
-                        if (!used.contains(i)) {
-                            runningChars[i] = null;
-                            deleted.add(i);
-                        }
-                    }
 
                     // Record deleted
                     if (VERBOSE) System.out.print("Delete: ");
@@ -160,33 +152,25 @@ public class Encode implements Runnable {
                         if (VERBOSE) System.out.print(hexByte(i) + " ");
 //                        diff_out.append("       byte " + hexByte(i) + "\n");
                     }
+                    int size = countUsed(runningChars);
+                    maxSize = Math.max(maxSize, size);
                     if (VERBOSE) System.out.println();
-
-                    // Find max used index
-                    int iMax = 0;
-                    for (int i = 0; i < runningChars.length; i++) {
-                        if (runningChars[i] != null) {
-                            iMax = i;
-                        }
-                    }
-                    maxSize = Math.max(maxSize, countUsed(runningChars));
-
-                    if (VERBOSE) System.out.println("Deleted: " + deleted.size() + ", Added: " + added.size() + ", Used = "+ used.size() + " of " + (iMax + 1));
+                    if (VERBOSE) System.out.println("Deleted: " + deleted.size() + ", Added: " + added.size() + ", Used = "+ size + " of " + MAX_CHARS + ". Max index=" + maxUsedIndex(runningChars));
                     screen++;
                 }
                 // Write output
                 FileWriter writer = new FileWriter("../src/diff" + level + ".a99");
-                writer.write(diff_out.toString());
+                writer.write(diffOut.toString());
                 writer.close();
 
                 if (VERBOSE) System.out.println("Map:");
-                out.append("*******************************************\n");
-                out.append("level_").append(level).append("_map:\n");
+                mapOut.append("*******************************************\n");
+                mapOut.append("level_").append(level).append("_map:\n");
                 for (int[] row : newMap) {
-                    out.append("       byte ");
+                    mapOut.append("       byte ");
                     for (int x = WINDOW_WIDTH; x < row.length; x++) {
                         if (VERBOSE) System.out.print(hexByte(row[x]));
-                        out.append(hexByte(row[x])).append(x < row.length - 1 ? "," : "\n");
+                        mapOut.append(hexByte(row[x])).append(x < row.length - 1 ? "," : "\n");
                     }
                     if (VERBOSE) System.out.println();
                 }
@@ -204,7 +188,6 @@ public class Encode implements Runnable {
 
                 if (VERBOSE) System.out.println();
                 System.out.println("Max size: " + maxSize);
-                System.out.println("Max index: " + maxIndex);
                 System.out.println("Map width: " + (newMap[0].length - WINDOW_WIDTH));
                 System.out.println();
 
@@ -217,7 +200,7 @@ public class Encode implements Runnable {
                         writePatternToRaster(raster, 9, y0, tilePatterns[pair[1]]);
                         y0 += 9;
                     }
-                    ImageIO.write(image, "png", new File("replacements.png"));
+                    ImageIO.write(image, "png", new File("replacements" + level + ".png"));
                 }
             } else {
                 throw new Exception("Error: " + len + " bytes found. Expected " + (width * height) + " bytes.");
@@ -228,6 +211,16 @@ public class Encode implements Runnable {
         }
     }
 
+    private Set<Integer> getUsedOnScreen(int[][] map, int x0) {
+        Set<Integer> used = new HashSet<>();
+        for (int y = 0; y < height; y++) {
+            for (int x = x0; x < x0 + WINDOW_WIDTH; x++) {
+                used.add(map[y][x]);
+            }
+        }
+        return used;
+    }
+
     private int countUsed(Integer[] runningChars) {
         int used = 0;
         for (Integer c : runningChars) {
@@ -236,6 +229,16 @@ public class Encode implements Runnable {
             }
         }
         return used;
+    }
+
+    private int maxUsedIndex(Integer[] runningChars) {
+        int iMax = 0;
+        for (int i = 0; i < runningChars.length; i++) {
+            if (runningChars[i] != null) {
+                iMax = i;
+            }
+        }
+        return iMax;
     }
 
     private int[][][] readTilePatterns(String filename) throws IOException {
