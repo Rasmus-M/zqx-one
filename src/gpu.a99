@@ -88,13 +88,12 @@ gpu_program_copy:
        idle
 gpu_program_start:
        xorg gpuprg
-       li   r15,>47fe
+       li   r15,>47fe                  ; Stack pointer
        call @sprite_collisions         ; Before sorting so we know the player is reported first
        call @sort_sprites
        call @generate_sals
        clr  @gpusta                    ; Signal done
        call @split_screen
-*      Return
        idle
 **
 *      Sort sprites front to back

@@ -1,0 +1,31 @@
+n_sub_levels:
+       equ  3
+sub_levels:
+       data sub_level_1,sub_level_0,sub_level_2
+sub_level_0:
+       data map_0_bank_select
+       data patterns_0_bank_select
+       data level_0_000_add
+       data diff_end_0
+       data sprite_defs_0
+       data map_0_width
+       data map_0_width*8+window_width
+       data char_palettes_0
+sub_level_1:
+       data map_1_bank_select
+       data patterns_1_bank_select
+       data level_1_000_add
+       data diff_end_1
+       data sprite_defs_1
+       data map_1_width
+       data map_1_width*8+window_width
+       data char_palettes_1
+sub_level_2:
+       data map_2_bank_select
+       data patterns_2_bank_select
+       data level_2_000_add
+       data diff_end_2
+       data sprite_defs_2
+       data map_2_width
+       data map_2_width*8
+       data char_palettes_2

@@ -225,7 +225,7 @@ blue_gun_handler:
        jlt  blue_gun_handler_0
        dec  @sprite_counter(r4)
        jgt  blue_gun_handler_1
-*      Create rocket
+*      Create bullet
        .push r4
        bl   @allocate_sprite
        mov  r4,r5
@@ -239,7 +239,7 @@ blue_gun_handler:
        s    r0,@sprite_x(r5)
 blue_gun_handler_0:
        bl   @rand
-       andi r0,127
+       andi r0,>ff
        mov  r0,@sprite_counter(r4)
 blue_gun_handler_1:
        .endproc
