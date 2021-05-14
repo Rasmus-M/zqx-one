@@ -127,6 +127,8 @@ wall_2_x:
        equ  1764
 wall_height:
        equ  56
+n_sub_levels:
+       equ  4
 
 **
 * Scratch pad
@@ -234,7 +236,7 @@ game_loop:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-       bl   @player_collisions
+;       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
@@ -246,11 +248,11 @@ game_loop:
        bl   @scroll
        c    @scroll_pos,@scroll_max
        jl   game_loop
-       inc  @sub_level
        mov  @sub_level,r0
-       ci   r0,3
-       jlt  start_sub_level
-       jmp  start_level
+       ci   r0,n_sub_levels-1
+       jhe  game_loop
+       inc  @sub_level
+       jmp  start_sub_level
 
 *********************************************************************
 *
@@ -799,8 +801,11 @@ align_sprites:
 *
 scroll:
        .proc
-       inc  @scroll_pos
        mov  @scroll_pos,r1
+       c    r1,@scroll_max
+       jhe  scroll_1
+       inc  r1
+       mov  r1,@scroll_pos
        li   r0,scrlps                  ; Update VPD variable
        bl   @vsbw                      ; High byte
        movb @r1lb,*r15                 ; Low byte
@@ -992,10 +997,7 @@ init_sub_level:
        mov  *r1+,@char_diff_end
        mov  *r1+,@sprite_def_ptr
        mov  *r1+,@map_width
-       mov  @map_width,r0
-       sla  r0,3
-       ai   r0,window_width
-       mov  r0,@scroll_max
+       mov  *r1+,@scroll_max
 *      Load palettes
        clr  r0                         ; Palette index 0
        mov  *r1,r1                     ; Palette address
@@ -1003,7 +1005,7 @@ init_sub_level:
        bl   @load_palettes
        .endproc
 sub_levels:
-       data sub_level_1,sub_level_0,sub_level_2
+       data sub_level_1,sub_level_0,sub_level_0,sub_level_2
 sub_level_0:
        data map_0_bank_select
        data patterns_0_bank_select
@@ -1011,6 +1013,7 @@ sub_level_0:
        data diff_end_0
        data sprite_defs_0
        data map_0_width
+       data map_0_width*8+window_width
        data char_palettes_0
 sub_level_1:
        data map_1_bank_select
@@ -1019,6 +1022,7 @@ sub_level_1:
        data diff_end_1
        data sprite_defs_1
        data map_1_width
+       data map_1_width*8+window_width
        data char_palettes_1
 sub_level_2:
        data map_2_bank_select
@@ -1027,6 +1031,7 @@ sub_level_2:
        data diff_end_2
        data sprite_defs_2
        data map_2_width
+       data map_2_width*8
        data char_palettes_2
 *// init_sub_level
 
@@ -1081,9 +1086,8 @@ vdp_registers:
 clear_vdp_ram
        .proc
        clr  r1
-       clr  r0
        li   r2,>4000
-       bl   @vsmw
+       bl   @vclr
        .endproc
 *// clear_vdp_ram
 
@@ -1136,22 +1140,21 @@ init_tl2:
 *
 clear_name_table_and_patterns:
        .proc
-       clr  r1
-       li   r0,namet0
-       li   r2,>3c0
-       bl   @vsmw
-       li   r0,namet1
-       li   r2,>3c0
-       bl   @vsmw
        li   r0,ptrnt0
        li   r2,>800-(tl2_chars*8)
-       bl   @vsmw
+       bl   @vclr
        li   r0,ptrnt1
        li   r2,>800-(tl2_chars*8)
-       bl   @vsmw
+       bl   @vclr
        li   r0,ptrnt2
        li   r2,>800-(tl2_chars*8)
-       bl   @vsmw
+       bl   @vclr
+       li   r0,namet0
+       li   r2,>3c0
+       bl   @vclr
+       li   r0,namet1
+       li   r2,>3c0
+       bl   @vclr
        .endproc
 *// clear_name_table_and_patterns
 

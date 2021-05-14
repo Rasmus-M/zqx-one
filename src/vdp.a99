@@ -86,6 +86,28 @@ vsmw_1:
 
 *********************************************************************
 *
+* VDP Clear
+*
+* R0: Write address in VDP RAM
+* R2: Number of bytes to clear in VDP RAM (multiple of 4)
+*
+vclr:
+       movb  @r0lb,@vdpwa              ; Send low byte of VDP RAM write address
+       ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
+       movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
+       srl  r2,2
+vclr_1:
+       clr  *r15
+       clr  *r15
+       clr  *r15
+       clr  *r15
+       dec  r2                         ; Byte counter
+       jne  vclr_1
+       rt
+*// vclr
+
+*********************************************************************
+*
 * VDP Set Read Address
 *
 * R0: Read address in VDP RAM
@@ -136,3 +158,4 @@ vmbr_1:
        jne  vmbr_1                     ; Check if finished
        rt
 *// vmbr
+
