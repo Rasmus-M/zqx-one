@@ -69,20 +69,20 @@ window_left:
        equ  16
 window_top:
        equ  -36
+map_0_width:
+       equ  64
 map_1_width:
        equ  228
 map_2_width:
        equ  192
-map_0_width:
-       equ  64
 map_height:
        equ  26
+map_0_bank_select:
+       equ  >600C
 map_1_bank_select:
        equ  >6008
 map_2_bank_select:
        equ  >600A
-map_0_bank_select:
-       equ  >600C
 map:
        equ  >6000
 tl2_first_char:
@@ -103,8 +103,8 @@ patterns_1_bank_select:
        equ  >6010
 patterns_2_bank_select:
        equ  >6016
-patterns_3_bank_select:
-       equ  >600a
+patterns_0_bank_select:
+       equ  >601a
 patterns_base_addr:
        equ  >6800
 tile_attr_base_addr:
@@ -248,7 +248,7 @@ game_loop:
        jl   game_loop
        inc  @sub_level
        mov  @sub_level,r0
-       ci   r0,2
+       ci   r0,3
        jlt  start_sub_level
        jmp  start_level
 
@@ -1003,7 +1003,15 @@ init_sub_level:
        bl   @load_palettes
        .endproc
 sub_levels:
-       data sub_level_1,sub_level_2
+       data sub_level_1,sub_level_0,sub_level_2
+sub_level_0:
+       data map_0_bank_select
+       data patterns_0_bank_select
+       data level_0_000_add
+       data diff_end_0
+       data sprite_defs_0
+       data map_0_width
+       data char_palettes_0
 sub_level_1:
        data map_1_bank_select
        data patterns_1_bank_select
@@ -1189,6 +1197,8 @@ lower_memory_max:
 *
        aorg >a000
 
+       copy "diff0.a99"
+diff_end_0:
        copy "diff1.a99"
 diff_end_1:
        copy "diff2.a99"

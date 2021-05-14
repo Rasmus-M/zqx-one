@@ -1,0 +1,48 @@
+****************************************
+* Tile Attributes
+****************************************
+TAT0   BYTE >00                        ;
+TAT1   BYTE >00                        ;
+TAT2   BYTE >00                        ;
+TAT3   BYTE >00                        ;
+TAT4   BYTE >00                        ;
+TAT5   BYTE >00                        ;
+TAT6   BYTE >00                        ;
+TAT7   BYTE >00                        ;
+TAT8   BYTE >00                        ;
+TAT9   BYTE >00                        ;
+TAT10  BYTE >00                        ;
+TAT11  BYTE >00                        ;
+TAT12  BYTE >00                        ;
+TAT13  BYTE >00                        ;
+TAT14  BYTE >00                        ;
+TAT15  BYTE >00                        ;
+TAT16  BYTE >00                        ;
+TAT17  BYTE >00                        ;
+TAT18  BYTE >00                        ;
+TAT19  BYTE >00                        ;
+TAT20  BYTE >00                        ;
+TAT21  BYTE >00                        ;
+TAT22  BYTE >00                        ;
+TAT23  BYTE >00                        ;
+TAT24  BYTE >00                        ;
+TAT25  BYTE >00                        ;
+TAT26  BYTE >00                        ;
+TAT27  BYTE >00                        ;
+TAT28  BYTE >00                        ;
+TAT29  BYTE >00                        ;
+TAT30  BYTE >00                        ;
+TAT31  BYTE >00                        ;
+TAT32  BYTE >00                        ;
+TAT33  BYTE >00                        ;
+TAT34  BYTE >00                        ;
+TAT35  BYTE >00                        ;
+TAT36  BYTE >00                        ;
+TAT37  BYTE >00                        ;
+TAT38  BYTE >00                        ;
+TAT39  BYTE >00                        ;
+TAT40  BYTE >00                        ;
+TAT41  BYTE >00                        ;
+TAT42  BYTE >00                        ;
+       BSS  1024-42-2
+       BYTE >FF

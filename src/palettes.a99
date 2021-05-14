@@ -13,17 +13,24 @@ PAL6   DATA >0CEF,>099A,>09BA,>0000    ;
 PAL7   DATA >0CEF,>09D0,>0DD0,>00D0    ;
        DATA >069A,>099A,>0090,>0D40    ;
 
+char_palettes_0:
+       equ  $
+PAL00  DATA >0000,>0900,>009F,>000F    ;
+       DATA >066F,>000A,>040A,>0000    ;
+PAL01  DATA >0F55,>0F77,>0CB5,>0EC8    ;
+       DATA >02A3,>0C5B,>0CCC,>0FFF    ;
+
 char_palettes_1:
        equ  $
-PAL01  DATA >0000,>0DDF,>09BA,>099A    ;
+PAL10  DATA >0000,>0DDF,>09BA,>099A    ;
        DATA >0004,>000A,>0DD0,>049A    ;
 PAL11  DATA >0000,>099A,>09BA,>0004    ;
        DATA >000A,>0DD0,>049A,>009F    ;
 
 char_palettes_2:
        equ  $
-PAL02  DATA >0000,>0DDF,>09BA,>099A    ;
+PAL20  DATA >0000,>0DDF,>09BA,>099A    ;
        DATA >0004,>000A,>049A,>009F    ;
-PAL12  DATA >0000,>0B0A,>000A,>049A    ;
+PAL21  DATA >0000,>0B0A,>000A,>049A    ;
        DATA >000F,>0000,>0000,>0000    ;
 
