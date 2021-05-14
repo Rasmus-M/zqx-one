@@ -11,7 +11,14 @@
 * Plane handler
 *
 plane_handler:
+       mov  @sub_level,r0
+       ci   r0,n_sub_levels-1
+       jne  plane_handler_1
+       c    @scroll_pos,@scroll_max
+       jeq  plane_handler_2
+plane_handler_1:
        inc  @sprite_x(r4)
+plane_handler_2:
        rt
 *// plane_handler
 
