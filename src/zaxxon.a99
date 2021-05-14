@@ -119,6 +119,8 @@ isometric_z0:
        equ  16
 isometric_center_y:
        equ  128
+player_start_x:
+       equ  -64
 wall_1_x:
        equ  228
 wall_2_x:
@@ -219,10 +221,13 @@ main:
        li   r15,vdpwd                  ; Constant for writing to VDP
        mov  @rndsd,@rand_no            ; Save random number seed
        bl   @one_time_init
+start_game:
        bl   @init_game
-restart:
+start_level:
        bl   @init_level
-loop:
+start_sub_level:
+       bl   @init_sub_level
+game_loop:
        bl   @vsync
        bl   @set_vdp_regs
        bl   @gpu_run
@@ -237,11 +242,15 @@ loop:
        bl   @create_sprites
        bl   @upload_sprites
        mov  @player_status,r0
-       jne  restart
+       jne  start_level
        bl   @scroll
-       c    @scroll_x,@scroll_max
-       jl   loop
-       jmp  restart
+       c    @scroll_pos,@scroll_max
+       jl   game_loop
+       inc  @sub_level
+       mov  @sub_level,r0
+       ci   r0,2
+       jlt  start_sub_level
+       jmp  start_level
 
 *********************************************************************
 *
@@ -913,6 +922,108 @@ one_time_init:
 
 *********************************************************************
 *
+* Initialize game
+*
+init_game:
+       .proc
+       clr  @level
+       bl   @init_tl2
+       .endproc
+*// init_game
+
+*********************************************************************
+*
+* Initialize level
+*
+init_level:
+       .proc
+       clr  @sub_level
+       clr  @player_status
+       clr  @player_fire
+*      Reset sprites
+       li   r0,sprites
+       mov  r0,@sprites_end_ptr
+*      Reset sprite buffer in VDP RAM
+       li   r0,sprbuf
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+*      Create player plane
+       li   r6,plane_def
+       bl   @create_sprite
+       mov  r4,@player_sprite
+       li   r6,shadow_def
+       bl   @create_sprite
+       mov  r4,@player_shadow
+       .endproc
+*// init_level
+
+*********************************************************************
+*
+* Initialize sub-level
+*
+init_sub_level:
+       .proc
+       bl   @clear_name_table_and_patterns
+*      Reset player position
+       mov  @player_sprite,r1
+       li   r0,player_start_x
+       mov  r0,@sprite_x(r1)
+       li   r0,sprites+(2*sprite_size)
+       mov  r0,@sprites_end_ptr
+       bl   @upload_sprites
+*      Reset scroll position
+       clr  @scroll_pos                ; Reset scroll position
+       li   r0,scrlps                  ; Reset VDP variable
+       clr  r1
+       bl   @vsbw                      ; High byte
+       clr  *r15                       ; Low byte
+       clr  @scroll_x                  ; Scroll x
+       li   r0,>800                    ; Scroll y
+       mov  r0,@scroll_y
+*      Init sub-level variables
+       clr  @chars_to_upload
+       mov  @sub_level,r1
+       sla  r1,1
+       mov  @sub_levels(r1),r1
+       mov  *r1+,@map_bank_select
+       mov  *r1+,@patterns_bank_select
+       mov  *r1+,@char_diff_ptr
+       mov  *r1+,@char_diff_end
+       mov  *r1+,@sprite_def_ptr
+       mov  *r1+,@map_width
+       mov  @map_width,r0
+       sla  r0,3
+       ai   r0,window_width
+       mov  r0,@scroll_max
+*      Load palettes
+       clr  r0                         ; Palette index 0
+       mov  *r1,r1                     ; Palette address
+       li   r2,2                       ; 2 palettes
+       bl   @load_palettes
+       .endproc
+sub_levels:
+       data sub_level_1,sub_level_2
+sub_level_1:
+       data map_1_bank_select
+       data patterns_1_bank_select
+       data level_1_000_add
+       data diff_end_1
+       data sprite_defs_1
+       data map_1_width
+       data char_palettes_1
+sub_level_2:
+       data map_2_bank_select
+       data patterns_2_bank_select
+       data level_2_000_add
+       data diff_end_2
+       data sprite_defs_2
+       data map_2_width
+       data char_palettes_2
+*// init_sub_level
+
+*********************************************************************
+*
 * Set graphics mode
 *
 graphics_mode:
@@ -923,8 +1034,10 @@ graphics_mode_1:
        jlt  graphics_mode_2
        bl   @vwtr                      ; Set register
        jmp  graphics_mode_1
-*      Load sprite palettes
+*      Clear VDP RAM
 graphics_mode_2:
+       bl   @clear_vdp_ram
+*      Load sprite palettes
        li   r0,2
        li   r1,sprite_palettes
        li   r2,6
@@ -955,109 +1068,14 @@ vdp_registers:
 
 *********************************************************************
 *
-* Init game
+* Clear VDP RAM
 *
-init_game:
+clear_vdp_ram
        .proc
-       clr  @level
-       clr  @sub_level
-       inc  @sub_level
-       .endproc
-*// init_game
-
-*********************************************************************
-*
-* Init level
-*
-init_level:
-       .proc
-       li   r0,>01a2                   ; Display off
-       bl   @vwtr
-       bl   @clear_vdp_ram
-       bl   @init_tl2
-       bl   @vsync
-       li   r0,>01e2                   ; Display on
-       bl   @vwtr
-       clr  @scroll_pos
-       li   r0,scrlps
        clr  r1
-       bl   @vsbw
-       clr  *r15
-       clr  @scroll_x
-       li   r0,>800
-       mov  r0,@scroll_y
-       clr  @chars_to_upload
-       li   r0,sprites
-       mov  r0,@sprites_end_ptr
-       clr  @player_fire
-       clr  @player_status
-*      Sub level
-       mov  @sub_level,r1
-       sla  r1,1
-       mov  @sub_levels(r1),r1
-       mov  *r1+,@map_bank_select
-       mov  *r1+,@patterns_bank_select
-       mov  *r1+,@char_diff_ptr
-       mov  *r1+,@char_diff_end
-       mov  *r1+,@sprite_def_ptr
-       mov  *r1+,@map_width
-       mov  @map_width,r0
-       sla  r0,3
-       ai    r0,window_width
-       mov  r0,@scroll_max
-*      Load palettes
-       clr  r0                         ; Palette index 0
-       mov  *r1,r1                     ; Palette address
-       li   r2,2                       ; 2 palettes
-       bl   @load_palettes
-*      Create player plane
-       li   r6,plane_def
-       bl   @create_sprite
-       mov  r4,@player_sprite
-       li   r6,shadow_def
-       bl   @create_sprite
-       mov  r4,@player_shadow
-       li   r0,sprbuf
-       bl   @vwad
-       clr  *r15
-       clr  *r15
-       .endproc
-**
-*
-* Sub levels
-*
-sub_levels:
-       data sub_level_1,sub_level_2
-sub_level_1:
-       data map_1_bank_select
-       data patterns_1_bank_select
-       data level_1_000_add
-       data diff_end_1
-       data sprite_defs_1
-       data map_1_width
-       data char_palettes_1
-sub_level_2:
-       data map_2_bank_select
-       data patterns_2_bank_select
-       data level_2_000_add
-       data diff_end_2
-       data sprite_defs_2
-       data map_2_width
-       data char_palettes_2
-*// init_level
-
-*********************************************************************
-*
-* Clear VDP RAM up to the sprite pattern table
-*
-clear_vdp_ram:
-       .proc
-       clr  r0                         ; Clear name table and pattern tables
-       clr  r1
-       li   r2,sprptb
+       clr  r0
+       li   r2,>4000
        bl   @vsmw
-       li   r0,>3300                   ; Disable sprites
-       bl   @vwtr
        .endproc
 *// clear_vdp_ram
 
@@ -1106,12 +1124,28 @@ init_tl2:
 
 *********************************************************************
 *
-* Load level paletes
+* Clear name table and tile patterns
 *
-load_level_palettes:
+clear_name_table_and_patterns:
        .proc
+       clr  r1
+       li   r0,namet0
+       li   r2,>3c0
+       bl   @vsmw
+       li   r0,namet1
+       li   r2,>3c0
+       bl   @vsmw
+       li   r0,ptrnt0
+       li   r2,>800-(tl2_chars*8)
+       bl   @vsmw
+       li   r0,ptrnt1
+       li   r2,>800-(tl2_chars*8)
+       bl   @vsmw
+       li   r0,ptrnt2
+       li   r2,>800-(tl2_chars*8)
+       bl   @vsmw
        .endproc
-* load_level_palettes
+*// clear_name_table_and_patterns
 
 *********************************************************************
 *
