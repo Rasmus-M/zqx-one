@@ -47,8 +47,8 @@ sprite_attrs_shadow:
        data 8                          ; cx
        data 12                         ; cy
        data 2                          ; n sprites
-       byte 0,0,>10,>06
-       byte 0,16,>14,>06
+       byte 0,0,>10,>04
+       byte 0,16,>14,>04
 sprite_attrs_silo:
        data 15                         ; cx
        data 25                         ; cy
