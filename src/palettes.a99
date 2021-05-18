@@ -1,6 +1,6 @@
 sprite_palettes:
        equ  $
-PAL2   DATA >0CEF,>0DD0,>0D0F,>0D90    ;
+PAL2   DATA >00D0,>0DD0,>0D0F,>0D90    ;
        DATA >00DF,>0D00,>0000,>0FFF    ;
 PAL3   DATA >0CEF,>0000,>00D0,>09D0    ;
        DATA >0090,>0D90,>0D00,>0000    ;

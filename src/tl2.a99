@@ -1,175 +1,281 @@
 ****************************************
 * Tile Attributes                       
 ****************************************
-TAT250x BYTE >86                        ;
-TAT251x BYTE >96                        ;
-TAT252x BYTE >96                        ;
-TAT253x BYTE >96                        ;
-TAT254x BYTE >96                        ;
-TAT255x BYTE >16                        ;
+TAT228 BYTE >04                        ;
+TAT229 BYTE >04                        ;
+TAT230 BYTE >04                        ;
+TAT231 BYTE >04                        ;
+TAT232 BYTE >04                        ;
+TAT233 BYTE >04                        ;
+TAT234 BYTE >04                        ;
+TAT235 BYTE >04                        ;
+TAT236 BYTE >04                        ;
+TAT237 BYTE >04                        ;
+TAT238 BYTE >04                        ;
+TAT239 BYTE >04                        ;
+TAT240 BYTE >04                        ;
+TAT241 BYTE >04                        ;
+TAT242 BYTE >04                        ;
+TAT243 BYTE >04                        ;
+TAT244 BYTE >04                        ;
+TAT245 BYTE >04                        ;
+TAT246 BYTE >04                        ;
+TAT247 BYTE >04                        ;
+TAT248 BYTE >04                        ;
+TAT249 BYTE >04                        ;
+TAT250 BYTE >04                        ;
+TAT251 BYTE >14                        ;
+TAT252 BYTE >14                        ;
+TAT253 BYTE >14                        ;
+TAT254 BYTE >14                        ;
+TAT255 BYTE >14                        ;
 ****************************************
 * Character Patterns Plane 0            
 ****************************************
-P0_250x DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
-P0_251x DATA >FFFF,>FFFF,>FFFC,>F0C0    ;
-P0_252x DATA >FFFC,>F0C0,>0000,>0000    ;
-P0_253x DATA >030F,>3FFF,>FFFF,>FFFF    ;
-P0_254x DATA >0000,>0000,>030F,>3FFF    ;
-P0_255x DATA >0000,>0000,>0000,>0000    ;
+P0_228 DATA >6363,>637F,>6363,>6300    ;
+P0_229 DATA >0000,>0000,>0000,>0000    ;
+P0_230 DATA >0000,>0000,>0000,>0000    ;
+P0_231 DATA >0000,>0000,>0000,>0000    ;
+P0_232 DATA >6363,>6363,>6363,>3E00    ;
+P0_233 DATA >7E63,>6363,>7E60,>6000    ;
+P0_234 DATA >3F0C,>0C0C,>0C0C,>0C00    ;
+P0_235 DATA >3E63,>6363,>6363,>3E00    ;
+P0_236 DATA >7F60,>607E,>6060,>6000    ;
+P0_237 DATA >7F60,>607E,>6060,>7F00    ;
+P0_238 DATA >6060,>6060,>6060,>7F00    ;
+P0_239 DATA >C0F0,>FCFF,>FFFC,>F0C0    ;
+P0_240 DATA >1C26,>6363,>6332,>1C00    ;
+P0_241 DATA >0C1C,>0C0C,>0C0C,>3F00    ;
+P0_242 DATA >3E63,>071E,>3C70,>7F00    ;
+P0_243 DATA >3F06,>0C1E,>0363,>3E00    ;
+P0_244 DATA >1E36,>667F,>0606,>0600    ;
+P0_245 DATA >7E60,>7E03,>0363,>3E00    ;
+P0_246 DATA >1E30,>607E,>6363,>3E00    ;
+P0_247 DATA >7F63,>060C,>1818,>1800    ;
+P0_248 DATA >3C62,>723C,>4F43,>3E00    ;
+P0_249 DATA >3E63,>633F,>0306,>3C00    ;
+P0_250 DATA >0000,>0000,>0000,>0000    ;
+P0_251 DATA >0000,>0000,>0000,>0000    ;
+P0_252 DATA >0000,>0000,>0000,>0000    ;
+P0_253 DATA >0000,>0000,>0000,>0000    ;
+P0_254 DATA >0000,>0000,>0000,>0000    ;
+P0_255 DATA >0000,>0000,>0000,>0000    ;
+****************************************
+* Character Patterns Plane 1            
+****************************************
+P1_228 DATA >9C9C,>9C80,>9C9C,>9CFF    ;
+P1_229 DATA >FFFF,>FFFF,>0000,>FFFF    ;
+P1_230 DATA >0000,>FFFF,>0000,>FFFF    ;
+P1_231 DATA >CFCF,>CFCF,>CFCF,>C0FF    ;
+P1_232 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_233 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_234 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_235 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_236 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_237 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_238 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_239 DATA >BFAF,>ABAA,>AAAB,>AFBF    ;
+P1_240 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_241 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_242 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_243 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_244 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_245 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_246 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_247 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_248 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_249 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_250 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P1_251 DATA >FFFF,>FFFF,>FFFC,>F0C0    ;
+P1_252 DATA >FFFC,>F0C0,>0000,>0000    ;
+P1_253 DATA >030F,>3FFF,>FFFF,>FFFF    ;
+P1_254 DATA >0000,>0000,>030F,>3FFF    ;
+P1_255 DATA >0000,>0000,>0000,>0000    ;
+****************************************
+* Character Patterns Plane 2            
+****************************************
+P2_228 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_229 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_230 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_231 DATA >CFCF,>CFCF,>CFCF,>C0FF    ;
+P2_232 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_233 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_234 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_235 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_236 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_237 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_238 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_239 DATA >7F5F,>5755,>5557,>5F7F    ;
+P2_240 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_241 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_242 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_243 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_244 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_245 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_246 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_247 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_248 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_249 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_250 DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
+P2_251 DATA >FFFF,>FFFF,>FFFC,>F0C0    ;
+P2_252 DATA >FFFC,>F0C0,>0000,>0000    ;
+P2_253 DATA >030F,>3FFF,>FFFF,>FFFF    ;
+P2_254 DATA >0000,>0000,>030F,>3FFF    ;
+P2_255 DATA >0000,>0000,>0000,>0000    ;
 ****************************************
 * Map Data                              
 ****************************************
 MCOUNT DATA 1                          ;
 * == Map #0 ==                          
-MC0    DATA 4                          ;
+MC0    DATA 1                          ;
 MS0    DATA >0020,>001E,>03C0          ; Width, Height, Size
 * -- Map Row 0 --                       
-MD0    DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-       DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
+MD0    DATA >EAEB,>E9FA,>F0F0,>F0F0    ;
+       DATA >F0F0,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FAFA,>FBFC,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 1 --
+* -- Map Row 1 --                       
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FBFC,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 2 --
-       DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-       DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
+* -- Map Row 2 --                       
+       DATA >F1E8,>E9FA,>F0F0,>F0F0    ;
+       DATA >F0F0,>FAFA,>FAFA,>FAFA    ;
        DATA >FBFC,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 3 --
+* -- Map Row 3 --                       
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FAFA,>FAFA,>FBFC    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 4 --
+* -- Map Row 4 --                       
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FAFA,>FBFC,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 5 --
+* -- Map Row 5 --                       
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FBFC,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 6 --
+* -- Map Row 6 --                       
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
        DATA >FBFC,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 7 --
+* -- Map Row 7 --                       
        DATA >FAFA,>FAFA,>FAFA,>FBFC    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 8 --
+* -- Map Row 8 --                       
        DATA >FAFA,>FAFA,>FBFC,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 9 --
-       DATA >FAFA,>FBFC,>FFFF,>FFFF    ;
+* -- Map Row 9 --                       
+       DATA >E4FA,>FBFC,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 10 --
+* -- Map Row 10 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 11 --
+* -- Map Row 11 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 12 --
+* -- Map Row 12 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 13 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 13 --                      
+       DATA >E5FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 14 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 14 --                      
+       DATA >E6FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 15 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 15 --                      
+       DATA >E6FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 16 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 16 --                      
+       DATA >E6FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 17 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 17 --                      
+       DATA >E6FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 18 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 18 --                      
+       DATA >E6FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 19 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 19 --                      
+       DATA >E6FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 20 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 20 --                      
+       DATA >E6FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FAFA    ;
-* -- Map Row 21 --
-       DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
+* -- Map Row 21 --                      
+       DATA >E7FA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FEFD,>FAFA    ;
-* -- Map Row 22 --
+* -- Map Row 22 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FEFD,>FAFA,>FAFA    ;
-* -- Map Row 23 --
+* -- Map Row 23 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FEFD,>FAFA,>FAFA,>FAFA    ;
-* -- Map Row 24 --
+* -- Map Row 24 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FEFD    ;
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-* -- Map Row 25 --
+* -- Map Row 25 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FEFD,>FAFA    ;
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-* -- Map Row 26 --
+* -- Map Row 26 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FEFD,>FAFA,>FAFA    ;
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-* -- Map Row 27 --
+* -- Map Row 27 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FFFF    ;
        DATA >FEFD,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-* -- Map Row 28 --
+* -- Map Row 28 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
        DATA >FFFF,>FFFF,>FFFF,>FEFD    ;
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
        DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-* -- Map Row 29 --
+* -- Map Row 29 --                      
        DATA >FAFA,>FFFF,>FFFF,>FFFF    ;
-       DATA >FFFF,>FFFF,>FEFD,>FAFA    ;
-       DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
-       DATA >FAFA,>FAFA,>FAFA,>FAFA    ;
+       DATA >FFFF,>FFFF,>FEFD,>FAEC    ;
+       DATA >E8ED,>EEFA,>EFEF,>EFEF    ;
+       DATA >EFEF,>EFEF,>EFEF,>EFEF    ;

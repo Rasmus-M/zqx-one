@@ -86,9 +86,9 @@ map_2_bank_select:
 map:
        equ  >6000
 tl2_first_char:
-       equ  250
+       equ  228
 tl2_chars:
-       equ  6
+       equ  28
 max_sprites:
        equ  18
 sprite_patterns_bank_select:
@@ -234,7 +234,7 @@ game_loop:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-;       bl   @player_collisions
+       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
@@ -930,7 +930,12 @@ one_time_init:
 init_game:
        .proc
        clr  @level
+       li   r0,>01a2
+       bl   @vwtr
        bl   @init_tl2
+       bl   @vsync
+       li   r0,>01e2
+       bl   @vwtr
        .endproc
 *// init_game
 
@@ -1048,7 +1053,7 @@ vdp_registers:
        byte >06,sprptb/>800            ; Sprite pattern table
        byte >07,backdrop_color         ; Backdrop color
        byte >31,>fb                    ; Reg 49: Enhanced color mode (ECM3 tiles and sprites, 30 rows, tl2, real y coord)
-       byte >32,>01                    ; TL2 vs sprite priority considered
+       byte >32,>00                    ; TL2 always on top
        byte >1b,>00                    ; Reg 27: Horizontal scroll offset
        byte >1c,>00                    ; Reg 28: Vertical scroll offset
        byte >1d,>01                    ; Reg 29: Page size (2K between sprite patten tables, 1 x 2 scroll size)
@@ -1103,11 +1108,19 @@ init_tl2:
        li   r2,960
        bl   @vmbw
        li   r0,ptrnt0+(tl2_first_char*8)
-       li   r1,P0_250x
+       li   r1,P0_228
+       li   r2,tl2_chars*8
+       bl   @vmbw
+       li   r0,ptrnt1+(tl2_first_char*8)
+       li   r1,P1_228
+       li   r2,tl2_chars*8
+       bl   @vmbw
+       li   r0,ptrnt2+(tl2_first_char*8)
+       li   r1,P2_228
        li   r2,tl2_chars*8
        bl   @vmbw
        li   r0,tilatb+tl2_first_char
-       li   r1,TAT250x
+       li   r1,TAT228
        li   r2,tl2_chars
        bl   @vmbw
        .endproc
