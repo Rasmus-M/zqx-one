@@ -22,18 +22,18 @@ gpu_sprite_size:
 upload_gpu_program:
        .proc
 *      Set GPU status
-       li   r0,gpusta
+       li   r0,vdp_gpu_status
        seto r1
        bl   @vsbw
 *      Upload to tmp location
-       li   r0,gputmp
+       li   r0,gpu_prg_tmp
        li   r1,gpu_program
        li   r2,gpu_program_end-gpu_program
        bl   @vmbw
 *      Move to final location
-       li   r0,gputmp/256+>3600
+       li   r0,gpu_prg_tmp/256+>3600
        bl   @vwtr
-       li   r0,gputmp%256+>3700
+       li   r0,gpu_prg_tmp%256+>3700
        bl   @vwtr
 *      Wait until done
        bl   @wait_gpu
@@ -47,7 +47,7 @@ upload_gpu_program:
 wait_gpu:
        .proc
 wait_gpu_1:
-       li   r0,gpusta
+       li   r0,vdp_gpu_status
        bl   @vsbr
        andi r1,>ff00
        jne  wait_gpu_1
@@ -61,13 +61,13 @@ wait_gpu_1:
 gpu_run:
        .proc
 *      Set GPU status
-       li   r0,gpusta
+       li   r0,vdp_gpu_status
        seto r1
        bl   @vsbw
 *      Set the GPU PC which also triggers it
-       li   r0,gpuprg/256+>3600
+       li   r0,gpu_prg/256+>3600
        bl   @vwtr
-       li   r0,gpuprg%256+>3700
+       li   r0,gpu_prg%256+>3700
        bl   @vwtr
        .endproc
 *// gpu_run
@@ -77,22 +77,22 @@ gpu_run:
 * GPU program
 *
 gpu_program:
-       li   r0,gputmp+(gpu_program_start-gpu_program)
-       li   r1,gpuprg
+       li   r0,gpu_prg_tmp+(gpu_program_start-gpu_program)
+       li   r1,gpu_prg
        li   r2,gpu_program_end-gpu_program_start
 gpu_program_copy:
        mov  *r0+,*r1+
        dect r2
        jne  gpu_program_copy
-       clr  @gpusta                    ; Signal done
+       clr  @vdp_gpu_status                    ; Signal done
        idle
 gpu_program_start:
-       xorg gpuprg
+       xorg gpu_prg
        li   r15,>47fe                  ; Stack pointer
        call @sprite_collisions         ; Before sorting so we know the player is reported first
        call @sort_sprites
        call @generate_sals
-       clr  @gpusta                    ; Signal done
+       clr  @vdp_gpu_status                    ; Signal done
        call @split_screen
        idle
 **
@@ -101,7 +101,7 @@ gpu_program_start:
 sort_sprites:
        li   r0,>0500                   ; Blue border
        movb r0,@>6007
-       li   r3,sprbuf
+       li   r3,vdp_sprite_bufffer
 sort_sprites_1:
        mov  *r3+,r0                    ; Get sprite address
        jeq  sort_sprites_4             ; 0 = End
@@ -141,11 +141,11 @@ sort_sprites_4:
 generate_sals:
        li   r0,>0600                   ; Yellow border
        movb r0,@>6007
-       li   r3,spratb                  ; Top dest
-       li   r4,sprat2                  ; Bottom dest
+       li   r3,sprite_attr_table                  ; Top dest
+       li   r4,sprite_attr_table_2                  ; Bottom dest
        clr  r5                         ; Number of top sprites
        clr  r6                         ; Number of bottom sprites
-       li   r9,sprbuf
+       li   r9,vdp_sprite_bufffer
 generate_sals_1:
        mov  *r9+,r0                    ; Get sprite address
        jeq  generate_sals_6            ; 0 = End
@@ -158,7 +158,7 @@ generate_sals_1:
        mov  *r9+,r10                   ; Get x0
        mov  *r9+,r11                   ; Get y0
        mov  *r9+,r12                   ; Get z0
-       s    @scrlps,r10                ; Adjust for scrolling
+       s    @vdp_scroll_pos,r10                ; Adjust for scrolling
 *      Isometric projection
        mov  r10,r13                    ; Save x0
        a    r11,r10                    ; x0 + y0
@@ -241,8 +241,8 @@ generate_sals_6:
 *      Sprite collisions
 *
 sprite_collisions:
-       li   r6,collis
-       li   r4,sprbuf
+       li   r6,vdp_collisions
+       li   r4,vdp_sprite_bufffer
 sprite_collisions_1:
        mov  *r4,r0                     ; Get sprite address
        jeq  sprite_collisions_5        ; 0 = End
@@ -302,7 +302,7 @@ sprite_collisions_2:
        mov  *r4,*r6+                   ; Write sprite address 1
        mov  *r5,*r6+                   ; Write sprite address 2
 sprite_collisions_2a:
-       ci   r6,vdpvar+60               ; That's all the space there is
+       ci   r6,vdp_collisions+60       ; That's all the space there is
        jhe  sprite_collisions_5
 *      Next inner
 sprite_collisions_3:
@@ -322,7 +322,7 @@ split_screen:
        clr  r0
        movb r0,@>6007                  ; Black border
 *      Set sprite attribute table 1
-       li   r0,(spratb/>80)*256        ; Value for VR5 (table 1)
+       li   r0,(sprite_attr_table/>80)*256        ; Value for VR5 (table 1)
        movb r0,@>6005                  ; Set VR5
        movb @top_sprites,@>6033        ; Set max sprites (VR51)
 *      Set hsync trigger
@@ -336,7 +336,7 @@ split_screen_1:
        cb   @>7000,@split_y            ; Check scanline number
        jne  split_screen_1             ; Wait if not reached
 *      Set sprite attribute table 2
-       li   r0,(sprat2/>80)*256        ; Value for VR5 (table 2)
+       li   r0,(sprite_attr_table_2/>80)*256        ; Value for VR5 (table 2)
        movb r0,@>6005                  ; Set VR5
        movb @bottom_sprites,@>6033     ; Set max sprites (VR51)
 *      Clear hsync trigger
@@ -362,6 +362,8 @@ bottom_sprites:
        byte 0
 *      Sprite attributes
        copy "sprite-attrs.a99"
+*      Walls
+       copy "walls.a99"
        aorg
 gpu_program_end:
        equ  $

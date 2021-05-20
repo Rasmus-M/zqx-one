@@ -27,28 +27,52 @@ grmwa  equ  >9C02                      ; GROM address write
 **
 * VDP memory map
 *
-nametb equ  >0000                      ; Name table base
-namet0 equ  >0000                      ; Name table page 0
-vdpvar equ  >03c0                      ; VDP variables
-gpusta equ  >03c0                      ; GPU status
-scrlps equ  >03c2                      ; Scroll position
-collis equ  >03c4                      ; Collision results
-tilatb equ  >0400                      ; Tile attribute table
-spratb equ  >0500                      ; Sprite attribute table
-sprat2 equ  >0580                      ; Sprite attribute table 2
-sprbuf equ  >0600                      ; Sprite buffer (162 bytes for 16 sprites)
-namet1 equ  >0800                      ; Name table page 1 (64 bytes free)
-nam2tb equ  >0c00                      ; Name table 2 base (64 bytes free)
-ptrntb equ  >1000                      ; Pattern table base
-ptrnt0 equ  >1000                      ; Pattern table plane 0
-ptrnt1 equ  >1800                      ; Pattern table plane 1
-ptrnt2 equ  >2000                      ; Pattern table plane 2
-gputmp equ  >2800                      ; GPU program temporary location
-sprptb equ  >2800                      ; Sprite pattern table base
-sprpt0 equ  >2800                      ; Sprite pattern table plane 0
-sprpt1 equ  >3000                      ; Sprite pattern table plane 1
-sprpt2 equ  >3800                      ; Sprite pattern table plane 2
-gpuprg equ  >4000                      ; GPU program location
+name_table_base:                       ; Name table base
+       equ  >0000
+name_table_p_0:                        ; Name table page 0
+       equ  >0000
+vdp_variables:                         ; VDP variables
+       equ  >03c0
+vdp_gpu_status:                        ; GPU status
+       equ  >03c0
+vdp_scroll_pos:                        ; Scroll position
+       equ  >03c2
+vdp_sub_level:                         ; Sub-level
+       equ  >03c4
+tile_attr_table:                       ; Tile attribute table
+       equ  >0400
+sprite_attr_table:                     ; Sprite attribute table
+       equ  >0500
+sprite_attr_table_2:                   ; Sprite attribute table 2
+       equ  >0580
+vdp_sprite_bufffer:                    ; Sprite buffer (162 bytes for 16 sprites)
+       equ  >0600
+name_table_p_1:                        ; Name table page 1
+       equ  >0800
+vdp_collisions:                        ; Collision results
+       equ  >0bc0
+name_table_2:                          ; Name table 2 base (64 bytes free)
+       equ  >0c00
+pattern_table_base:                    ; Pattern table base
+       equ  >1000
+pattern_table_p_0:                     ; Pattern table plane 0
+       equ  >1000
+pattern_table_p_1:                     ; Pattern table plane 1
+       equ  >1800
+pattern_table_p_2:                     ; Pattern table plane 2
+       equ  >2000
+gpu_prg_tmp:                           ; GPU program temporary location
+       equ  >2800
+sprite_pattern_table_base:             ; Sprite pattern table base
+       equ  >2800
+sprite_pattern_table_0:                ; Sprite pattern table plane 0
+       equ  >2800
+sprite_pattern_table_1:                ; Sprite pattern table plane 1
+       equ  >3000
+sprite_pattern_table_2:                ; Sprite pattern table plane 2
+       equ  >3800
+gpu_prg:                               ; GPU program location
+       equ  >4000
 
 **
 * Constants
@@ -307,7 +331,7 @@ set_vdp_regs:
 *
 upload_sprites:
        .proc
-       li   r0,sprbuf
+       li   r0,vdp_sprite_bufffer
        bl   @vwad
        li   r2,r1lb
        li   r4,sprites
@@ -410,14 +434,14 @@ upload_character:
        a    @patterns_bank_select,r1
        seto *r1
 *      Tile attribute
-       ai   r0,tilatb
+       ai   r0,tile_attr_table
        movb @tile_attr_base_addr(r4),r1
        bl   @vsbw
 *      Pattern
        mov  r3,r0
        mov  r4,r1
        sla  r0,3
-       ai   r0,ptrntb
+       ai   r0,pattern_table_base
        andi r1,>00ff
        sla  r1,3
        ai   r1,patterns_base_addr
@@ -432,7 +456,7 @@ upload_character_1:
        movb *r1+,*r15
        movb *r1+,*r15
        movb *r1+,*r15
-       ai   r0,ptrnt1-ptrnt0
+       ai   r0,pattern_table_p_1-pattern_table_p_0
        ai   r1,>800-8
        dec  r2
        jne  upload_character_1
@@ -630,7 +654,7 @@ move_sprites_4:
 *
 player_collisions:
        .proc
-       li   r0,collis
+       li   r0,vdp_collisions
        bl   @vrad
 player_collisions_1:
 *      Get 1st sprite involved in collision
@@ -666,7 +690,7 @@ player_collisions_3:
 *
 bullet_collisions:
        .proc
-       li   r0,collis
+       li   r0,vdp_collisions
        bl   @vrad
 bullet_collisions_1:
 *      Get 1st sprite involved in collision
@@ -827,9 +851,8 @@ scroll:
        jhe  scroll_1
        inc  r1
        mov  r1,@scroll_pos
-       li   r0,scrlps                  ; Update VPD variable
-       bl   @vsbw                      ; High byte
-       movb @r1lb,*r15                 ; Low byte
+       li   r0,vdp_scroll_pos          ; Update VPD variable
+       bl   @vsww
        mov  r1,@scroll_x
        andi r1,1
        jne  scroll_1
@@ -944,7 +967,7 @@ rand:
 *
 display_decimal:
        .proc
-       ai   r0,nam2tb
+       ai   r0,name_table_2
        bl   @vwad
        li   r3,5
        s    r2,r3
@@ -1016,7 +1039,7 @@ init_level:
        li   r0,sprites
        mov  r0,@sprites_end_ptr
 *      Reset sprite buffer in VDP RAM
-       li   r0,sprbuf
+       li   r0,vdp_sprite_bufffer
        bl   @vwad
        clr  *r15
        clr  *r15
@@ -1038,11 +1061,11 @@ init_sub_level:
        .proc
        bl   @vsync
 *      Change to the sprite attribute table where the player is located
-       li   r0,sprat2+2                ; Get pattern byte of first sprite in table 2
+       li   r0,sprite_attr_table_2+2   ; Get pattern byte of first sprite in table 2
        bl   @vsbr
        movb r1,r1                      ; Plane is 0
        jeq  init_sub_level_1
-       li   r0,>0500+(spratb/>80)      ; Change to table 1
+       li   r0,>0500+(sprite_attr_table/>80)      ; Change to table 1
        bl   @vwtr
 *      Clear name table and patterns
 init_sub_level_1:
@@ -1056,7 +1079,7 @@ init_sub_level_1:
        bl   @upload_sprites
 *      Reset scroll position
        clr  @scroll_pos                ; Reset scroll position
-       li   r0,scrlps                  ; Reset VDP variable
+       li   r0,vdp_scroll_pos          ; Reset VDP variable
        clr  r1
        bl   @vsbw                      ; High byte
        clr  *r15                       ; Low byte
@@ -1080,6 +1103,10 @@ init_sub_level_1:
        mov  *r1,r1                     ; Palette address
        li   r2,2                       ; 2 palettes
        bl   @load_palettes
+*      Update VDP variable
+       li   r0,vdp_sub_level
+       mov  @sub_level,r1
+       bl   @vsww
        .endproc
 *// init_sub_level
 
@@ -1110,19 +1137,19 @@ vdp_registers:
        byte >39,>1c                    ; Unlock F18A
        byte >00,>00                    ; Graphics I mode
        byte >01,>e2                    ; 16K, display on, interrupt enabled
-       byte >02,nametb/>400            ; Name table
-       byte >03,tilatb/>40             ; Tile attribute table
-       byte >04,ptrntb/>800            ; Pattern table
-       byte >05,spratb/>80             ; Sprite attribute table
-       byte >06,sprptb/>800            ; Sprite pattern table
+       byte >02,name_table_base/>400   ; Name table
+       byte >03,tile_attr_table/>40    ; Tile attribute table
+       byte >04,pattern_table_base/>800 ; Pattern table
+       byte >05,sprite_attr_table/>80  ; Sprite attribute table
+       byte >06,sprite_pattern_table_base/>800 ; Sprite pattern table
        byte >07,backdrop_color         ; Backdrop color
        byte >31,>fb                    ; Reg 49: Enhanced color mode (ECM3 tiles and sprites, 30 rows, tl2, real y coord)
        byte >32,>00                    ; TL2 always on top
        byte >1b,>00                    ; Reg 27: Horizontal scroll offset
        byte >1c,>00                    ; Reg 28: Vertical scroll offset
        byte >1d,>01                    ; Reg 29: Page size (2K between sprite patten tables, 1 x 2 scroll size)
-       byte >0a,nam2tb/>400            ; Reg 10: Name table 2
-       byte >0b,tilatb/>40             ; Reg 11: Tile attribute table 2
+       byte >0a,name_table_2/>400      ; Reg 10: Name table 2
+       byte >0b,tile_attr_table/>40    ; Reg 11: Tile attribute table 2
        byte >33,>00                    ; Reg 15: All sprites off
        data -1
 *// graphics_mode
@@ -1146,15 +1173,15 @@ clear_vdp_ram
 upload_sprite_patterns:
        .proc
        seto @sprite_patterns_bank_select
-       li   r0,sprpt0
+       li   r0,sprite_pattern_table_0
        li   r1,sprite_patters_base_addr
        li   r2,n_sprite_patterns*32
        bl   @vmbw
-       li   r0,sprpt1
+       li   r0,sprite_pattern_table_1
        li   r1,sprite_patters_base_addr+>800
        li   r2,n_sprite_patterns*32
        bl   @vmbw
-       li   r0,sprpt2
+       li   r0,sprite_pattern_table_2
        li   r1,sprite_patters_base_addr+>1000
        li   r2,n_sprite_patterns*32
        bl   @vmbw
@@ -1167,23 +1194,23 @@ upload_sprite_patterns:
 *
 init_tl2:
        .proc
-       li   r0,nam2tb
+       li   r0,name_table_2
        li   r1,MD0
        li   r2,960
        bl   @vmbw
-       li   r0,ptrnt0+(tl2_first_char*8)
+       li   r0,pattern_table_p_0+(tl2_first_char*8)
        li   r1,P0_228
        li   r2,tl2_chars*8
        bl   @vmbw
-       li   r0,ptrnt1+(tl2_first_char*8)
+       li   r0,pattern_table_p_1+(tl2_first_char*8)
        li   r1,P1_228
        li   r2,tl2_chars*8
        bl   @vmbw
-       li   r0,ptrnt2+(tl2_first_char*8)
+       li   r0,pattern_table_p_2+(tl2_first_char*8)
        li   r1,P2_228
        li   r2,tl2_chars*8
        bl   @vmbw
-       li   r0,tilatb+tl2_first_char
+       li   r0,tile_attr_table+tl2_first_char
        li   r1,TAT228
        li   r2,tl2_chars
        bl   @vmbw
@@ -1196,19 +1223,19 @@ init_tl2:
 *
 clear_name_table_and_patterns:
        .proc
-       li   r0,ptrnt0
+       li   r0,pattern_table_p_0
        li   r2,>800-(tl2_chars*8)
        bl   @vclr
-       li   r0,ptrnt1
+       li   r0,pattern_table_p_1
        li   r2,>800-(tl2_chars*8)
        bl   @vclr
-       li   r0,ptrnt2
+       li   r0,pattern_table_p_2
        li   r2,>800-(tl2_chars*8)
        bl   @vclr
-       li   r0,namet0
+       li   r0,name_table_p_0
        li   r2,>3c0
        bl   @vclr
-       li   r0,namet1
+       li   r0,name_table_p_1
        li   r2,>3c0
        bl   @vclr
        .endproc

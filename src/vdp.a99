@@ -48,6 +48,26 @@ vsbw:
 
 *********************************************************************
 *
+* VDP Single Word Write
+*
+* R0: Write address in VDP RAM
+* R1: Value to write VDP RAM
+*
+vsww:
+       swpb r0
+       movb r0,@vdpwa                  ; Send low byte of VDP RAM write address
+       swpb r0
+       ori  r0,>4000                   ; Set read/write bits 14 and 15 to write (01)
+       movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
+       movb r1,*r15                    ; Write byte to VDP RAM
+       swpb r1
+       movb r1,*r15
+       swpb r1
+       rt
+*// vsww
+
+*********************************************************************
+*
 * VDP multiple Byte Write
 *
 * R0: Write address in VDP RAM
