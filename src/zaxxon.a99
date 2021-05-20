@@ -127,6 +127,8 @@ wall_2_x:
        equ  1764
 wall_height:
        equ  56
+char_zero:
+       equ  240
 
 **
 * Scratch pad
@@ -201,8 +203,12 @@ level:
        equ  player_status+2
 sub_level:
        equ  level+2
-pad_max:
+score:
        equ  sub_level+2
+old_score:
+       equ  score+2
+pad_max:
+       equ  old_score+2
 
 ***************************************************************
 *
@@ -241,6 +247,7 @@ game_loop:
        bl   @move_sprites
        bl   @create_sprites
        bl   @upload_sprites
+       bl   @display_score
        mov  @player_status,r0
        jne  start_level
        bl   @scroll
@@ -795,6 +802,22 @@ align_sprites:
 
 *********************************************************************
 *
+* Display score
+*
+display_score:
+       .proc
+       mov  @score,r1
+       c    r1,@old_score
+       jeq  display_score_1
+       li   r0,69
+       li   r2,5
+       bl   @display_decimal
+display_score_1:
+       .endproc
+*// display_score
+
+*********************************************************************
+*
 * Scroll
 *
 scroll:
@@ -913,6 +936,45 @@ rand:
 
 *********************************************************************
 *
+* Display decimal number
+*
+* r0: Screen offset
+* r1: Number to display
+* r2: Number of digits
+*
+display_decimal:
+       .proc
+       ai   r0,nam2tb
+       bl   @vwad
+       li   r3,5
+       s    r2,r3
+       sla  r3,1
+       ai   r3,d10000
+       dec  r2
+display_decimal_1:
+       clr  r0
+       div  *r3+,r0
+       ai   r0,char_zero
+       swpb r0
+       movb r0,*r15
+       dec  r2
+       jne  display_decimal_1
+       ai   r1,char_zero
+       swpb r1
+       mov  r1,*r15
+       .endproc
+d10000:
+       data 10000
+d1000:
+       data 1000
+d100:
+       data 100
+d10:
+       data 10
+*// display_decimal
+
+*********************************************************************
+*
 * One time initializations
 *
 one_time_init:
@@ -930,6 +992,8 @@ one_time_init:
 init_game:
        .proc
        clr  @level
+       clr  @score
+       clr  @old_score
        li   r0,>01a2
        bl   @vwtr
        bl   @init_tl2

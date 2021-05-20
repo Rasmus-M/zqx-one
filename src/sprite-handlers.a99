@@ -183,16 +183,23 @@ shield_handler_3:
 * Explosion handler
 *
 explosion_handler:
+       .proc
        mov  @sprite_counter(r4),r0
        inc  r0
        mov  r0,@sprite_counter(r4)
        ci   r0,32
        jl   explosion_handler_1
        seto @sprite_counter(r4)
+       bl   @rand
+       ci   r0,>e000
+       jh   explosion_handler_0
+       li   r0,25
+       a    r0,@score
        li   r0,sprite_type_debris
-       mov  @sprite_y(r4),r1
-       ci   r1,170
-       jlt  explosion_handler_3
+       jmp  explosion_handler_3
+explosion_handler_0:
+       li   r0,500
+       a    r0,@score
        li   r0,sprite_type_debris_500
        jmp  explosion_handler_3
 explosion_handler_1:
@@ -204,12 +211,12 @@ explosion_handler_2:
        li   r0,sprite_type_explosion_2
 explosion_handler_3:
        mov  r0,@sprite_type(r4)
-       rt
+       .endproc
 *// explosion_handler
 
 *********************************************************************
 *
-* Cinders handler
+* Debris handler
 *
 debris_handler:
        mov  @sprite_counter(r4),r0
