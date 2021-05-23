@@ -57,6 +57,10 @@ sprite_type_index_green_bullet:
        equ  22
 sprite_type_index_red_bullet:
        equ  23
+sprite_type_index_plane_up:
+       equ  24
+sprite_type_index_plane_down:
+       equ  25
 
 no_handler:
        equ  0
@@ -181,3 +185,13 @@ sprite_type_red_bullet:
        data red_bullet_handler
        data no_handler                 ; Hit handler
        data 1                          ; Lethal
+sprite_type_plane_up:
+       data sprite_type_index_plane_down
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_down:
+       data sprite_type_index_plane_up
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal

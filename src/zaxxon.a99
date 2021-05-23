@@ -544,6 +544,7 @@ draw_column_3:
 move_player:
        .proc
        mov  @player_sprite,r4
+       li   r1,sprite_type_plane
 *      Check joystick
        li   r0,KEY_FI
        bl   @check_key
@@ -580,6 +581,7 @@ move_player_3:
        ci   r0,player_max_z-1
        jgt  move_player_5
        inc  @sprite_z(r4)
+       li   r1,sprite_type_plane_down
        jmp  move_player_5
 *      Up (plane down)
 move_player_4:
@@ -589,7 +591,9 @@ move_player_4:
        ci   r0,9
        jlt  move_player_5
        dec  @sprite_z(r4)
+       li   r1,sprite_type_plane_up
 move_player_5:
+       mov  r1,@sprite_type(r4)
        .endproc
 *// move_player
 

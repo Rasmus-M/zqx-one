@@ -34,6 +34,8 @@ sprite_attrs_table:
        data sprite_attrs_debris_500-$
        data sprite_attrs_green_bullet-$
        data sprite_attrs_red_bullet-$
+       data sprite_attrs_plane_up-$
+       data sprite_attrs_plane_down-$
 
 sprite_attrs:
        equ  $
@@ -148,17 +150,17 @@ sprite_attrs_explosion_1:
        data 23                         ; cy
        data 4                          ; n sprites
        byte 0,0,>60,>04
-       byte 0,16,>64,>04
+       byte 0,16,>60,>44
        byte 16,0,>70,>04
-       byte 16,16,>74,>04
+       byte 16,16,>70,>44
 sprite_attrs_explosion_2:
        data 15                         ; cx
        data 23                         ; cy
        data 4                          ; n sprites
        byte 0,0,>68,>04
-       byte 0,16,>6c,>04
+       byte 0,16,>68,>44
        byte 16,0,>78,>04
-       byte 16,16,>7c,>04
+       byte 16,16,>78,>44
 sprite_attrs_small_explosion:
        data 7                          ; cx
        data 7                          ; cy
@@ -202,6 +204,17 @@ sprite_attrs_red_bullet:
        data 11                         ; cy
        data 1                          ; n sprites
        byte 0,0,>fc,>04
-
+sprite_attrs_plane_up:
+       data 8                          ; cx
+       data 12                         ; cy
+       data 2                          ; n sprites
+       byte 0,0,>64,>04
+       byte -8,8,>74,>04
+sprite_attrs_plane_down:
+       data 8                          ; cx
+       data 12                         ; cy
+       data 2                          ; n sprites
+       byte 0,0,>6c,>04
+       byte 0,16,>7c,>04
 sprite_attrs_end:
        equ  $
