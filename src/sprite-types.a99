@@ -74,7 +74,7 @@ sprite_type_shadow:
 sprite_type_silo:
        data sprite_type_index_silo
        data no_handler
-       data explode_hit_handler        ; Hit handler
+       data silo_hit_handler           ; Hit handler
        data 1                          ; Lethal
 sprite_type_radar:
        data sprite_type_index_radar

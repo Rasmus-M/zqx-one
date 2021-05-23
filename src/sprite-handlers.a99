@@ -298,6 +298,26 @@ hit_handler_2:
 
 *********************************************************************
 *
+* Silo hit handler
+*
+* r4: bullet sprite
+* r5: sprite that's hit
+*
+silo_hit_handler:
+       .proc
+       bl   @explode_hit_handler
+       mov  @fuel,r0
+       ai   r0,2*64
+       ci   r0,fuel_max
+       jle  silo_hit_handler_1
+       li   r0,fuel_max
+silo_hit_handler_1:
+       mov   r0,@fuel
+       .endproc
+*// silo_hit_handler
+
+*********************************************************************
+*
 * Explode hit handler
 *
 * r4: bullet sprite

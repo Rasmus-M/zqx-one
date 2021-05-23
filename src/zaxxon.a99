@@ -145,8 +145,12 @@ isometric_center_y:
        equ  128
 player_start_x:
        equ  -64
+player_max_z:
+       equ  72;
 char_zero:
        equ  240
+fuel_max:
+       equ  13*64-1
 
 **
 * Scratch pad
@@ -225,8 +229,14 @@ score:
        equ  sub_level+2
 old_score:
        equ  score+2
-pad_max:
+old_height:
        equ  old_score+2
+fuel:
+       equ  old_height+2
+old_fuel:
+       equ  fuel+2
+pad_max:
+       equ  old_fuel+2
 
 ***************************************************************
 *
@@ -265,7 +275,10 @@ game_loop:
        bl   @move_sprites
        bl   @create_sprites
        bl   @upload_sprites
+       bl   @display_height
        bl   @display_score
+       bl   @display_fuel
+       dec  @fuel
        mov  @player_status,r0
        jne  start_level
        bl   @scroll
@@ -564,7 +577,7 @@ move_player_3:
        tb   3
        jeq  move_player_4
        mov  @sprite_z(r4),r0
-       ci   r0,79
+       ci   r0,player_max_z-1
        jgt  move_player_5
        inc  @sprite_z(r4)
        jmp  move_player_5
@@ -820,6 +833,91 @@ align_sprites:
 
 *********************************************************************
 *
+* Display height
+*
+display_height:
+       .proc
+       mov  @player_sprite,r4
+       mov  @sprite_z(r4),r1
+       c    r1,@old_height
+       jeq  display_height_6
+       mov  r1,@old_height
+*      Set VDP address increment
+       li   r0,>3020                   ; Set VDP address increment
+       bl   @vwtr                      ; to 32
+*      Set VDP write address
+       li   r0,name_table_2+(10*32)
+       bl   @vwad
+*      Draw empty
+       li   r2,player_max_z
+       s    r1,r2
+       mov  r2,r3
+       srl  r2,3
+       jeq  display_height_2
+       li   r0,>fa00                   ; Empty char
+display_height_1:
+       movb r0,*r15
+       dec  r2
+       jne  display_height_1
+*      Draw half
+display_height_2:
+       andi r3,>0004
+       jeq  display_height_3
+       li   r0,>e500                   ; Half char
+       movb r0,*r15
+*      Draw full
+display_height_3:
+       srl  r1,3
+       jeq  display_height_5
+       li   r0,>e600                   ; Full char
+display_height_4:
+       movb r0,*r15
+       dec  r1
+       jne  display_height_4
+*      Set VDP address increment
+display_height_5:
+       li   r0,>3001                   ; Set VDP address increment
+       bl   @vwtr                      ; to 1
+display_height_6:
+       .endproc
+*// display_height
+
+*********************************************************************
+*
+* Display fuel
+*
+display_fuel:
+       .proc
+       mov  @fuel,r1
+       jlt  display_fuel_4
+       c    r1,@old_fuel
+       jeq  display_fuel_4
+       li   r0,name_table_2+(29*32)+20
+       bl   @vwad
+       mov  r1,r2
+       srl  r2,6
+       mov  r2,r3
+       jeq  display_fuel_2
+       li   r0,>ef00
+display_fuel_1:
+       movb r0,*r15
+       dec  r2
+       jne  display_fuel_1
+display_fuel_2:
+       li   r2,fuel_max/64
+       s    r3,r2
+       jeq  display_fuel_4
+       li   r0,>fa00
+display_fuel_3:
+       movb r0,*r15
+       dec  r2
+       jne  display_fuel_3
+display_fuel_4:
+       .endproc
+*// display_fuel
+
+*********************************************************************
+*
 * Display score
 *
 display_score:
@@ -827,7 +925,7 @@ display_score:
        mov  @score,r1
        c    r1,@old_score
        jeq  display_score_1
-       li   r0,69
+       li   r0,101
        li   r2,5
        bl   @display_decimal
 display_score_1:
@@ -992,15 +1090,6 @@ d10:
 
 *********************************************************************
 *
-* Display height
-*
-display_height:
-       .proc
-       .endproc
-*// display_height
-
-*********************************************************************
-*
 * One time initializations
 *
 one_time_init:
@@ -1038,6 +1127,10 @@ init_level:
        clr  @sub_level
        clr  @player_status
        clr  @player_fire
+       seto @old_height
+       li   r0,fuel_max
+       mov  r0,@fuel
+       seto @old_fuel
 *      Reset sprites
        li   r0,sprites
        mov  r0,@sprites_end_ptr
