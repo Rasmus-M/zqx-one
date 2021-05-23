@@ -268,7 +268,7 @@ game_loop:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-;       bl   @player_collisions
+       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
