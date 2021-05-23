@@ -14,7 +14,7 @@ public class Encode implements Runnable {
     private static final boolean VERBOSE = true;
     private static final int WINDOW_WIDTH = 29;
     private static final int MAP_HEIGHT = 26;
-    private static final int[] MAP_WIDTHS = {128, 228, 192};
+    private static final int[] MAP_WIDTHS = {128, 228, 288};
     private static final int[] TILES = {43, 702, 499};
     private static final int MAX_CHARS = 228;
     private static final boolean WRITE_DIFF = false;

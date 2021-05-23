@@ -31,21 +31,28 @@ shadow_handler:
        mov  @sprite_x(r5),r0
        mov  r0,@sprite_x(r4)
        mov  @sprite_y(r5),@sprite_y(r4)
-       ci   r0,wall_1_x-16
-       jlt  shadow_handler_1
-       ci   r0,wall_1_x+80
-       jlt  shadow_handler_2
-       ci   r0,wall_2_x-16
-       jlt  shadow_handler_1
-       ci   r0,wall_2_x+80
-       jlt  shadow_handler_2
+       mov  @sub_level,r1
+       ci   r1,1
+       jeq  shadow_handler_2
+       sla  r1,1
+       ai   r1,cpu_walls
+       a    *r1,r1
 shadow_handler_1:
-*      Show
-       clr  @sprite_z(r4)
-       rt
+       mov  *r1+,r2                    ; Get wall x
+       jeq  shadow_handler_3           ; Show
+       s    r0,r2                      ; Wall x - player x
+       ci   r2,16
+       jgt  shadow_handler_3           ; Show
+       a    *r1+,r2                    ; Add wall height
+       ci   r2,-8
+       jlt  shadow_handler_1
 shadow_handler_2:
 *      Hide
        seto  @sprite_z(r4)
+       rt
+shadow_handler_3:
+*      Show
+       clr  @sprite_z(r4)
        rt
 *// shadow_handler
 

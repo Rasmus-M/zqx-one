@@ -1,0 +1,29 @@
+wall_x:
+       equ  0
+wall_height:
+       equ  2
+wall_size:
+       equ  4
+
+walls:                                 ; Must match order of @sub_levels
+       data walls_1-$
+       data walls_0-$
+       data walls_2-$
+cpu_walls:
+       equ  gpu_program_start+(walls-gpu_prg)
+
+walls_0:
+       data 0
+walls_1:
+       data 228,56
+       data 1764,56
+       data 0
+walls_2:
+       data 228,56
+       data 484,24
+       data 756,40
+       data 1252,24
+       data 1524,40
+       data 2020,24
+       data 0
+

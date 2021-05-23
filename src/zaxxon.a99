@@ -98,7 +98,7 @@ map_0_width:
 map_1_width:
        equ  228
 map_2_width:
-       equ  192
+       equ  288
 map_height:
        equ  26
 map_0_bank_select:
@@ -145,12 +145,6 @@ isometric_center_y:
        equ  128
 player_start_x:
        equ  -64
-wall_1_x:
-       equ  228
-wall_2_x:
-       equ  1764
-wall_height:
-       equ  56
 char_zero:
        equ  240
 
@@ -264,7 +258,7 @@ game_loop:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-       bl   @player_collisions
+;       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
@@ -995,6 +989,15 @@ d100:
 d10:
        data 10
 *// display_decimal
+
+*********************************************************************
+*
+* Display height
+*
+display_height:
+       .proc
+       .endproc
+*// display_height
 
 *********************************************************************
 *

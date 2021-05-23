@@ -251,20 +251,27 @@ sprite_collisions_1:
        mov  @gpu_sprite_y(r4),r2       ; Get y
        mov  @gpu_sprite_z(r4),r3       ; Get z
 *      Collision with walls
-       ci   r1,wall_1_x-8
-       jlt  sprite_collisions_1b
-       ci   r1,wall_1_x
-       jlt  sprite_collisions_1a
-       ci   r1,wall_2_x-8
-       jlt  sprite_collisions_1b
-       ci   r1,wall_2_x
-       jgt  sprite_collisions_1b
-sprite_collisions_1a:
-       ci   r3,wall_height-8
-       jgt  sprite_collisions_1b
+       mov  @vdp_sub_level,r8
+       sla  r8,1
+       ai   r8,walls                   ; Address of offset
+       a    *r8,r8                     ; Add offset
+sprite_collisions_1g:
+       mov  @wall_x(r8),r0             ; Wall x
+       jeq  sprite_collisions_1b       ; Zero terminates list
+       s    r1,r0                      ; Wall x - player x
+       jlt  sprite_collisions_1f       ; Past wall
+       ci   r0,8                       ; Before wall?
+       jgt  sprite_collisions_1b       ; Yes - no need to check more walls
+       mov  @wall_height(r8),r0        ; Get wall height
+       s    r3,r0                      ; Wall height - player z
+       ci   r3,8                       ; Check if above wall
+       jlt  sprite_collisions_1b       ; Yes - no need to check more walls
        mov  *r4,*r6+                   ; Write sprite address 1
        clr  *r6+                       ; Zero means wall
        jmp  sprite_collisions_2a
+sprite_collisions_1f:
+       ai   r8,wall_size               ; Next wall
+       jmp  sprite_collisions_1g
 *      Collision with sprites
 sprite_collisions_1b:
        li   r7,16                      ; Default presicion for detecting collision
