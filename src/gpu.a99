@@ -264,8 +264,7 @@ sprite_collisions_1g:
        jgt  sprite_collisions_1b       ; Yes - no need to check more walls
        mov  @wall_height(r8),r0        ; Get wall height
        s    r3,r0                      ; Wall height - player z
-       ci   r3,8                       ; Check if above wall
-       jlt  sprite_collisions_1b       ; Yes - no need to check more walls
+       jlt  sprite_collisions_1b       ; < 0 Yes - no need to check more walls
        mov  *r4,*r6+                   ; Write sprite address 1
        clr  *r6+                       ; Zero means wall
        jmp  sprite_collisions_2a
