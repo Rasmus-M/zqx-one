@@ -55,10 +55,10 @@ sprite_attrs_silo:
        data 15                         ; cx
        data 25                         ; cy
        data 4                          ; n sprites
-       byte 0,0,>08,>08
-       byte 0,16,>0c,>08
-       byte 16,0,>18,>08
-       byte 16,16,>1c,>08
+       byte 0,0,>64,>08
+       byte 0,16,>6c,>08
+       byte 16,0,>74,>08
+       byte 16,16,>7c,>08
 sprite_attrs_radar:
        data 15                         ; cx
        data 27                         ; cy
@@ -208,13 +208,13 @@ sprite_attrs_plane_up:
        data 8                          ; cx
        data 12                         ; cy
        data 2                          ; n sprites
-       byte 0,0,>64,>04
-       byte -8,8,>74,>04
+       byte 0,0,>08,>04
+       byte -8,8,>0c,>04
 sprite_attrs_plane_down:
        data 8                          ; cx
        data 12                         ; cy
        data 2                          ; n sprites
-       byte 0,0,>6c,>04
-       byte 0,16,>7c,>04
+       byte 0,0,>18,>04
+       byte 0,16,>1c,>04
 sprite_attrs_end:
        equ  $
