@@ -115,8 +115,10 @@ tl2_chars:
        equ  28
 max_sprites:
        equ  18
-sprite_patterns_bank_select:
+sprite_patterns_1_bank_select:
        equ  >600e
+sprite_patterns_0_bank_select:
+       equ  >601c
 sprite_patters_base_addr:
        equ  >6800
 sprite_create_x:
@@ -211,10 +213,12 @@ sprites_end_ptr:
        equ  sprite_def_ptr+2
 map_bank_select:
        equ  sprites_end_ptr+2
-patterns_bank_select:
+char_patterns_bank_select:
        equ  map_bank_select+2
+sprite_patterns_bank_select:
+       equ  char_patterns_bank_select+2
 player_sprite:
-       equ  patterns_bank_select+2
+       equ  sprite_patterns_bank_select+2
 player_shadow:
        equ  player_sprite+2
 player_fire:
@@ -438,7 +442,7 @@ upload_character:
 *      Select ROM bank
        andi r1,>0300
        srl  r1,7
-       a    @patterns_bank_select,r1
+       a    @char_patterns_bank_select,r1
        seto *r1
 *      Tile attribute
        ai   r0,tile_attr_table
@@ -1100,7 +1104,6 @@ one_time_init:
        .proc
        bl   @graphics_mode
        bl   @upload_gpu_program
-       bl   @upload_sprite_patterns
        .endproc
 *// one_time_init
 
@@ -1192,7 +1195,8 @@ init_sub_level_1:
        sla  r1,1
        mov  @sub_levels(r1),r1
        mov  *r1+,@map_bank_select
-       mov  *r1+,@patterns_bank_select
+       mov  *r1+,@char_patterns_bank_select
+       mov  *r1+,@sprite_patterns_bank_select
        mov  *r1+,@char_diff_ptr
        mov  *r1+,@char_diff_end
        mov  *r1+,@sprite_def_ptr
@@ -1203,6 +1207,8 @@ init_sub_level_1:
        mov  *r1,r1                     ; Palette address
        li   r2,2                       ; 2 palettes
        bl   @load_palettes
+*      Upload sprite patterns
+       bl   @upload_sprite_patterns
 *      Update VDP variable
        li   r0,vdp_sub_level
        mov  @sub_level,r1
@@ -1272,7 +1278,8 @@ clear_vdp_ram
 *
 upload_sprite_patterns:
        .proc
-       seto @sprite_patterns_bank_select
+       mov  @sprite_patterns_bank_select,r0
+       seto *r0
        li   r0,sprite_pattern_table_0
        li   r1,sprite_patters_base_addr
        li   r2,n_sprite_patterns*32
