@@ -147,8 +147,14 @@ isometric_center_y:
        equ  128
 player_start_x:
        equ  -64
-player_max_z:
+player_y_min:
+       equ  72
+player_y_max:
+       equ  178
+player_z_max:
        equ  72;
+player_z_min:
+       equ  8
 char_zero:
        equ  240
 fuel_max:
@@ -201,8 +207,10 @@ scroll_y:
        equ  scroll_x+2
 scroll_max:
        equ  scroll_y+2
-char_diff_ptr:
+player_scale_z:
        equ  scroll_max+2
+char_diff_ptr:
+       equ  player_scale_z+2
 char_diff_end:
        equ  char_diff_ptr+2
 chars_to_upload:
@@ -549,56 +557,96 @@ move_player:
        .proc
        mov  @player_sprite,r4
        li   r1,sprite_type_plane
+       abs  @player_scale_z
+       jeq  move_player_1
+       mov  @sprite_z(r4),r2
+       ai   r2,-player_z_min
+       andi r2,>30
+       srl  r2,3
+       mov  @player_sprite_types(r2),r1
 *      Check joystick
+move_player_1:
        li   r0,KEY_FI
        bl   @check_key
 *      Fire
-       jeq  move_player_0
+       jeq  move_player_2
        mov  @player_fire,r0            ; Test if ready
-       jne  move_player_1
+       jne  move_player_3
        seto @player_fire               ; Fire
-       jmp  move_player_1
-move_player_0:
+       jmp  move_player_3
+move_player_2:
        clr  @player_fire               ; Set ready
 *      Left
-move_player_1:
+move_player_3:
        tb   1
-       jeq  move_player_2
+       jeq  move_player_4
        mov  @sprite_y(r4),r0
-       ci   r0,73
-       jlt  move_player_3
+       ci   r0,player_y_min-1
+       jlt  move_player_5
        dec  @sprite_y(r4)
-       jmp  move_player_3
+       jmp  move_player_5
 *      Right
-move_player_2:
+move_player_4:
        tb   2
-       jeq  move_player_3
+       jeq  move_player_5
        mov  @sprite_y(r4),r0
-       ci   r0,177
-       jgt  move_player_3
+       ci   r0,player_y_max-1
+       jgt  move_player_5
        inc  @sprite_y(r4)
 *      Down (plane up)
-move_player_3:
-       tb   3
-       jeq  move_player_4
-       mov  @sprite_z(r4),r0
-       ci   r0,player_max_z-1
-       jgt  move_player_5
-       inc  @sprite_z(r4)
-       li   r1,sprite_type_plane_down
-       jmp  move_player_5
-*      Up (plane down)
-move_player_4:
-       tb   4
-       jeq  move_player_5
-       mov  @sprite_z(r4),r0
-       ci   r0,9
-       jlt  move_player_5
-       dec  @sprite_z(r4)
-       li   r1,sprite_type_plane_up
 move_player_5:
+       tb   3
+       jeq  move_player_6
+       mov  @sprite_z(r4),r2
+       ci   r2,player_z_max-1
+       jgt  move_player_7
+       inc  r2
+       mov  r2,@sprite_z(r4)
+       li   r1,sprite_type_plane_down
+       abs  @player_scale_z
+       jeq  move_player_7
+       ai   r2,-player_z_min
+       andi r2,>30
+       srl  r2,3
+       mov  @player_sprite_types_up(r2),r1
+       jmp  move_player_7
+*      Up (plane down)
+move_player_6:
+       tb   4
+       jeq  move_player_7
+       mov  @sprite_z(r4),r2
+       ci   r2,player_z_min+1
+       jlt  move_player_7
+       dec  r2
+       mov  r2,@sprite_z(r4)
+       li   r1,sprite_type_plane_up
+       abs  @player_scale_z
+       jeq  move_player_7
+       ai   r2,-player_z_min
+       andi r2,>30
+       srl  r2,3
+       mov  @player_sprite_types_down(r2),r1
+move_player_7:
        mov  r1,@sprite_type(r4)
        .endproc
+player_sprite_types:
+       data sprite_type_plane_xs
+       data sprite_type_plane_s
+       data sprite_type_plane_m
+       data sprite_type_plane
+       data sprite_type_plane
+player_sprite_types_up:
+       data sprite_type_plane_up_xs
+       data sprite_type_plane_up_s
+       data sprite_type_plane_up_m
+       data sprite_type_plane_up
+       data sprite_type_plane_up
+player_sprite_types_down:
+       data sprite_type_plane_down_xs
+       data sprite_type_plane_down_s
+       data sprite_type_plane_down_m
+       data sprite_type_plane_down
+       data sprite_type_plane_down
 *// move_player
 
 *********************************************************************
@@ -857,7 +905,7 @@ display_height:
        li   r0,name_table_2+(10*32)
        bl   @vwad
 *      Draw empty
-       li   r2,player_max_z
+       li   r2,player_z_max
        s    r1,r2
        mov  r2,r3
        srl  r2,3
@@ -1202,6 +1250,7 @@ init_sub_level_1:
        mov  *r1+,@sprite_def_ptr
        mov  *r1+,@map_width
        mov  *r1+,@scroll_max
+       mov  *r1+,@player_scale_z
 *      Load palettes
        clr  r0                         ; Palette index 0
        mov  *r1,r1                     ; Palette address

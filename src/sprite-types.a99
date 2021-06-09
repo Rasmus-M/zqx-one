@@ -61,6 +61,24 @@ sprite_type_index_plane_up:
        equ  24
 sprite_type_index_plane_down:
        equ  25
+sprite_type_index_plane_m:
+       equ  26
+sprite_type_index_plane_s:
+       equ  27
+sprite_type_index_plane_xs:
+       equ  28
+sprite_type_index_plane_up_m:
+       equ  29
+sprite_type_index_plane_up_s:
+       equ  30
+sprite_type_index_plane_up_xs:
+       equ  31
+sprite_type_index_plane_down_m:
+       equ  32
+sprite_type_index_plane_down_s:
+       equ  33
+sprite_type_index_plane_down_xs:
+       equ  34
 
 no_handler:
        equ  0
@@ -195,3 +213,51 @@ sprite_type_plane_down:
        data plane_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
+sprite_type_plane_m:
+       data sprite_type_index_plane_m
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_s:
+       data sprite_type_index_plane_s
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_xs:
+       data sprite_type_index_plane_xs
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_up_m:
+       data sprite_type_index_plane_up_m
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_up_s:
+       data sprite_type_index_plane_up_s
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_up_xs:
+       data sprite_type_index_plane_up_xs
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_down_m:
+       data sprite_type_index_plane_down_m
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_down_s:
+       data sprite_type_index_plane_down_s
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_plane_down_xs:
+       data sprite_type_index_plane_down_xs
+       data plane_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+
+
+

@@ -36,6 +36,15 @@ sprite_attrs_table:
        data sprite_attrs_red_bullet-$
        data sprite_attrs_plane_up-$
        data sprite_attrs_plane_down-$
+       data sprite_attrs_plane_m-$
+       data sprite_attrs_plane_s-$
+       data sprite_attrs_plane_xs-$
+       data sprite_attrs_plane_up_m-$
+       data sprite_attrs_plane_up_s-$
+       data sprite_attrs_plane_up_xs-$
+       data sprite_attrs_plane_down_m-$
+       data sprite_attrs_plane_down_s-$
+       data sprite_attrs_plane_down_xs-$
 
 sprite_attrs:
        equ  $
@@ -216,5 +225,56 @@ sprite_attrs_plane_down:
        data 2                          ; n sprites
        byte 0,0,>18,>04
        byte 0,16,>1c,>04
+sprite_attrs_plane_m:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 2                          ; n sprites
+       byte 0,0,>20,>04
+       byte 0,16,>24,>04
+sprite_attrs_plane_s:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 2                          ; n sprites
+       byte 0,0,>28,>04
+       byte 0,16,>2c,>04
+sprite_attrs_plane_xs:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 1                          ; n sprites
+       byte 0,0,>30,>04
+sprite_attrs_plane_up_m:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 2                          ; n sprites
+       byte 0,0,>34,>04
+       byte 0,16,>38,>04
+sprite_attrs_plane_up_s:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 1                          ; n sprites
+       byte 0,0,>3c,>04
+sprite_attrs_plane_up_xs:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 1                          ; n sprites
+       byte 0,0,>40,>04
+sprite_attrs_plane_down_m:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 2                          ; n sprites
+       byte 0,0,>44,>04
+       byte 0,16,>48,>04
+sprite_attrs_plane_down_s:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 2                          ; n sprites
+       byte 0,0,>4c,>04
+       byte 0,16,>50,>04
+sprite_attrs_plane_down_xs:
+       data 0                          ; cx
+       data 0                          ; cy
+       data 1                          ; n sprites
+       byte 0,0,>64,>04
+
 sprite_attrs_end:
        equ  $
