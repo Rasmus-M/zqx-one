@@ -152,7 +152,7 @@ player_y_min:
 player_y_max:
        equ  178
 player_z_max:
-       equ  72;
+       equ  71;
 player_z_min:
        equ  8
 char_zero:
@@ -556,7 +556,7 @@ draw_column_3:
 move_player:
        .proc
        mov  @player_sprite,r4
-       li   r1,sprite_type_plane
+       li   r1,sprite_type_plane_up
        abs  @player_scale_z
        jeq  move_player_1
        mov  @sprite_z(r4),r2
@@ -602,7 +602,7 @@ move_player_5:
        jgt  move_player_7
        inc  r2
        mov  r2,@sprite_z(r4)
-       li   r1,sprite_type_plane_down
+       li   r1,sprite_type_plane_up
        abs  @player_scale_z
        jeq  move_player_7
        ai   r2,-player_z_min
@@ -619,7 +619,7 @@ move_player_6:
        jlt  move_player_7
        dec  r2
        mov  r2,@sprite_z(r4)
-       li   r1,sprite_type_plane_up
+       li   r1,sprite_type_plane_down
        abs  @player_scale_z
        jeq  move_player_7
        ai   r2,-player_z_min
@@ -905,7 +905,7 @@ display_height:
        li   r0,name_table_2+(10*32)
        bl   @vwad
 *      Draw empty
-       li   r2,player_z_max
+       li   r2,player_z_max+1
        s    r1,r2
        mov  r2,r3
        srl  r2,3

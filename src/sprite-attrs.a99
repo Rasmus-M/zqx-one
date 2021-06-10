@@ -49,14 +49,14 @@ sprite_attrs_table:
 sprite_attrs:
        equ  $
 sprite_attrs_plane:
-       data 8                          ; cx
-       data 12                         ; cy
+       data 5                          ; cx
+       data 11                         ; cy
        data 2                          ; n sprites
        byte 0,0,>00,>04
        byte 0,16,>04,>04
 sprite_attrs_shadow:
-       data 8                          ; cx
-       data 12                         ; cy
+       data 5                          ; cx
+       data 11                         ; cy
        data 2                          ; n sprites
        byte 0,0,>10,>04
        byte 0,16,>14,>04
@@ -214,67 +214,67 @@ sprite_attrs_red_bullet:
        data 1                          ; n sprites
        byte 0,0,>fc,>04
 sprite_attrs_plane_up:
-       data 8                          ; cx
+       data 5                          ; cx
        data 12                         ; cy
        data 2                          ; n sprites
        byte 0,0,>08,>04
        byte -8,8,>0c,>04
 sprite_attrs_plane_down:
-       data 8                          ; cx
-       data 12                         ; cy
+       data 5                          ; cx
+       data 9                          ; cy
        data 2                          ; n sprites
        byte 0,0,>18,>04
        byte 0,16,>1c,>04
 sprite_attrs_plane_m:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 4                          ; cx
+       data 11                         ; cy
        data 2                          ; n sprites
        byte 0,0,>20,>04
        byte 0,16,>24,>04
 sprite_attrs_plane_s:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 4                          ; cx
+       data 12                         ; cy
        data 2                          ; n sprites
        byte 0,0,>28,>04
        byte 0,16,>2c,>04
 sprite_attrs_plane_xs:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 3                          ; cx
+       data 12                         ; cy
        data 1                          ; n sprites
        byte 0,0,>30,>04
 sprite_attrs_plane_up_m:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 4                          ; cx
+       data 12                         ; cy
        data 2                          ; n sprites
        byte 0,0,>34,>04
        byte 0,16,>38,>04
 sprite_attrs_plane_up_s:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 5                          ; cx
+       data 12                         ; cy
        data 1                          ; n sprites
        byte 0,0,>3c,>04
 sprite_attrs_plane_up_xs:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 3                          ; cx
+       data 13                         ; cy
        data 1                          ; n sprites
        byte 0,0,>40,>04
 sprite_attrs_plane_down_m:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 4                          ; cx
+       data 10                         ; cy
        data 2                          ; n sprites
        byte 0,0,>44,>04
        byte 0,16,>48,>04
 sprite_attrs_plane_down_s:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 3                          ; cx
+       data 10                         ; cy
        data 2                          ; n sprites
        byte 0,0,>4c,>04
        byte 0,16,>50,>04
 sprite_attrs_plane_down_xs:
-       data 0                          ; cx
-       data 0                          ; cy
+       data 2                          ; cx
+       data 11                         ; cy
        data 1                          ; n sprites
-       byte 0,0,>64,>04
+       byte 0,0,>54,>04
 
 sprite_attrs_end:
        equ  $

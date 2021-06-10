@@ -204,12 +204,12 @@ sprite_type_red_bullet:
        data no_handler                 ; Hit handler
        data 1                          ; Lethal
 sprite_type_plane_up:
-       data sprite_type_index_plane_down
+       data sprite_type_index_plane_up
        data plane_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_plane_down:
-       data sprite_type_index_plane_up
+       data sprite_type_index_plane_down
        data plane_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
