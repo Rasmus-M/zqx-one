@@ -676,6 +676,8 @@ fire:
        li   r0,12
        a    r0,@sprite_x(r5)
        neg  @player_fire
+       li   r1,test_sfx
+       bl   @init_sfx
 fire_1:
        .endproc
 *// fire
@@ -1478,6 +1480,21 @@ init_music_1:
 
 *********************************************************************
 *
+* Initialize sound fx
+*
+* r1: Pointer to sound fx data
+*
+init_sfx:
+       .proc
+       clr  r2
+       li   r3,1
+       bl   @sfxinitsfx
+*      Return
+       .endproc
+*// init_sfx
+
+*********************************************************************
+*
 * Mute sound
 *
 mute_sound:
@@ -1525,6 +1542,8 @@ diff_end_2:
        copy "palettes.a99"
 test_music:
        bcopy "../audio/test.spf"
+test_sfx:
+       bcopy "../audio/shot1.spf"
 
 upper_memory_max:
        equ  $
