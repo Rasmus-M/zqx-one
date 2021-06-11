@@ -182,7 +182,8 @@ r12lb  equ  wrksp+25
 r13lb  equ  wrksp+27
 r14lb  equ  wrksp+29
 r15lb  equ  wrksp+31
-stack  equ  wrksp+>20                  ; Stack (grows up)
+sndws  equ  wrksp+>20
+stack  equ  sndws+>20                  ; Stack (grows up)
 **
 * PAD constants
 *
@@ -247,8 +248,14 @@ fuel:
        equ  old_height+2
 old_fuel:
        equ  fuel+2
-pad_max:
+music:
        equ  old_fuel+2
+tune_no:
+       equ  music+2
+music_on:
+       equ  tune_no+2
+pad_max:
+       equ  music_on+2
 
 ***************************************************************
 *
@@ -290,6 +297,7 @@ game_loop:
        bl   @display_height
        bl   @display_score
        bl   @display_fuel
+       bl   @play_sound
        dec  @fuel
        mov  @player_status,r0
        jne  start_level
@@ -556,7 +564,7 @@ draw_column_3:
 move_player:
        .proc
        mov  @player_sprite,r4
-       li   r1,sprite_type_plane_up
+       li   r1,sprite_type_plane
        abs  @player_scale_z
        jeq  move_player_1
        mov  @sprite_z(r4),r2
@@ -1152,6 +1160,10 @@ one_time_init:
        .proc
        bl   @graphics_mode
        bl   @upload_gpu_program
+       seto @music_on
+       li   r1,test_music
+       clr  r2
+       bl   @init_music
        .endproc
 *// one_time_init
 
@@ -1422,6 +1434,65 @@ load_palettes_1:
        .endproc
 *// load_palettes
 
+*********************************************************************
+*
+* Play music and sound
+*
+* Modifies r0-r1
+*
+play_sound:
+       .proc
+       bl   @stplaysfx
+       lwpi wrksp
+       mov  @sndws+14,r0               ; Check if music is done
+       jne  play_sound_1
+*      Restart music
+       mov  @music,r1
+       jeq  play_sound_1
+       clr  r2
+       bl   @init_music
+*      Return
+play_sound_1:
+       .endproc
+*// play_sound
+
+*********************************************************************
+*
+* Initialize music
+*
+* r1: Pointer to music
+* r2: Tune number
+*
+init_music:
+       .proc
+       bl   @mute_sound
+       abs  @music_on
+       jeq  init_music_1
+       mov  r1,@music
+       mov  r2,@tune_no
+       bl   @stinitsfx
+*      Return
+init_music_1:
+       .endproc
+*// init_music
+
+*********************************************************************
+*
+* Mute sound
+*
+mute_sound:
+       li   r0,mute_table              ; Mute all
+       li   r2,4
+mute_sound_1:
+       movb *r0+,@sound
+       dec  r2
+       jne  mute_sound_1
+*      Return
+       rt
+mute_table:
+       byte >9f, >bf, >df, >ff
+*// mute_sound
+
 ***************************************************************
 *
 * Includes
@@ -1429,6 +1500,7 @@ load_palettes_1:
        copy "gpu.a99"
        copy "vdp.a99"
        copy "sprite-handlers.a99"
+       copy "tiplayersfx.a99"
 
 lower_memory_max:
        equ  $
@@ -1451,6 +1523,8 @@ diff_end_2:
        copy "sprite-defs.a99"
        copy "sprites.a99"
        copy "palettes.a99"
+test_music:
+       bcopy "../audio/test.spf"
 
 upper_memory_max:
        equ  $

@@ -1,0 +1,8 @@
+       .defm size
+       .endm
+
+       .defm section
+       .endm
+
+       copy "libtivgm2/CPlayerTIHandlers.asm"
+       copy "libtivgm2/CPlayerCommonHandEdit.asm"
