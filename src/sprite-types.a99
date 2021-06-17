@@ -79,6 +79,23 @@ sprite_type_index_plane_down_s:
        equ  33
 sprite_type_index_plane_down_xs:
        equ  34
+sprite_type_index_blue_plane_up_l:
+       equ  35
+sprite_type_index_blue_plane_up_m:
+       equ  36
+sprite_type_index_blue_plane_up_s:
+       equ  37
+sprite_type_index_blue_plane_up_xs:
+       equ  38
+sprite_type_index_blue_plane_down_l:
+       equ  39
+sprite_type_index_blue_plane_down_m:
+       equ  40
+sprite_type_index_blue_plane_down_s:
+       equ  41
+sprite_type_index_blue_plane_down_xs:
+       equ  42
+
 
 no_handler:
        equ  0
@@ -258,6 +275,3 @@ sprite_type_plane_down_xs:
        data plane_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
-
-
-

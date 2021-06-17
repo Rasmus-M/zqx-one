@@ -1440,13 +1440,13 @@ load_palettes_1:
 *
 * Play music and sound
 *
-* Modifies r0-r1
-*
 play_sound:
        .proc
-       bl   @stplaysfx
-       lwpi wrksp
-       mov  @sndws+14,r0               ; Check if music is done
+       .push r15
+       bl   @SfxLoop
+       bl   @SongLoop
+       movb  @songActive,r0                 ; Check if music is done
+       andi r0,>0100
        jne  play_sound_1
 *      Restart music
        mov  @music,r1
@@ -1455,6 +1455,7 @@ play_sound:
        bl   @init_music
 *      Return
 play_sound_1:
+       .pop 15
        .endproc
 *// play_sound
 
@@ -1472,7 +1473,7 @@ init_music:
        jeq  init_music_1
        mov  r1,@music
        mov  r2,@tune_no
-       bl   @stinitsfx
+       bl   @StartSong
 *      Return
 init_music_1:
        .endproc
@@ -1487,8 +1488,8 @@ init_music_1:
 init_sfx:
        .proc
        clr  r2
-       li   r3,1
-       bl   @sfxinitsfx
+       li   r3,>0100
+       bl   @StartSfx
 *      Return
        .endproc
 *// init_sfx
@@ -1517,7 +1518,7 @@ mute_table:
        copy "gpu.a99"
        copy "vdp.a99"
        copy "sprite-handlers.a99"
-       copy "tiplayersfx.a99"
+       copy "ti-player-sfx.a99"
 
 lower_memory_max:
        equ  $
@@ -1541,9 +1542,9 @@ diff_end_2:
        copy "sprites.a99"
        copy "palettes.a99"
 test_music:
-       bcopy "../audio/test.spf"
+       bcopy "../audio/level3.sbf"
 test_sfx:
-       bcopy "../audio/shot1.spf"
+       bcopy "../audio/shot1.sbf"
 
 upper_memory_max:
        equ  $
