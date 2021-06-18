@@ -96,7 +96,6 @@ sprite_type_index_blue_plane_down_s:
 sprite_type_index_blue_plane_down_xs:
        equ  42
 
-
 no_handler:
        equ  0
 
@@ -275,3 +274,43 @@ sprite_type_plane_down_xs:
        data plane_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
+sprite_type_blue_plane_up_l:
+       data sprite_type_index_blue_plane_up_l
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal
+sprite_type_blue_plane_up_m:
+       data sprite_type_index_blue_plane_up_m
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal
+sprite_type_blue_plane_up_s:
+       data sprite_type_index_blue_plane_up_s
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal
+sprite_type_blue_plane_up_xs:
+       data sprite_type_index_blue_plane_up_xs
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal
+sprite_type_blue_plane_down_l:
+       data sprite_type_index_blue_plane_down_l
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal
+sprite_type_blue_plane_down_m:
+       data sprite_type_index_blue_plane_down_m
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal
+sprite_type_blue_plane_down_s:
+       data sprite_type_index_blue_plane_down_s
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal
+sprite_type_blue_plane_down_xs:
+       data sprite_type_index_blue_plane_down_xs
+       data blue_plane_handler
+       data explode_hit_handler        ; Hit handler
+       data 1                          ; Lethal

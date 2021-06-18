@@ -277,6 +277,14 @@ red_bullet_handler:
 
 *********************************************************************
 *
+* Blue plane handler
+*
+blue_plane_handler:
+       rt
+*// blue_plane_handler
+
+*********************************************************************
+*
 * Hit handler
 *
 hit_handler:
