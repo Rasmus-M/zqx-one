@@ -45,14 +45,14 @@ sprite_attrs_table:
        data sprite_attrs_plane_down_m-$
        data sprite_attrs_plane_down_s-$
        data sprite_attrs_plane_down_xs-$
-       data sprite_attrs_blue_plane_up_l
-       data sprite_attrs_blue_plane_up_m
-       data sprite_attrs_blue_plane_up_s
-       data sprite_attrs_blue_plane_up_xs
-       data sprite_attrs_blue_plane_down_l
-       data sprite_attrs_blue_plane_down_m
-       data sprite_attrs_blue_plane_down_s
-       data sprite_attrs_blue_plane_down_xs
+       data sprite_attrs_blue_plane_up_l-$
+       data sprite_attrs_blue_plane_up_m-$
+       data sprite_attrs_blue_plane_up_s-$
+       data sprite_attrs_blue_plane_up_xs-$
+       data sprite_attrs_blue_plane_down_l-$
+       data sprite_attrs_blue_plane_down_m-$
+       data sprite_attrs_blue_plane_down_s-$
+       data sprite_attrs_blue_plane_down_xs-$
 
 sprite_attrs:
        equ  $
@@ -309,21 +309,18 @@ sprite_attrs_blue_plane_up_xs:
 sprite_attrs_blue_plane_down_l:
        data 0                          ; cx
        data 15                         ; cy
-       data 1                          ; n sprites
        data 2                          ; n sprites
        byte 0,0,>74,>0a
-       byte 0,16,>68,>0a
+       byte 0,16,>78,>0a
 sprite_attrs_blue_plane_down_m:
        data 0                          ; cx
        data 15                         ; cy
-       data 1                          ; n sprites
        data 2                          ; n sprites
        byte 0,0,>7c,>0a
        byte 0,16,>80,>0a
 sprite_attrs_blue_plane_down_s
        data 0                          ; cx
        data 15                         ; cy
-       data 1                          ; n sprites
        data 2                          ; n sprites
        byte 0,0,>84,>0a
        byte 0,16,>88,>0a

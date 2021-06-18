@@ -19,8 +19,10 @@ shadow_def:
 * sprite_def_scroll_x = sprite_def_x + sprite_def_y - 240 + (sprite_type_rocket_launch_1 ? 48 : 0)
 
 sprite_defs_0:
+       bss  sub_level_0_sprites*sprite_def_size    ; Initialized dynamically
 *      End of list
        data >7fff,0,0,0
+
 sprite_defs_1:
        data 60,228,72,56,sprite_type_wall_left
        data 156,228,168,56,sprite_type_wall_right

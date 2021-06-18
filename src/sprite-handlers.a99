@@ -280,7 +280,39 @@ red_bullet_handler:
 * Blue plane handler
 *
 blue_plane_handler:
+       mov  @sprite_counter(r4),r0
+       mov  @sprite_z(r4),r1
+       mov  r1,r2
+       a    r0,r1
+       jlt  blue_plane_handler_1
+       ci   r1,player_z_max
+       jhe  blue_plane_handler_1
+       mov  r1,@sprite_z(r4)
+       jmp  blue_plane_handler_2
+blue_plane_handler_1:
+       neg  @sprite_counter(r4)
+blue_plane_handler_2:
+       andi r2,>30
+       srl  r2,3
+       mov  r0,r0
+       jlt  blue_plane_handler_3
+       mov  @blue_plane_sprite_types_up(r2),r1
+       jmp  blue_plane_handler_4
+blue_plane_handler_3:
+       mov  @blue_plane_sprite_types_down(r2),r1
+blue_plane_handler_4:
+       mov  r1,@sprite_type(r4)
        rt
+blue_plane_sprite_types_up:
+       data sprite_type_blue_plane_up_xs
+       data sprite_type_blue_plane_up_s
+       data sprite_type_blue_plane_up_m
+       data sprite_type_blue_plane_up_l
+blue_plane_sprite_types_down:
+       data sprite_type_blue_plane_down_xs
+       data sprite_type_blue_plane_down_s
+       data sprite_type_blue_plane_down_m
+       data sprite_type_blue_plane_down_l
 *// blue_plane_handler
 
 *********************************************************************
