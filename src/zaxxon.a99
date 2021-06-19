@@ -115,22 +115,24 @@ tl2_chars:
        equ  28
 max_sprites:
        equ  18
-sprite_patterns_1_bank_select:
-       equ  >600e
 sprite_patterns_0_bank_select:
        equ  >601c
+sprite_patterns_1_bank_select:
+       equ  >600e
+sprite_patterns_2_bank_select:
+       equ  >601e
 sprite_patters_base_addr:
        equ  >6800
 sprite_create_x:
        equ  255
 n_sprite_patterns:
        equ  64
+patterns_0_bank_select:
+       equ  >601a
 patterns_1_bank_select:
        equ  >6010
 patterns_2_bank_select:
        equ  >6016
-patterns_0_bank_select:
-       equ  >601a
 patterns_base_addr:
        equ  >6800
 tile_attr_base_addr:

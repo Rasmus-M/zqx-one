@@ -317,6 +317,22 @@ blue_plane_sprite_types_down:
 
 *********************************************************************
 *
+* Boss trigger handler
+*
+boss_trigger_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       jeq  boss_trigger_handler_1
+       clr  @sprite_counter(r4)
+       li   r0,sprite_patterns_2_bank_select
+       mov  r0,@sprite_patterns_bank_select
+       bl   @upload_sprite_patterns
+boss_trigger_handler_1:
+       .endproc
+*// boss_trigger_handler
+
+*********************************************************************
+*
 * Hit handler
 *
 hit_handler:

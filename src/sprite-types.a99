@@ -314,3 +314,8 @@ sprite_type_blue_plane_down_xs:
        data blue_plane_handler
        data small_explode_hit_handler  ; Hit handler
        data 1                          ; Lethal
+sprite_type_silo_boss_trigger:
+       data sprite_type_index_silo
+       data boss_trigger_handler
+       data silo_hit_handler           ; Hit handler
+       data 1                          ; Lethal
