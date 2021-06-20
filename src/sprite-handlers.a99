@@ -11,14 +11,10 @@
 * Plane handler
 *
 plane_handler:
-       mov  @sub_level,r0
-       ci   r0,n_sub_levels-1
-       jne  plane_handler_1
        c    @scroll_pos,@scroll_max
-       jeq  plane_handler_2
-plane_handler_1:
+       jeq  plane_handler_1
        inc  @sprite_x(r4)
-plane_handler_2:
+plane_handler_1:
        rt
 *// plane_handler
 
@@ -327,9 +323,19 @@ boss_trigger_handler:
        li   r0,sprite_patterns_2_bank_select
        mov  r0,@sprite_patterns_bank_select
        bl   @upload_sprite_patterns
+       seto @boss_active
 boss_trigger_handler_1:
        .endproc
 *// boss_trigger_handler
+
+*********************************************************************
+*
+* Boss handler
+*
+boss_handler:
+       .proc
+       .endproc
+*// boss_handler
 
 *********************************************************************
 *
@@ -415,3 +421,15 @@ wall_hit_handler:
        seto @sprite_counter(r4)
        rt
 *// wall_hit_handler
+
+*********************************************************************
+*
+* Boss hit handler
+*
+* r4: bullet sprite
+* r5: boss
+*
+boss_hit_handler:
+       clr  @boss_active
+       rt
+*// boss_hit_handler

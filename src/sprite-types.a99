@@ -95,6 +95,12 @@ sprite_type_index_blue_plane_down_s:
        equ  41
 sprite_type_index_blue_plane_down_xs:
        equ  42
+sprite_type_index_boss:
+       equ  43
+sprite_type_index_boss_rocket_launcher:
+       equ  44
+sprite_type_index_boss_shadow:
+       equ  45
 
 no_handler:
        equ  0
@@ -319,3 +325,18 @@ sprite_type_silo_boss_trigger:
        data boss_trigger_handler
        data silo_hit_handler           ; Hit handler
        data 1                          ; Lethal
+sprite_type_boss:
+       data sprite_type_index_boss
+       data boss_handler
+       data boss_hit_handler           ; Hit handler
+       data 1                          ; Lethal
+sprite_type_boss_rocket_launcher:
+       data sprite_type_index_boss_rocket_launcher
+       data 0
+       data boss_hit_handler           ; Hit handler
+       data 1                          ; Lethal
+sprite_type_boss_shadow:
+       data sprite_type_index_boss_shadow
+       data no_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal

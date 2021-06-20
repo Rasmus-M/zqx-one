@@ -258,8 +258,10 @@ tune_no:
        equ  music+2
 music_on:
        equ  tune_no+2
-pad_max:
+boss_active:
        equ  music_on+2
+pad_max:
+       equ  boss_active+2
 
 ***************************************************************
 *
@@ -291,7 +293,7 @@ game_loop:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-       bl   @player_collisions
+;       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
@@ -309,8 +311,8 @@ game_loop:
        c    @scroll_pos,@scroll_max
        jl   game_loop
        mov  @sub_level,r0
-       ci   r0,n_sub_levels-1
-       jhe  game_loop
+       abs  @boss_active
+       jne  game_loop
        inc  @sub_level
        jmp  start_sub_level
 
@@ -1182,6 +1184,7 @@ init_game:
        clr  @level
        clr  @score
        clr  @old_score
+       clr  @boss_active
        li   r0,>01a2
        bl   @vwtr
        bl   @init_tl2

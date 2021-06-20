@@ -97,6 +97,8 @@ sprite_defs_2:
        data 1356,1524,72,40,sprite_type_wall_left
        data 1850,2020,72,24,sprite_type_wall_left
        data 2004,2160,84,0,sprite_type_silo_boss_trigger
+       data 2228,2340,128,8,sprite_type_boss
+       data 2228,2340,160,56,sprite_type_boss_rocket_launcher
 *      End of list
        data >7fff,0,0,0
 

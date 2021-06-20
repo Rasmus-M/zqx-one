@@ -53,6 +53,9 @@ sprite_attrs_table:
        data sprite_attrs_blue_plane_down_m-$
        data sprite_attrs_blue_plane_down_s-$
        data sprite_attrs_blue_plane_down_xs-$
+       data sprite_attrs_boss-$
+       data sprite_attrs_boss_rocket_launcher-$
+       data sprite_attrs_boss_shadow-$
 
 sprite_attrs:
        equ  $
@@ -329,6 +332,42 @@ sprite_attrs_blue_plane_down_xs:
        data 15                         ; cy
        data 1                          ; n sprites
        byte 0,0,>8c,>0a
-
+sprite_attrs_boss:
+       data 23                         ; cx
+       data 59                         ; cy
+       data 16                         ; n sprites
+       byte 0,0,>20,>0a
+       byte 0,16,>24,>0a
+       byte 0,32,>28,>0a
+       byte 16,0,>30,>0a
+       byte 16,16,>34,>0a
+       byte 16,32,>38,>0a
+       byte 16,48,>3c,>0a
+       byte 32,0,>40,>0a
+       byte 32,16,>44,>0a
+       byte 32,32,>48,>0a
+       byte 32,48,>4c,>0a
+       byte 48,0,>50,>0a
+       byte 48,16,>54,>0a
+       byte 48,32,>58,>0a
+       byte 48,48,>5c,>0a
+       byte 64,32,>2c,>0a
+sprite_attrs_boss_rocket_launcher:
+       data 2
+       data 12
+       data 4
+       byte 0,0,>80,>0a
+       byte 0,16,>84,>0a
+       byte 16,0,>90,>0a
+       byte 16,16,>94,>0a
+sprite_attrs_boss_shadow:
+       data 2
+       data 16
+       data 23
+       byte 0,0,>e0,>06
+       byte 0,16,>e4,>06
+       byte 16,0,>f0,>06
+       byte 16,16,>f4,>06
+       byte 16,32,>fc,>06
 sprite_attrs_end:
        equ  $
