@@ -353,17 +353,17 @@ sprite_attrs_boss:
        byte 48,48,>5c,>0a
        byte 64,32,>2c,>0a
 sprite_attrs_boss_rocket_launcher:
-       data 2
-       data 12
+       data 6
+       data 10
        data 4
        byte 0,0,>80,>0a
        byte 0,16,>84,>0a
        byte 16,0,>90,>0a
        byte 16,16,>94,>0a
 sprite_attrs_boss_shadow:
-       data 2
        data 16
        data 23
+       data 5
        byte 0,0,>e0,>06
        byte 0,16,>e4,>06
        byte 16,0,>f0,>06
