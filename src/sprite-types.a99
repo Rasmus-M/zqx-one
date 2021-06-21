@@ -101,6 +101,10 @@ sprite_type_index_boss_rocket_launcher:
        equ  44
 sprite_type_index_boss_shadow:
        equ  45
+sprite_type_index_red_rocket_1:
+       equ  46
+sprite_type_index_red_rocket_2:
+       equ  47
 
 no_handler:
        equ  0
@@ -340,3 +344,13 @@ sprite_type_boss_shadow:
        data no_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
+sprite_type_red_rocket_1:
+       data sprite_type_index_red_rocket_1
+       data no_handler
+       data no_handler                 ; Hit handler
+       data 1                          ; Lethal
+sprite_type_red_rocket_2:
+       data sprite_type_index_red_rocket_2
+       data no_handler
+       data no_handler                 ; Hit handler
+       data 1                          ; Lethal

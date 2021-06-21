@@ -56,6 +56,8 @@ sprite_attrs_table:
        data sprite_attrs_boss-$
        data sprite_attrs_boss_rocket_launcher-$
        data sprite_attrs_boss_shadow-$
+       data sprite_attrs_red_rocket_1-$
+       data sprite_attrs_red_rocket_2-$
 
 sprite_attrs:
        equ  $
@@ -353,8 +355,8 @@ sprite_attrs_boss:
        byte 48,48,>5c,>0a
        byte 64,32,>2c,>0a
 sprite_attrs_boss_rocket_launcher:
-       data 6
-       data 10
+       data 11
+       data 13
        data 4
        byte 0,0,>80,>0a
        byte 0,16,>84,>0a
@@ -369,5 +371,17 @@ sprite_attrs_boss_shadow:
        byte 16,0,>f0,>06
        byte 16,16,>f4,>06
        byte 16,32,>fc,>06
+sprite_attrs_red_rocket_1:
+       data 0
+       data 13
+       data 2
+       byte 0,0,>a8,>08
+       byte 0,16,>9c,>08
+sprite_attrs_red_rocket_2:
+       data 0
+       data 13
+       data 2
+       byte 0,0,>a8,>08
+       byte 0,16,>ac,>08
 sprite_attrs_end:
        equ  $

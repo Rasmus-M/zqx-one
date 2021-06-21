@@ -80,8 +80,9 @@ vmbw:
        movb r0,@vdpwa                  ; Send high byte of VDP RAM write address
 vmbw_1:
        movb *r1+,*r15                  ; Write byte to VDP RAM
-       dec  r2
-       jne  vmbw_1
+       movb *r1+,*r15                  ; Write byte to VDP RAM
+       dect r2
+       jgt  vmbw_1
        rt
 *// vmbw
 
