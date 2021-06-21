@@ -382,6 +382,6 @@ sprite_attrs_red_rocket_2:
        data 13
        data 2
        byte 0,0,>a8,>08
-       byte 0,16,>ac,>08
+       byte -8,16,>ac,>08
 sprite_attrs_end:
        equ  $
