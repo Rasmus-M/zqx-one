@@ -322,7 +322,11 @@ boss_handler:
 *      Move
        dec  @sprite_counter(r4)
        jne  boss_handler_3
+       mov  @sprite_x(r4),r0
+       ci   r0,2412-100
+       jle  boss_handler_5
        dec  @sprite_x(r4)
+boss_handler_5:
        mov  @player_sprite,r5
        mov  @sprite_y(r5),r0
        s    @sprite_y(r4),r0
@@ -362,7 +366,6 @@ boss_shadow_handler:
 * Boss rocket launcher handler
 *
 boss_rocket_launcher_handler:
-       .proc
        mov  @boss_sprite,r5
        mov  @sprite_x(r5),@sprite_x(r4)
        mov  @sprite_y(r5),r0
@@ -371,8 +374,40 @@ boss_rocket_launcher_handler:
        mov  @sprite_z(r5),r0
        ai   r0,34
        mov  r0,@sprite_z(r4)
-       .endproc
+       rt
 *// boss_rocket_launcher_handler
+
+*********************************************************************
+*
+* Red rockets handler
+*
+red_rocket_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       inc  r0
+       mov  r0,@sprite_counter(r4)
+       ci   r0,64
+       jlt  red_rocket_handler_1
+       jne  red_rocket_handler_0
+       li   r0,sprite_type_red_rocket_2
+       mov  r0,@sprite_type(r4)
+red_rocket_handler_0:
+       dec  @sprite_x(r4)
+       jmp  red_rocket_handler_2
+red_rocket_handler_1:
+       mov  @boss_sprite,r5
+       mov  @sprite_x(r5),r0
+       ai   r0,-4
+       mov  r0,@sprite_x(r4)
+       mov  @sprite_y(r5),r0
+       ai   r0,18
+       mov  r0,@sprite_y(r4)
+       mov  @sprite_z(r5),r0
+       ai   r0,30
+       mov  r0,@sprite_z(r4)
+red_rocket_handler_2:
+       .endproc
+*// red_rocket_handler
 
 *********************************************************************
 *

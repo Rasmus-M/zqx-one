@@ -341,11 +341,11 @@ sprite_type_boss_shadow:
        data 0                          ; Lethal
 sprite_type_red_rocket_1:
        data sprite_type_index_red_rocket_1
-       data no_handler
+       data red_rocket_handler
        data no_handler                 ; Hit handler
        data 1                          ; Lethal
 sprite_type_red_rocket_2:
        data sprite_type_index_red_rocket_2
-       data no_handler
+       data red_rocket_handler
        data no_handler                 ; Hit handler
        data 1                          ; Lethal
