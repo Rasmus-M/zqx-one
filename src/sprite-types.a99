@@ -324,11 +324,6 @@ sprite_type_blue_plane_down_xs:
        data blue_plane_handler
        data small_explode_hit_handler  ; Hit handler
        data 1                          ; Lethal
-sprite_type_silo_boss_trigger:
-       data sprite_type_index_silo
-       data boss_trigger_handler
-       data silo_hit_handler           ; Hit handler
-       data 1                          ; Lethal
 sprite_type_boss:
        data sprite_type_index_boss
        data boss_handler
@@ -336,12 +331,12 @@ sprite_type_boss:
        data 1                          ; Lethal
 sprite_type_boss_rocket_launcher:
        data sprite_type_index_boss_rocket_launcher
-       data 0
+       data boss_rocket_launcher_handler
        data boss_hit_handler           ; Hit handler
        data 1                          ; Lethal
 sprite_type_boss_shadow:
        data sprite_type_index_boss_shadow
-       data no_handler
+       data boss_shadow_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
 sprite_type_red_rocket_1:

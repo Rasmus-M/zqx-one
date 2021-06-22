@@ -260,8 +260,10 @@ music_on:
        equ  tune_no+2
 boss_active:
        equ  music_on+2
-pad_max:
+boss_sprite:
        equ  boss_active+2
+pad_max:
+       equ  boss_sprite+2
 
 ***************************************************************
 *

@@ -313,29 +313,66 @@ blue_plane_sprite_types_down:
 
 *********************************************************************
 *
-* Boss trigger handler
-*
-boss_trigger_handler:
-       .proc
-       mov  @sprite_counter(r4),r0
-       jeq  boss_trigger_handler_1
-       clr  @sprite_counter(r4)
-       li   r0,sprite_patterns_2_bank_select
-       mov  r0,@sprite_patterns_bank_select
-       bl   @upload_sprite_patterns
-       seto @boss_active
-boss_trigger_handler_1:
-       .endproc
-*// boss_trigger_handler
-
-*********************************************************************
-*
 * Boss handler
 *
 boss_handler:
        .proc
+       mov  @sprite_counter(r4),r0
+       jlt  boss_handler_1
+*      Move
+       dec  @sprite_counter(r4)
+       jne  boss_handler_3
+       dec  @sprite_x(r4)
+       mov  @player_sprite,r5
+       mov  @sprite_y(r5),r0
+       s    @sprite_y(r4),r0
+       seto r0
+       jlt  boss_handler_4
+       neg  r0
+boss_handler_4:
+       a    r0,@sprite_y(r4)
+       jmp  boss_handler_2
+*      Init
+boss_handler_1:
+       mov  r4,@boss_sprite
+       seto @boss_active
+       li   r0,sprite_patterns_2_bank_select
+       mov  r0,@sprite_patterns_bank_select
+       bl   @upload_sprite_patterns
+boss_handler_2:
+       li   r0,4
+       mov  r0,@sprite_counter(r4)
+boss_handler_3:
        .endproc
 *// boss_handler
+
+*********************************************************************
+*
+* Boss shadow handler
+*
+boss_shadow_handler:
+       mov  @boss_sprite,r5
+       mov  @sprite_x(r5),@sprite_x(r4)
+       mov  @sprite_y(r5),@sprite_y(r4)
+       rt
+*// boss_shadow_handler
+
+*********************************************************************
+*
+* Boss rocket launcher handler
+*
+boss_rocket_launcher_handler:
+       .proc
+       mov  @boss_sprite,r5
+       mov  @sprite_x(r5),@sprite_x(r4)
+       mov  @sprite_y(r5),r0
+       ai   r0,22
+       mov  r0,@sprite_y(r4)
+       mov  @sprite_z(r5),r0
+       ai   r0,34
+       mov  r0,@sprite_z(r4)
+       .endproc
+*// boss_rocket_launcher_handler
 
 *********************************************************************
 *

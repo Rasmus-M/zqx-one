@@ -88,6 +88,9 @@ sprite_defs_1:
 *      End of list
        data >7fff,0,0,0
 
+boss_scroll_x:
+       equ  map_2_width*8-1
+
 sprite_defs_2:
        data 60,228,72,56,sprite_type_wall_left
        data 156,228,168,56,sprite_type_wall_right
@@ -96,11 +99,11 @@ sprite_defs_2:
        data 1084,1252,72,24,sprite_type_wall_left
        data 1356,1524,72,40,sprite_type_wall_left
        data 1850,2020,72,24,sprite_type_wall_left
-       data 2004,2160,84,0,sprite_type_silo_boss_trigger
-       data 2228,2340,128,8,sprite_type_boss
-       data 2228,2340,128,0,sprite_type_boss_shadow
-       data 2244,2340,150,42,sprite_type_boss_rocket_launcher
-       data 2242,2336,146,38,sprite_type_red_rocket_1
+       data 2004,2160,84,0,sprite_type_silo
+       data boss_scroll_x,2412,128,8,sprite_type_boss
+       data boss_scroll_x,2412,128,0,sprite_type_boss_shadow
+       data boss_scroll_x,2412,150,42,sprite_type_boss_rocket_launcher
+       data boss_scroll_x,2408,146,38,sprite_type_red_rocket_1
 *      End of list
        data >7fff,0,0,0
 
