@@ -319,11 +319,15 @@ boss_handler:
        .proc
        mov  @sprite_counter(r4),r0
        jlt  boss_handler_1
-*      Move
+*      Count down to move
        dec  @sprite_counter(r4)
        jne  boss_handler_3
+*      Move
+       mov  @boss_active,r0
+       jgt  boss_handler_6
+*      Move forward
        mov  @sprite_x(r4),r0
-       ci   r0,2412-100
+       ci   r0,boss_start_x-128
        jle  boss_handler_5
        dec  @sprite_x(r4)
 boss_handler_5:
@@ -335,6 +339,16 @@ boss_handler_5:
        neg  r0
 boss_handler_4:
        a    r0,@sprite_y(r4)
+       jmp  boss_handler_2
+*      Move backward
+boss_handler_6:
+       mov  @sprite_x(r4),r0
+       ci   r0,boss_start_x
+       jh   boss_handler_7
+       inc  @sprite_x(r4)
+       jmp  boss_handler_2
+boss_handler_7:
+       clr  @boss_active
        jmp  boss_handler_2
 *      Init
 boss_handler_1:
@@ -384,17 +398,31 @@ boss_rocket_launcher_handler:
 red_rocket_handler:
        .proc
        mov  @sprite_counter(r4),r0
+       jlt  red_rocket_handler_4
        inc  r0
        mov  r0,@sprite_counter(r4)
-       ci   r0,64
-       jlt  red_rocket_handler_1
-       jne  red_rocket_handler_0
+       ci   r0,192
+       jlt  red_rocket_handler_3
+       jne  red_rocket_handler_1
+*      Fire
        li   r0,sprite_type_red_rocket_2
        mov  r0,@sprite_type(r4)
-red_rocket_handler_0:
-       dec  @sprite_x(r4)
-       jmp  red_rocket_handler_2
+*      After firing
 red_rocket_handler_1:
+       andi r0,1
+       jne  red_rocket_handler_5
+       dec  @sprite_x(r4)
+       mov  @player_sprite,r5
+       mov  @sprite_y(r5),r0
+       s    @sprite_y(r4),r0
+       seto r0
+       jlt  red_rocket_handler_2
+       neg  r0
+red_rocket_handler_2:
+       a    r0,@sprite_y(r4)
+       jmp  red_rocket_handler_5
+*      Before firing
+red_rocket_handler_3:
        mov  @boss_sprite,r5
        mov  @sprite_x(r5),r0
        ai   r0,-4
@@ -405,7 +433,13 @@ red_rocket_handler_1:
        mov  @sprite_z(r5),r0
        ai   r0,30
        mov  r0,@sprite_z(r4)
-red_rocket_handler_2:
+       jmp  red_rocket_handler_5
+*      Init
+red_rocket_handler_4:
+       li   r0,6
+       mov  r0,@boss_rocket_hits
+       clr  @sprite_counter(r4)
+red_rocket_handler_5:
        .endproc
 *// red_rocket_handler
 
@@ -502,6 +536,26 @@ wall_hit_handler:
 * r5: boss
 *
 boss_hit_handler:
-       clr  @boss_active
+       li   r0,sprite_type_hit_2
+       mov  r0,@sprite_type(r4)        ; Change bullet to hit sprite
+       seto @sprite_counter(r4)
        rt
 *// boss_hit_handler
+
+*********************************************************************
+*
+* Red rocket hit handler
+*
+* r4: bullet sprite
+* r5: rocket
+*
+red_rocket_hit_handler:
+       clr  @sprite_type(r4)
+       dec  @boss_rocket_hits
+       jne  red_rocket_hit_handler_1
+       clr  @sprite_type(r5)
+       neg  @boss_active
+red_rocket_hit_handler_1:
+       rt
+*// red_rocket_hit_handler
+

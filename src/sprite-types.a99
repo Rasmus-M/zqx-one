@@ -347,5 +347,5 @@ sprite_type_red_rocket_1:
 sprite_type_red_rocket_2:
        data sprite_type_index_red_rocket_2
        data red_rocket_handler
-       data no_handler                 ; Hit handler
+       data red_rocket_hit_handler     ; Hit handler
        data 1                          ; Lethal

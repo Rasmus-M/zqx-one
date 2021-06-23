@@ -262,8 +262,10 @@ boss_active:
        equ  music_on+2
 boss_sprite:
        equ  boss_active+2
-pad_max:
+boss_rocket_hits:
        equ  boss_sprite+2
+pad_max:
+       equ  boss_rocket_hits+2
 
 ***************************************************************
 *
@@ -312,8 +314,7 @@ game_loop:
        bl   @scroll
        c    @scroll_pos,@scroll_max
        jl   game_loop
-       mov  @sub_level,r0
-       abs  @boss_active
+       mov  @boss_active,r0
        jne  game_loop
        inc  @sub_level
        jmp  start_sub_level
