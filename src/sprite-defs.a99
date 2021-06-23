@@ -91,7 +91,7 @@ sprite_defs_1:
 boss_scroll_x:
        equ  map_2_width*8-1
 boss_start_x:
-       equ  2412
+       equ  2440
 
 sprite_defs_2:
        data 60,228,72,56,sprite_type_wall_left
