@@ -96,11 +96,43 @@ boss_start_x:
 sprite_defs_2:
        data 60,228,72,56,sprite_type_wall_left
        data 156,228,168,56,sprite_type_wall_right
+       data 206,336,110,0,sprite_type_silo
+       data 265,427,78,0,sprite_type_blue_gun
+       data 290,370,160,0,sprite_type_green_gun
+       data 308,420,128,0,sprite_type_silo
+       data 314,482,72,40,sprite_type_shield
+       data 314,482,72,56,sprite_type_shield
        data 316,484,72,24,sprite_type_wall_left
+       data 340,420,160,0,sprite_type_radar
+       data 496,622,114,0,sprite_type_silo
+       data 534,660,114,0,sprite_type_silo
+       data 548,704,84,0,sprite_type_blue_gun
+       data 570,696,114,0,sprite_type_silo
+       data 586,754,72,56,sprite_type_shield
        data 588,756,72,40,sprite_type_wall_left
+       data 604,704,140,0,sprite_type_blue_gun
+
+       data 818,986,72,24,sprite_type_shield
+       data 818,986,72,40,sprite_type_shield
+       data 818,986,72,56,sprite_type_shield
+       data 820,988,72,8,sprite_type_wall_left
+
+       data 1082,1250,72,40,sprite_type_shield
+       data 1082,1250,72,56,sprite_type_shield
        data 1084,1252,72,24,sprite_type_wall_left
+
+       data 1354,1522,72,56,sprite_type_shield
        data 1356,1524,72,40,sprite_type_wall_left
+
+       data 1586,1754,72,24,sprite_type_shield
+       data 1586,1754,72,40,sprite_type_shield
+       data 1586,1754,72,56,sprite_type_shield
+       data 1588,1756,72,8,sprite_type_wall_left
+
+       data 1848,2018,72,40,sprite_type_shield
+       data 1848,2018,72,56,sprite_type_shield
        data 1850,2020,72,24,sprite_type_wall_left
+
        data 2004,2160,84,0,sprite_type_silo
        data boss_scroll_x,boss_start_x,128,8,sprite_type_boss
        data boss_scroll_x,boss_start_x,128,0,sprite_type_boss_shadow
