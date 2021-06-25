@@ -111,28 +111,48 @@ sprite_defs_2:
        data 586,754,72,56,sprite_type_shield
        data 588,756,72,40,sprite_type_wall_left
        data 604,704,140,0,sprite_type_blue_gun
-
+       data 720,868,92,0,sprite_type_silo
+       data 752,872,120,0,sprite_type_silo
+       data 792,888,144,0,sprite_type_silo
        data 818,986,72,24,sprite_type_shield
        data 818,986,72,40,sprite_type_shield
        data 818,986,72,56,sprite_type_shield
        data 820,988,72,8,sprite_type_wall_left
-
+       data 838,918,160,0,sprite_type_green_gun
+       data 902,1064,78,0,sprite_type_green_gun_2
+       data 964,1122,82,0,sprite_type_silo
+       data 1015,1087,168,0,sprite_type_green_gun
+       data 1036,1169,107,0,sprite_type_silo
+       data 1072,1144,168,0,sprite_type_radar
        data 1082,1250,72,40,sprite_type_shield
        data 1082,1250,72,56,sprite_type_shield
        data 1084,1252,72,24,sprite_type_wall_left
-
+       data 1093,1204,129,0,sprite_type_blue_gun
+       data 1177,1335,82,0,sprite_type_silo
+       data 1312,1473,79,0,sprite_type_blue_gun
+       data 1312,1428,124,0,sprite_type_silo
+       data 1336,1467,109,0,sprite_type_silo
+       data 1336,1467,139,0,sprite_type_silo
        data 1354,1522,72,56,sprite_type_shield
        data 1356,1524,72,40,sprite_type_wall_left
-
+       data 1444,1606,78,0,sprite_type_green_gun_2
+       data 1553,1701,92,0,sprite_type_silo
+       data 1560,1682,118,0,sprite_type_blue_gun
        data 1586,1754,72,24,sprite_type_shield
        data 1586,1754,72,40,sprite_type_shield
        data 1586,1754,72,56,sprite_type_shield
        data 1588,1756,72,8,sprite_type_wall_left
-
+       data 1610,1700,150,0,sprite_type_radar
+       data 1705,1847,98,0,sprite_type_silo
+       data 1737,1879,98,0,sprite_type_silo
+       data 1771,1935,76,0,sprite_type_green_gun_2
+       data 1813,1964,89,0,sprite_type_silo
        data 1848,2018,72,40,sprite_type_shield
        data 1848,2018,72,56,sprite_type_shield
        data 1850,2020,72,24,sprite_type_wall_left
-
+       data 1870,1960,150,0,sprite_type_blue_gun
+       data 1940,2096,84,0,sprite_type_silo
+       data 1969,2101,108,0,sprite_type_silo
        data 2004,2160,84,0,sprite_type_silo
        data boss_scroll_x,boss_start_x,128,8,sprite_type_boss
        data boss_scroll_x,boss_start_x,128,0,sprite_type_boss_shadow
