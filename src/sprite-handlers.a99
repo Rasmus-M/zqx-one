@@ -273,6 +273,56 @@ red_bullet_handler:
 
 *********************************************************************
 *
+* Green gun handler
+*
+green_gun_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       jlt  green_gun_handler_0
+       dec  @sprite_counter(r4)
+       jgt  green_gun_handler_1
+*      Create bullet
+       .push r4
+       bl   @allocate_sprite
+       mov  r4,r5
+       .pop r4
+       mov  r5,r5
+       jeq  green_gun_handler_1
+       li   r0,sprite_type_red_bullet_2
+       mov  r0,@sprite_type(r5)
+       seto @sprite_counter(r5)
+       bl   @align_sprites
+       mov  @sprite_type(r4),r0
+       ci   r0,sprite_type_green_gun
+       jne  green_gun_handler_2
+*      Green gun shooting up
+       li   r0,24
+       s    r0,@sprite_y(r5)
+       jmp  green_gun_handler_0
+green_gun_handler_2:
+*      Green gun 2 shooting down
+       li   r0,24
+       a    r0,@sprite_y(r5)
+       neg  @sprite_counter(r5)
+green_gun_handler_0:
+       bl   @rand
+       andi r0,>ff
+       mov  r0,@sprite_counter(r4)
+green_gun_handler_1:
+       .endproc
+*// green_gun_handler
+
+*********************************************************************
+*
+* Red bullet 2 handler (y direction)
+*
+red_bullet_2_handler:
+       a  @sprite_counter(r4),@sprite_y(r4)
+       rt
+*// red_bullet_2_handler
+
+*********************************************************************
+*
 * Blue plane handler
 *
 blue_plane_handler:

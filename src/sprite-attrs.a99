@@ -58,6 +58,7 @@ sprite_attrs_table:
        data sprite_attrs_boss_shadow-$
        data sprite_attrs_red_rocket_1-$
        data sprite_attrs_red_rocket_2-$
+       data sprite_attrs_red_bullet_2-$
 
 sprite_attrs:
        equ  $
@@ -383,5 +384,10 @@ sprite_attrs_red_rocket_2:
        data 2
        byte 0,0,>a8,>08
        byte -8,16,>ac,>08
+sprite_attrs_red_bullet_2:
+       data 6                          ; cx
+       data 5                          ; cy
+       data 1                          ; n sprites
+       byte 0,0,>fc,>24
 sprite_attrs_end:
        equ  $

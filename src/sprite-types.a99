@@ -105,6 +105,8 @@ sprite_type_index_red_rocket_1:
        equ  46
 sprite_type_index_red_rocket_2:
        equ  47
+sprite_type_index_red_bullet_2:
+       equ  48
 
 no_handler:
        equ  0
@@ -136,12 +138,12 @@ sprite_type_blue_gun:
        data 1                          ; Lethal
 sprite_type_green_gun:
        data sprite_type_index_green_gun
-       data no_handler
+       data green_gun_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_gun_2:
        data sprite_type_index_green_gun_2
-       data no_handler
+       data green_gun_handler
        data explode_hit_handler        ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane:
@@ -348,4 +350,9 @@ sprite_type_red_rocket_2:
        data sprite_type_index_red_rocket_2
        data red_rocket_handler
        data red_rocket_hit_handler     ; Hit handler
+       data 1                          ; Lethal
+sprite_type_red_bullet_2:
+       data sprite_type_index_red_bullet_2
+       data red_bullet_2_handler
+       data no_handler                 ; Hit handler
        data 1                          ; Lethal
