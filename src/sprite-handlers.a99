@@ -334,6 +334,7 @@ boss_handler_5:
        mov  @player_sprite,r5
        mov  @sprite_y(r5),r0
        s    @sprite_y(r4),r0
+       jeq  boss_handler_4
        seto r0
        jlt  boss_handler_4
        neg  r0
@@ -401,7 +402,7 @@ red_rocket_handler:
        jlt  red_rocket_handler_4
        inc  r0
        mov  r0,@sprite_counter(r4)
-       ci   r0,192
+       ci   r0,140
        jlt  red_rocket_handler_3
        jne  red_rocket_handler_1
 *      Fire
@@ -412,12 +413,14 @@ red_rocket_handler_1:
        andi r0,1
        jne  red_rocket_handler_5
        dec  @sprite_x(r4)
+*      Move towards player
        mov  @player_sprite,r5
-       mov  @sprite_y(r5),r0
-       s    @sprite_y(r4),r0
-       seto r0
-       jlt  red_rocket_handler_2
-       neg  r0
+       mov  @sprite_y(r5),r0           ; Player y
+       s    @sprite_y(r4),r0           ; Minus rocket y
+       jeq  red_rocket_handler_2
+       seto r0                         ; Sign -1 - sets no flags
+       jlt  red_rocket_handler_2       ; player y - rocket y < 0
+       neg  r0                         ; If > 0 change sign to 1
 red_rocket_handler_2:
        a    r0,@sprite_y(r4)
        jmp  red_rocket_handler_5
