@@ -110,9 +110,9 @@ map_2_bank_select:
 map:
        equ  >6000
 tl2_first_char:
-       equ  228
+       equ  140
 tl2_chars:
-       equ  28
+       equ  256-tl2_first_char
 max_sprites:
        equ  18
 sprite_patterns_0_bank_select:
@@ -284,6 +284,8 @@ main:
        li   r15,vdpwd                  ; Constant for writing to VDP
        mov  @rndsd,@rand_no            ; Save random number seed
        bl   @one_time_init
+intro:
+       bl   @display_intro
 start_game:
        bl   @init_game
 start_level:
@@ -297,7 +299,7 @@ game_loop:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-       bl   @player_collisions
+;       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
@@ -1180,6 +1182,43 @@ one_time_init:
 
 *********************************************************************
 *
+* Display intro
+*
+display_intro:
+       .proc
+       clr  @level
+       li   r0,>01a2
+       bl   @vwtr
+       bl   @init_tl2
+       bl   @vsync
+       li   r0,>01e2
+       bl   @vwtr
+       bl   @init_level
+       bl   @init_sub_level
+       li   r0,128
+       mov  r0,@scroll_max
+intro_loop:
+       bl   @vsync
+       bl   @set_vdp_regs
+       bl   @gpu_run
+       bl   @upload_characters
+       bl   @draw_column
+       bl   @wait_gpu
+       bl   @bullet_collisions
+       bl   @move_sprites
+       bl   @create_sprites
+       bl   @upload_sprites
+       bl   @display_height
+       bl   @play_sound
+       bl   @scroll
+       c    @scroll_pos,@scroll_max
+       jl   intro_loop
+       bl   @draw_title
+       .endproc
+*// display_intro
+
+*********************************************************************
+*
 * Initialize game
 *
 init_game:
@@ -1381,19 +1420,19 @@ init_tl2:
        li   r2,960
        bl   @vmbw
        li   r0,pattern_table_p_0+(tl2_first_char*8)
-       li   r1,P0_228
+       li   r1,P0_140
        li   r2,tl2_chars*8
        bl   @vmbw
        li   r0,pattern_table_p_1+(tl2_first_char*8)
-       li   r1,P1_228
+       li   r1,P1_140
        li   r2,tl2_chars*8
        bl   @vmbw
        li   r0,pattern_table_p_2+(tl2_first_char*8)
-       li   r1,P2_228
+       li   r1,P2_140
        li   r2,tl2_chars*8
        bl   @vmbw
        li   r0,tile_attr_table+tl2_first_char
-       li   r1,TAT228
+       li   r1,TAT140
        li   r2,tl2_chars
        bl   @vmbw
        .endproc
@@ -1553,6 +1592,31 @@ init_sprite_defs_0_1:
        .endproc
 *// init_sprite_defs_0
 
+*********************************************************************
+*
+* Draw title
+*
+draw_title:
+       .proc
+       li   r3,title
+draw_title_1:
+       bl   @vsync
+       bl   @gpu_run
+       movb *r3+,r0                    ; x
+       jlt  draw_title_2
+       srl  r0,8
+       movb *r3+,r1
+       srl  r1,8
+       sla  r1,5
+       a    r1,r0
+       ai   r0,name_table_2
+       movb *r3+,r1
+       bl   @vsbw
+       jmp  draw_title_1
+draw_title_2:
+       .endproc
+*// draw_title
+
 ***************************************************************
 *
 * Includes
@@ -1579,6 +1643,7 @@ diff_end_1:
        copy "diff2.a99"
 diff_end_2:
        copy "tl2.a99"
+       copy "title.a99"
        copy "sprite-types.a99"
        copy "sprite-defs.a99"
        copy "sprites.a99"

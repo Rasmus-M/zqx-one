@@ -12,7 +12,7 @@ sprite_def_size:
        equ  10
 
 plane_def:
-       data 0,player_start_x,isometric_center_y,16,sprite_type_plane
+       data 0,player_start_x,isometric_center_y,64,sprite_type_plane
 shadow_def:
        data 0,player_start_x,isometric_center_y,0,sprite_type_shadow
 
