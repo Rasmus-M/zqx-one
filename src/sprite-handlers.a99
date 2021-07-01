@@ -196,12 +196,12 @@ explosion_handler:
        bl   @rand
        ci   r0,>e000
        jh   explosion_handler_0
-       li   r0,25
+       li   r0,10
        a    r0,@score
        li   r0,sprite_type_debris
        jmp  explosion_handler_3
 explosion_handler_0:
-       li   r0,500
+       li   r0,50
        a    r0,@score
        li   r0,sprite_type_debris_500
        jmp  explosion_handler_3

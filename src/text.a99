@@ -1,0 +1,8 @@
+txt_high_scores:
+       text "HIGH SCORES"
+       byte 0
+txt_press_fire_to_start:
+       text "PRESS FIRE TO START"
+       byte 0
+       even
+

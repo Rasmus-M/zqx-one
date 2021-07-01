@@ -157,8 +157,14 @@ player_z_max:
        equ  71;
 player_z_min:
        equ  8
+char_space:
+       equ 140
 char_zero:
+       equ 156
+char_zero_high:
        equ  240
+char_space_high:
+       equ  250
 fuel_max:
        equ  13*64-1
 sub_level_0_sprites:
@@ -264,8 +270,10 @@ boss_sprite:
        equ  boss_active+2
 boss_rocket_hits:
        equ  boss_sprite+2
-pad_max:
+current_char_zero:
        equ  boss_rocket_hits+2
+pad_max:
+       equ  current_char_zero+2
 
 ***************************************************************
 *
@@ -1002,9 +1010,9 @@ display_score:
        mov  @score,r1
        c    r1,@old_score
        jeq  display_score_1
-       li   r0,101
+       li   r0,68
        li   r2,5
-       bl   @display_decimal
+       bl   @display_decimal_at
 display_score_1:
        .endproc
 *// display_score
@@ -1032,141 +1040,6 @@ scroll_1:
 
 *********************************************************************
 *
-* Check key
-*
-* r0: Column in MSB: >0000 - >0700, Row in LSB: >0006 - >0014
-*
-*       Column   0      1    2    3    4    5     6       7
-*     Row
-*     >0006      =      .    ,    M    N    /    Fire    Fire
-*     >0008    Space    L    K    J    H    ;    Left    Left
-*     >000A    Enter    O    I    U    Y    P    Right   Right
-*     >000C             9    8    7    6    0    Down    Down
-*     >000E    Fctn     2    3    4    5    1    Up      Up
-*     >0010    Shift    S    D    F    G    A
-*     >0012    Ctrl     W    E    R    T    Q
-*     >0014             X    C    V    B    Z
-*
-* On return NEQ means that the key is pressed
-*
-KEY_FI EQU  >0606
-KEY_LF EQU  >0608
-KEY_RG EQU  >060A
-KEY_DN EQU  >060C
-KEY_UP EQU  >060E
-KEY_CM EQU  >0206
-KEY_FS EQU  >0106
-KEY_0  EQU  >050C
-KEY_1  EQU  >050E
-KEY_2  EQU  >010E
-KEY_3  EQU  >020E
-KEY_4  EQU  >030E
-KEY_5  EQU  >040E
-KEY_6  EQU  >040C
-KEY_7  EQU  >030C
-KEY_8  EQU  >020C
-KEY_9  EQU  >010C
-KEY_A  EQU  >0510
-KEY_B  EQU  >0414
-KEY_C  EQU  >0214
-KEY_D  EQU  >0210
-KEY_E  EQU  >0212
-KEY_F  EQU  >0310
-KEY_G  EQU  >0410
-KEY_H  EQU  >0408
-KEY_I  EQU  >020A
-KEY_J  EQU  >0308
-KEY_K  EQU  >0208
-KEY_L  EQU  >0108
-KEY_M  EQU  >0306
-KEY_N  EQU  >0406
-KEY_O  EQU  >010A
-KEY_P  EQU  >050A
-KEY_Q  EQU  >0512
-KEY_R  EQU  >0312
-KEY_S  EQU  >0110
-KEY_T  EQU  >0412
-KEY_U  EQU  >030A
-KEY_V  EQU  >0314
-KEY_W  EQU  >0112
-KEY_X  EQU  >0114
-KEY_Y  EQU  >040A
-KEY_Z  EQU  >0514
-KEY_SP EQU  >0008
-KEY_EN EQU  >000A
-KEY_FN EQU  >000E
-KEY_SH EQU  >0010
-KEY_CT EQU  >0012
-JOY_FI EQU  >0606
-JOY_LT EQU  >0608
-JOY_RT EQU  >060A
-JOY_DN EQU  >060C
-JOY_UP EQU  >060E
-*
-check_key:
-       li   r12,>0024                  ; CRU address of the column decoder
-       ldcr r0,3                       ; Select column
-       andi r0,>00ff
-       mov  r0,r12                     ; Select row
-       tb   0                          ; Test key, EQ if not pressed
-       rt
-*// check_key
-
-*********************************************************************
-*
-* Random number generator
-*
-rand:
-       li   r0,28643                   ; A prime number to multiply by
-       mpy  @rand_no,r0
-       ai   r1,31873                   ; Add a prime number
-       src  r1,7                       ; Shift to break odd/even pattern
-       mov  r1,@rand_no
-       mov  r1,r0
-       rt
-*// rand
-
-*********************************************************************
-*
-* Display decimal number
-*
-* r0: Screen offset
-* r1: Number to display
-* r2: Number of digits
-*
-display_decimal:
-       .proc
-       ai   r0,name_table_2
-       bl   @vwad
-       li   r3,5
-       s    r2,r3
-       sla  r3,1
-       ai   r3,d10000
-       dec  r2
-display_decimal_1:
-       clr  r0
-       div  *r3+,r0
-       ai   r0,char_zero
-       swpb r0
-       movb r0,*r15
-       dec  r2
-       jne  display_decimal_1
-       ai   r1,char_zero
-       swpb r1
-       mov  r1,*r15
-       .endproc
-d10000:
-       data 10000
-d1000:
-       data 1000
-d100:
-       data 100
-d10:
-       data 10
-*// display_decimal
-
-*********************************************************************
-*
 * One time initializations
 *
 one_time_init:
@@ -1179,43 +1052,6 @@ one_time_init:
        bl   @init_music
        .endproc
 *// one_time_init
-
-*********************************************************************
-*
-* Display intro
-*
-display_intro:
-       .proc
-       clr  @level
-       li   r0,>01a2
-       bl   @vwtr
-       bl   @init_tl2
-       bl   @vsync
-       li   r0,>01e2
-       bl   @vwtr
-       bl   @init_level
-       bl   @init_sub_level
-       li   r0,128
-       mov  r0,@scroll_max
-intro_loop:
-       bl   @vsync
-       bl   @set_vdp_regs
-       bl   @gpu_run
-       bl   @upload_characters
-       bl   @draw_column
-       bl   @wait_gpu
-       bl   @bullet_collisions
-       bl   @move_sprites
-       bl   @create_sprites
-       bl   @upload_sprites
-       bl   @display_height
-       bl   @play_sound
-       bl   @scroll
-       c    @scroll_pos,@scroll_max
-       jl   intro_loop
-       bl   @draw_title
-       .endproc
-*// display_intro
 
 *********************************************************************
 *
@@ -1266,6 +1102,8 @@ init_level:
        mov  r4,@player_shadow
 *      Init sprites on sublevel 0
        bl   @init_sprite_defs_0
+*      Display height and fuel labels
+       bl   @display_tl2_game_labels
        .endproc
 *// init_level
 
@@ -1415,10 +1253,6 @@ upload_sprite_patterns:
 *
 init_tl2:
        .proc
-       li   r0,name_table_2
-       li   r1,MD0
-       li   r2,960
-       bl   @vmbw
        li   r0,pattern_table_p_0+(tl2_first_char*8)
        li   r1,P0_140
        li   r2,tl2_chars*8
@@ -1435,8 +1269,51 @@ init_tl2:
        li   r1,TAT140
        li   r2,tl2_chars
        bl   @vmbw
+       bl   @display_tl2_mask
        .endproc
 *// init_tl2
+
+*********************************************************************
+*
+* Display tile layer 2 mask
+*
+display_tl2_mask:
+       .proc
+       li   r0,name_table_2
+       li   r1,MD0
+       li   r2,960
+       bl   @vmbw
+       .endproc
+*// display_tl2_mask
+
+*********************************************************************
+*
+* Display tile layer 2 game labels
+*
+display_tl2_game_labels:
+       .proc
+       li   r3,tl2_labels
+display_tl2_game_labels_1:
+       mov  *r3+,r0
+       jeq  display_tl2_game_labels_3
+       ai   r0,name_table_2
+       bl   @vwad
+display_tl2_game_labels_2
+       movb *r3+,r0
+       jeq  display_tl2_game_labels_1
+       movb r0,*r15
+       jmp  display_tl2_game_labels_2
+display_tl2_game_labels_3:
+       .endproc
+tl2_labels:
+       data 9*32
+       byte 228,0
+       data 19*32
+       byte 231,0
+       data 29*32+15
+       byte 236,232,237,238,250,0
+       data 0
+*// display_tl2_game_labels
 
 *********************************************************************
 *
@@ -1564,7 +1441,7 @@ mute_table:
 
 *********************************************************************
 *
-* Init sprites on sub-level 0
+* Init sprites on sub-level 0 (open space)
 *
 init_sprite_defs_0:
        .proc
@@ -1594,16 +1471,107 @@ init_sprite_defs_0_1:
 
 *********************************************************************
 *
-* Draw title
+* Display intro
 *
-draw_title:
+display_intro:
+       .proc
+       clr  @level
+       li   r0,>01a2
+       bl   @vwtr
+       bl   @init_tl2
+       bl   @vsync
+       li   r0,>01e2
+       bl   @vwtr
+       bl   @display_high_scores
+       li   r0,120
+       bl   @wait
+       bl   @display_tl2_mask
+       bl   @init_level
+       bl   @init_sub_level
+       li   r0,128
+       mov  r0,@scroll_max
+intro_loop:
+       bl   @vsync
+       bl   @set_vdp_regs
+       bl   @gpu_run
+       bl   @upload_characters
+       bl   @draw_column
+       bl   @wait_gpu
+       bl   @bullet_collisions
+       bl   @move_sprites
+       bl   @create_sprites
+       bl   @upload_sprites
+       bl   @display_height
+       bl   @play_sound
+       bl   @scroll
+       c    @scroll_pos,@scroll_max
+       jl   intro_loop
+       bl   @display_title
+       .endproc
+*// display_intro
+
+*********************************************************************
+*
+* Display high score
+*
+display_high_scores:
+       .proc
+*      High scores text
+       li   r0,14*32+10
+       li   r1,txt_high_scores
+       bl   @display_text_at
+*      6 high scores
+       li   r0,char_zero
+       mov  r0,@current_char_zero
+       li   r4,1
+       li   r5,high_score_positions
+       li   r6,high_scores
+display_high_scores_1:
+       mov  *r5+,r0
+       mov  r4,r1
+       ai   r1,char_zero_high
+       swpb r1
+       bl   @vsbw
+       li   r1,char_space*256
+       movb r1,*r15
+       mov  *r6+,r1
+       li   r2,5
+       bl   @display_decimal
+       ai   r1,char_zero
+       movb r1,*r15
+       swpb r1
+       inc  r4
+       ci   r4,6
+       jle  display_high_scores_1
+*      Best high score at top of screen
+       li   r0,char_zero_high
+       mov  r0,@current_char_zero
+       li   r0,4
+       mov  @high_scores,r1
+       li   r2,5
+       bl   @display_decimal_at
+       .endproc
+high_score_positions:
+       data 16*32+5
+       data 18*32+5
+       data 20*32+5
+       data 16*32+19
+       data 18*32+19
+       data 20*32+19
+*// display_high_scores
+
+*********************************************************************
+*
+* Display title
+*
+display_title:
        .proc
        li   r3,title
-draw_title_1:
+display_title_1:
        bl   @vsync
        bl   @gpu_run
        movb *r3+,r0                    ; x
-       jlt  draw_title_2
+       jlt  display_title_2
        srl  r0,8
        movb *r3+,r1
        srl  r1,8
@@ -1612,10 +1580,192 @@ draw_title_1:
        ai   r0,name_table_2
        movb *r3+,r1
        bl   @vsbw
-       jmp  draw_title_1
-draw_title_2:
+       jmp  display_title_1
+display_title_2:
        .endproc
-*// draw_title
+*// display_title
+
+*********************************************************************
+*
+* Check key
+*
+* r0: Column in MSB: >0000 - >0700, Row in LSB: >0006 - >0014
+*
+*       Column   0      1    2    3    4    5     6       7
+*     Row
+*     >0006      =      .    ,    M    N    /    Fire    Fire
+*     >0008    Space    L    K    J    H    ;    Left    Left
+*     >000A    Enter    O    I    U    Y    P    Right   Right
+*     >000C             9    8    7    6    0    Down    Down
+*     >000E    Fctn     2    3    4    5    1    Up      Up
+*     >0010    Shift    S    D    F    G    A
+*     >0012    Ctrl     W    E    R    T    Q
+*     >0014             X    C    V    B    Z
+*
+* On return NEQ means that the key is pressed
+*
+KEY_FI EQU  >0606
+KEY_LF EQU  >0608
+KEY_RG EQU  >060A
+KEY_DN EQU  >060C
+KEY_UP EQU  >060E
+KEY_CM EQU  >0206
+KEY_FS EQU  >0106
+KEY_0  EQU  >050C
+KEY_1  EQU  >050E
+KEY_2  EQU  >010E
+KEY_3  EQU  >020E
+KEY_4  EQU  >030E
+KEY_5  EQU  >040E
+KEY_6  EQU  >040C
+KEY_7  EQU  >030C
+KEY_8  EQU  >020C
+KEY_9  EQU  >010C
+KEY_A  EQU  >0510
+KEY_B  EQU  >0414
+KEY_C  EQU  >0214
+KEY_D  EQU  >0210
+KEY_E  EQU  >0212
+KEY_F  EQU  >0310
+KEY_G  EQU  >0410
+KEY_H  EQU  >0408
+KEY_I  EQU  >020A
+KEY_J  EQU  >0308
+KEY_K  EQU  >0208
+KEY_L  EQU  >0108
+KEY_M  EQU  >0306
+KEY_N  EQU  >0406
+KEY_O  EQU  >010A
+KEY_P  EQU  >050A
+KEY_Q  EQU  >0512
+KEY_R  EQU  >0312
+KEY_S  EQU  >0110
+KEY_T  EQU  >0412
+KEY_U  EQU  >030A
+KEY_V  EQU  >0314
+KEY_W  EQU  >0112
+KEY_X  EQU  >0114
+KEY_Y  EQU  >040A
+KEY_Z  EQU  >0514
+KEY_SP EQU  >0008
+KEY_EN EQU  >000A
+KEY_FN EQU  >000E
+KEY_SH EQU  >0010
+KEY_CT EQU  >0012
+JOY_FI EQU  >0606
+JOY_LT EQU  >0608
+JOY_RT EQU  >060A
+JOY_DN EQU  >060C
+JOY_UP EQU  >060E
+*
+check_key:
+       li   r12,>0024                  ; CRU address of the column decoder
+       ldcr r0,3                       ; Select column
+       andi r0,>00ff
+       mov  r0,r12                     ; Select row
+       tb   0                          ; Test key, EQ if not pressed
+       rt
+*// check_key
+
+*********************************************************************
+*
+* Random number generator
+*
+rand:
+       li   r0,28643                   ; A prime number to multiply by
+       mpy  @rand_no,r0
+       ai   r1,31873                   ; Add a prime number
+       src  r1,7                       ; Shift to break odd/even pattern
+       mov  r1,@rand_no
+       mov  r1,r0
+       rt
+*// rand
+
+*********************************************************************
+*
+* Set screen address and display decimal number
+*
+* r0: Screen offset
+* r1: Number to display
+* r2: Number of digits
+*
+display_decimal_at:
+       .proc
+       ai   r0,name_table_2
+       bl   @vwad
+       bl   @display_decimal
+       .endproc
+*// display_decimal_at
+
+*********************************************************************
+*
+* Display decimal number
+*
+* r1: Number to display
+* r2: Number of digits
+*
+display_decimal:
+       li   r3,5
+       s    r2,r3
+       sla  r3,1
+       ai   r3,d10000
+       dec  r2
+display_decimal_1:
+       clr  r0
+       div  *r3+,r0
+       a    @current_char_zero,r0
+       swpb r0
+       movb r0,*r15
+       dec  r2
+       jne  display_decimal_1
+       a    @current_char_zero,r1
+       swpb r1
+       mov  r1,*r15
+       rt
+d10000:
+       data 10000
+d1000:
+       data 1000
+d100:
+       data 100
+d10:
+       data 10
+*// display_decimal
+
+*********************************************************************
+*
+* Display text at position
+*
+* r0: Screen offset
+* r1: Zero terminated string to display
+*
+display_text_at:
+       .proc
+       ai   r0,name_table_2
+       bl   @vwad
+       li   r0,(char_space-32)*256
+display_text_at_1:
+       movb *r1+,r2
+       jeq  display_text_at_2
+       ab   r0,r2
+       movb r2,*r15
+       jmp  display_text_at_1
+display_text_at_2:
+       .endproc
+*// display_text_at
+
+*********************************************************************
+*
+* Wait
+*
+wait:
+       .proc
+wait_1:
+       bl @vsync
+       dec  r0
+       jne wait_1
+       .endproc
+*// wait
 
 ***************************************************************
 *
@@ -1648,11 +1798,19 @@ diff_end_2:
        copy "sprite-defs.a99"
        copy "sprites.a99"
        copy "palettes.a99"
+       copy "text.a99"
 test_music:
        bcopy "../audio/level3.sbf"
 test_sfx:
        bcopy "../audio/shot1.sbf"
-
+*      Scores are automatically multiplied by 10
+high_scores:
+       data 890
+       data 740
+       data 660
+       data 510
+       data 430
+       data 370
 upper_memory_max:
        equ  $
 
