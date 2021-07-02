@@ -272,8 +272,10 @@ boss_rocket_hits:
        equ  boss_sprite+2
 current_char_zero:
        equ  boss_rocket_hits+2
-pad_max:
+frames_to_wait:
        equ  current_char_zero+2
+pad_max:
+       equ  frames_to_wait+2
 
 ***************************************************************
 *
@@ -1045,6 +1047,7 @@ scroll_1:
 one_time_init:
        .proc
        bl   @graphics_mode
+       bl   @init_tl2
        bl   @upload_gpu_program
        seto @music_on
        li   r1,test_music
@@ -1475,22 +1478,30 @@ init_sprite_defs_0_1:
 *
 display_intro:
        .proc
-       clr  @level
-       li   r0,>01a2
-       bl   @vwtr
-       bl   @init_tl2
-       bl   @vsync
-       li   r0,>01e2
-       bl   @vwtr
        bl   @display_high_scores
-       li   r0,120
+       li   r0,180
        bl   @wait
        bl   @display_tl2_mask
        bl   @init_level
        bl   @init_sub_level
        li   r0,128
-       mov  r0,@scroll_max
+       bl   @intro_loop
+       bl   @display_title
+       li   r0,180
+       bl   @wait
+       .endproc
+*// display_intro
+
+*********************************************************************
+*
+* Run intro loop
+*
+* r0: Run until the screen has scrolled to this position
+*
 intro_loop:
+       .proc
+       mov  r0,@scroll_max
+intro_loop_1:
        bl   @vsync
        bl   @set_vdp_regs
        bl   @gpu_run
@@ -1505,8 +1516,7 @@ intro_loop:
        bl   @play_sound
        bl   @scroll
        c    @scroll_pos,@scroll_max
-       jl   intro_loop
-       bl   @display_title
+       jl   intro_loop_1
        .endproc
 *// display_intro
 
@@ -1567,9 +1577,12 @@ high_score_positions:
 display_title:
        .proc
        li   r3,title
+       mov  r3,@title_ptr
 display_title_1:
        bl   @vsync
        bl   @gpu_run
+       bl   @play_sound
+       mov  @title_ptr,r3
        movb *r3+,r0                    ; x
        jlt  display_title_2
        srl  r0,8
@@ -1580,9 +1593,12 @@ display_title_1:
        ai   r0,name_table_2
        movb *r3+,r1
        bl   @vsbw
+       mov  r3,@title_ptr
        jmp  display_title_1
 display_title_2:
        .endproc
+title_ptr:
+       data 0
 *// display_title
 
 *********************************************************************
@@ -1758,12 +1774,21 @@ display_text_at_2:
 *
 * Wait
 *
+* r0: Frames to wait
+*
 wait:
        .proc
+       mov  r0,@frames_to_wait
 wait_1:
        bl @vsync
-       dec  r0
+       bl   @gpu_run
+       bl   @play_sound
+       li   r0,KEY_FI
+       bl   @check_key
+       jne  wait_2
+       dec  @frames_to_wait
        jne wait_1
+wait_2:
        .endproc
 *// wait
 
