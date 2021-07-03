@@ -1481,6 +1481,8 @@ display_intro:
        bl   @display_high_scores
        li   r0,180
        bl   @wait
+       mov  r0,r0
+       jne  display_intro_1
        bl   @display_tl2_mask
        bl   @init_level
        bl   @init_sub_level
@@ -1489,6 +1491,12 @@ display_intro:
        bl   @display_title
        li   r0,180
        bl   @wait
+       mov  r0,r0
+       jne  display_intro_1
+       bl   @display_tl2_mask
+       li   r0,512
+       bl   @intro_loop
+display_intro_1:
        .endproc
 *// display_intro
 
@@ -1787,8 +1795,12 @@ wait_1:
        bl   @check_key
        jne  wait_2
        dec  @frames_to_wait
-       jne wait_1
+       jne  wait_1
+       clr  r0
+       jmp  wait_3
 wait_2:
+       seto r0
+wait_3:
        .endproc
 *// wait
 
