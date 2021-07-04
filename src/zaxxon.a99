@@ -322,7 +322,7 @@ game_loop:
        bl   @play_sound
        dec  @fuel
        mov  @player_status,r0
-       jne  start_level
+       jne  start_sub_level
        bl   @scroll
        c    @scroll_pos,@scroll_max
        jl   game_loop
@@ -1489,6 +1489,10 @@ display_intro_1:
        bl   @reset_sprites
        bl   @clear_tl2
        bl   @init_tl2_patterns
+*      Press fire to start
+       li   r0,8*32+6
+       li   r1,txt_press_fire_to_start
+       bl   @display_text_at
 *      High score
        bl   @display_high_scores
        li   r0,180
@@ -1536,6 +1540,8 @@ intro_loop_1:
        bl   @draw_column
        bl   @wait_gpu
        bl   @bullet_collisions
+       bl   @intro_move_player
+       bl   @fire
        bl   @move_sprites
        bl   @create_sprites
        bl   @upload_sprites
@@ -1555,6 +1561,26 @@ intro_loop_2:
 intro_loop_3:
        .endproc
 *// intro_loop
+
+*********************************************************************
+*
+* Move player
+*
+intro_fire_speed:
+       equ  30
+*
+intro_move_player:
+*      Fire
+       dec  @intro_fire_countdown
+       jne  intro_move_player_1
+       seto @player_fire               ; Fire
+       li   r0,intro_fire_speed
+       mov  r0,@intro_fire_countdown
+intro_move_player_1:
+       rt
+intro_fire_countdown:
+       data intro_fire_speed
+*// intro_move_player
 
 *********************************************************************
 *
