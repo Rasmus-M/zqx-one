@@ -164,7 +164,7 @@ char_zero:
 char_zero_high:
        equ  240
 char_space_high:
-       equ  250
+       equ  255
 fuel_max:
        equ  13*64-1
 sub_level_0_sprites:
@@ -309,7 +309,7 @@ game_loop:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-;       bl   @player_collisions
+       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
@@ -1047,7 +1047,8 @@ scroll_1:
 one_time_init:
        .proc
        bl   @graphics_mode
-       bl   @init_tl2
+       bl   @init_tl2_patterns
+       bl   @display_tl2_mask
        bl   @upload_gpu_program
        seto @music_on
        li   r1,test_music
@@ -1066,12 +1067,6 @@ init_game:
        clr  @score
        clr  @old_score
        clr  @boss_active
-       li   r0,>01a2
-       bl   @vwtr
-       bl   @init_tl2
-       bl   @vsync
-       li   r0,>01e2
-       bl   @vwtr
        .endproc
 *// init_game
 
@@ -1089,13 +1084,7 @@ init_level:
        mov  r0,@fuel
        seto @old_fuel
 *      Reset sprites
-       li   r0,sprites
-       mov  r0,@sprites_end_ptr
-*      Reset sprite buffer in VDP RAM
-       li   r0,vdp_sprite_bufffer
-       bl   @vwad
-       clr  *r15
-       clr  *r15
+       bl   @reset_sprites
 *      Create player plane
        li   r6,plane_def
        bl   @create_sprite
@@ -1229,6 +1218,24 @@ clear_vdp_ram
 
 *********************************************************************
 *
+* Reset sprites
+*
+reset_sprites:
+       .proc
+       li   r0,sprites
+       mov  r0,@sprites_end_ptr
+*      Reset sprite buffer in VDP RAM
+       li   r0,vdp_sprite_bufffer
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+*      Run GPU
+       bl   @gpu_run
+       .endproc
+*// reset_sprites
+
+*********************************************************************
+*
 * Upload sprite patterns
 *
 upload_sprite_patterns:
@@ -1252,9 +1259,9 @@ upload_sprite_patterns:
 
 *********************************************************************
 *
-* Init tile layer 2
+* Init tile layer 2 patterns
 *
-init_tl2:
+init_tl2_patterns:
        .proc
        li   r0,pattern_table_p_0+(tl2_first_char*8)
        li   r1,P0_140
@@ -1272,9 +1279,8 @@ init_tl2:
        li   r1,TAT140
        li   r2,tl2_chars
        bl   @vmbw
-       bl   @display_tl2_mask
        .endproc
-*// init_tl2
+*// init_tl2_patterns
 
 *********************************************************************
 *
@@ -1309,8 +1315,8 @@ display_tl2_game_labels_2
 display_tl2_game_labels_3:
        .endproc
 tl2_labels:
-       data 9*32
-       byte 228,0
+       data 9*32                       ; Offset
+       byte 228,0                      ; Zero-terminated characters to display
        data 19*32
        byte 231,0
        data 29*32+15
@@ -1478,25 +1484,38 @@ init_sprite_defs_0_1:
 *
 display_intro:
        .proc
+display_intro_1:
+       bl   @clear_name_table_and_patterns
+       bl   @reset_sprites
+       bl   @clear_tl2
+       bl   @init_tl2_patterns
+*      High score
        bl   @display_high_scores
        li   r0,180
        bl   @wait
        mov  r0,r0
-       jne  display_intro_1
-       bl   @display_tl2_mask
+       jne  display_intro_2
+*      Initial demo flight
+       bl   @clear_tl2
        bl   @init_level
        bl   @init_sub_level
        li   r0,128
        bl   @intro_loop
+*      Title
        bl   @display_title
        li   r0,180
        bl   @wait
        mov  r0,r0
-       jne  display_intro_1
-       bl   @display_tl2_mask
+       jne  display_intro_2
+*      Continue demo flight
+       bl   @clear_title
        li   r0,512
        bl   @intro_loop
-display_intro_1:
+       mov  r0,r0
+       jne  display_intro_2
+       jmp  display_intro_1
+display_intro_2:
+       bl   @clear_title
        .endproc
 *// display_intro
 
@@ -1521,12 +1540,21 @@ intro_loop_1:
        bl   @create_sprites
        bl   @upload_sprites
        bl   @display_height
+       bl   @display_fuel
        bl   @play_sound
        bl   @scroll
+       li   r0,KEY_FI
+       bl   @check_key
+       jne  intro_loop_2
        c    @scroll_pos,@scroll_max
        jl   intro_loop_1
+       clr  r0
+       jmp  intro_loop_3
+intro_loop_2:
+       seto r0
+intro_loop_3:
        .endproc
-*// display_intro
+*// intro_loop
 
 *********************************************************************
 *
@@ -1546,6 +1574,7 @@ display_high_scores:
        li   r6,high_scores
 display_high_scores_1:
        mov  *r5+,r0
+       ai   r0,name_table_2
        mov  r4,r1
        ai   r1,char_zero_high
        swpb r1
@@ -1562,12 +1591,7 @@ display_high_scores_1:
        ci   r4,6
        jle  display_high_scores_1
 *      Best high score at top of screen
-       li   r0,char_zero_high
-       mov  r0,@current_char_zero
-       li   r0,4
-       mov  @high_scores,r1
-       li   r2,5
-       bl   @display_decimal_at
+       bl   @display_best_high_score
        .endproc
 high_score_positions:
        data 16*32+5
@@ -1577,6 +1601,21 @@ high_score_positions:
        data 18*32+19
        data 20*32+19
 *// display_high_scores
+
+*********************************************************************
+*
+* Display best high score at top of screen
+*
+display_best_high_score:
+       .proc
+       li   r0,char_zero_high
+       mov  r0,@current_char_zero
+       li   r0,4
+       mov  @high_scores,r1
+       li   r2,5
+       bl   @display_decimal_at
+       .endproc
+*// display_best_high_score
 
 *********************************************************************
 *
@@ -1608,6 +1647,41 @@ display_title_2:
 title_ptr:
        data 0
 *// display_title
+
+*********************************************************************
+*
+* Clear title area
+*
+clear_title:
+       .proc
+       li   r0,14*32+2+name_table_2
+       li   r1,char_space_high*256
+       li   r3,6
+clear_title_1:
+       bl   @vwad
+       li   r2,28
+clear_title_2:
+       movb  r1,*r15
+       dec  r2
+       jne  clear_title_2
+       ai   r0,32
+       dec  r3
+       jne  clear_title_1
+       .endproc
+*// clear_title
+
+*********************************************************************
+*
+* Clear tl2 except scores at top
+*
+clear_tl2:
+       .proc
+       li   r0,8*32+name_table_2
+       li   r1,8*32+MD0
+       li   r2,24*32
+       bl   @vmbw
+       .endproc
+*// clear_tl2
 
 *********************************************************************
 *
@@ -1788,7 +1862,7 @@ wait:
        .proc
        mov  r0,@frames_to_wait
 wait_1:
-       bl @vsync
+       bl   @vsync
        bl   @gpu_run
        bl   @play_sound
        li   r0,KEY_FI
