@@ -258,8 +258,10 @@ fuel:
        equ  old_height+2
 old_fuel:
        equ  fuel+2
-music:
+lives:
        equ  old_fuel+2
+music:
+       equ  lives+2
 tune_no:
        equ  music+2
 music_on:
@@ -302,7 +304,28 @@ start_level:
        bl   @init_level
 start_sub_level:
        bl   @init_sub_level
+run_game_loop:
+       bl   @game_loop
+       mov  @player_status,r0
+       jne  run_game_loop_1
+       inc  @sub_level
+       mov  @sub_level,r0
+       ci   r0,n_sub_levels
+       jne  start_sub_level
+       jmp  start_level
+run_game_loop_1:
+       dec  @lives
+       jne  start_sub_level
+       jmp  intro
+*// main
+
+*********************************************************************
+*
+* Game loop
+*
 game_loop:
+       .proc
+game_loop_1:
        bl   @vsync
        bl   @set_vdp_regs
        bl   @gpu_run
@@ -322,14 +345,15 @@ game_loop:
        bl   @play_sound
        dec  @fuel
        mov  @player_status,r0
-       jne  start_sub_level
+       jne  game_loop_2
        bl   @scroll
        c    @scroll_pos,@scroll_max
-       jl   game_loop
+       jl   game_loop_1
        mov  @boss_active,r0
-       jne  game_loop
-       inc  @sub_level
-       jmp  start_sub_level
+       jne  game_loop_1
+game_loop_2:
+       .endproc
+*// game_loop
 
 *********************************************************************
 *
@@ -696,6 +720,8 @@ fire:
        bl   @align_sprites
        li   r0,12
        a    r0,@sprite_x(r5)
+       li   r0,3
+       a    r0,@sprite_y(r5)
        neg  @player_fire
        li   r1,test_sfx
        bl   @init_sfx
@@ -1067,6 +1093,8 @@ init_game:
        clr  @score
        clr  @old_score
        clr  @boss_active
+       li   r0,3
+       mov  r0,@lives
        .endproc
 *// init_game
 
@@ -1505,6 +1533,8 @@ display_intro_1:
        bl   @init_sub_level
        li   r0,128
        bl   @intro_loop
+       mov  r0,r0
+       jne  display_intro_2
 *      Title
        bl   @display_title
        li   r0,180
@@ -1516,8 +1546,7 @@ display_intro_1:
        li   r0,512
        bl   @intro_loop
        mov  r0,r0
-       jne  display_intro_2
-       jmp  display_intro_1
+       jeq  display_intro_1
 display_intro_2:
        bl   @clear_title
        .endproc
@@ -1539,6 +1568,7 @@ intro_loop_1:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
+       bl   @player_collisions
        bl   @bullet_collisions
        bl   @intro_move_player
        bl   @fire
@@ -1549,6 +1579,8 @@ intro_loop_1:
        bl   @display_fuel
        bl   @play_sound
        bl   @scroll
+       mov  @player_status,r0
+       jne  intro_loop_2
        li   r0,KEY_FI
        bl   @check_key
        jne  intro_loop_2
