@@ -1051,6 +1051,7 @@ display_score:
        li   r0,68
        li   r2,5
        bl   @display_decimal_at
+       mov  @score,@old_score
        c    @score,@high_score
        jl   display_score_1
        mov  @score,@high_score
@@ -1535,6 +1536,7 @@ init_sprite_defs_0_1:
 *
 display_intro:
        .proc
+       bl   @wait_fire_key_relased
 display_intro_1:
        bl   @clear_name_table_and_patterns
        bl   @reset_sprites
@@ -1980,6 +1982,26 @@ wait_2:
 wait_3:
        .endproc
 *// wait
+
+*********************************************************************
+*
+* Wait fire key released
+*
+wait_fire_key_relased:
+       .proc
+       li   r0,8
+       mov  r0,@frames_to_wait
+wait_fire_key_relased_1:
+       bl   @vsync
+       bl   @gpu_run
+       bl   @play_sound
+       li   r0,KEY_FI
+       bl   @check_key
+       jne  wait_fire_key_relased_1
+       dec  @frames_to_wait
+       jne  wait_fire_key_relased_1
+       .endproc
+*// wait_fire_key_relased
 
 ***************************************************************
 *
