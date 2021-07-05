@@ -252,8 +252,10 @@ score:
        equ  sub_level+2
 old_score:
        equ  score+2
-old_height:
+high_score:
        equ  old_score+2
+old_height:
+       equ  high_score+2
 fuel:
        equ  old_height+2
 old_fuel:
@@ -306,16 +308,24 @@ start_sub_level:
        bl   @init_sub_level
 run_game_loop:
        bl   @game_loop
+*      Check if player died or completed sub-level
        mov  @player_status,r0
        jne  run_game_loop_1
+*      Next sub level
        inc  @sub_level
        mov  @sub_level,r0
        ci   r0,n_sub_levels
        jne  start_sub_level
        jmp  start_level
+*      Died
 run_game_loop_1:
        dec  @lives
-       jne  start_sub_level
+       jeq  game_over
+       bl   @resurrect_player
+       jmp  start_sub_level
+*      Game over
+game_over:
+       bl   @update_high_scores
        jmp  intro
 *// main
 
@@ -1041,6 +1051,10 @@ display_score:
        li   r0,68
        li   r2,5
        bl   @display_decimal_at
+       c    @score,@high_score
+       jl   display_score_1
+       mov  @score,@high_score
+       bl   @display_high_score
 display_score_1:
        .endproc
 *// display_score
@@ -1091,7 +1105,8 @@ init_game:
        .proc
        clr  @level
        clr  @score
-       clr  @old_score
+       seto @old_score
+       mov  @high_scores,@high_score
        clr  @boss_active
        li   r0,3
        mov  r0,@lives
@@ -1105,12 +1120,7 @@ init_game:
 init_level:
        .proc
        clr  @sub_level
-       clr  @player_status
-       clr  @player_fire
-       seto @old_height
-       li   r0,fuel_max
-       mov  r0,@fuel
-       seto @old_fuel
+       bl   @resurrect_player
 *      Reset sprites
        bl   @reset_sprites
 *      Create player plane
@@ -1126,6 +1136,19 @@ init_level:
        bl   @display_tl2_game_labels
        .endproc
 *// init_level
+
+*********************************************************************
+*
+* Resurrect player
+*
+resurrect_player:
+       clr  @player_status
+       clr  @player_fire
+       seto @old_height
+       li   r0,fuel_max
+       mov  r0,@fuel
+       seto @old_fuel
+*// resurrect_player
 
 *********************************************************************
 *
@@ -1525,10 +1548,10 @@ display_intro_1:
        bl   @display_high_scores
        li   r0,180
        bl   @wait
-       mov  r0,r0
-       jne  display_intro_2
-*      Initial demo flight
        bl   @clear_tl2
+       mov  @frames_to_wait,r0
+       jne  display_intro_3
+*      Initial demo run
        bl   @init_level
        bl   @init_sub_level
        li   r0,128
@@ -1539,16 +1562,17 @@ display_intro_1:
        bl   @display_title
        li   r0,180
        bl   @wait
-       mov  r0,r0
-       jne  display_intro_2
-*      Continue demo flight
        bl   @clear_title
+       mov  @frames_to_wait,r0
+       jne  display_intro_3
+*      Continue demo flight
        li   r0,512
        bl   @intro_loop
        mov  r0,r0
        jeq  display_intro_1
 display_intro_2:
        bl   @clear_title
+display_intro_3:
        .endproc
 *// display_intro
 
@@ -1616,6 +1640,27 @@ intro_fire_countdown:
 
 *********************************************************************
 *
+* Update high scores
+*
+update_high_scores:
+       c    @high_score,@high_scores
+       jle  update_high_scores_2
+       li   r0,high_scores+8
+       li   r1,high_scores+10
+       li   r2,5
+update_high_scores_1:
+       mov  *r0,*r1
+       dect r0
+       dect r1
+       dec  r2
+       jne  update_high_scores_1
+       mov  @high_score,@high_scores
+update_high_scores_2:
+       rt
+*// update_high_scores
+
+*********************************************************************
+*
 * Display high score
 *
 display_high_scores:
@@ -1649,7 +1694,9 @@ display_high_scores_1:
        ci   r4,6
        jle  display_high_scores_1
 *      Best high score at top of screen
-       bl   @display_best_high_score
+       li   r0,char_zero_high
+       mov  r0,@current_char_zero
+       bl   @display_high_score
        .endproc
 high_score_positions:
        data 16*32+5
@@ -1664,16 +1711,14 @@ high_score_positions:
 *
 * Display best high score at top of screen
 *
-display_best_high_score:
+display_high_score:
        .proc
-       li   r0,char_zero_high
-       mov  r0,@current_char_zero
        li   r0,4
-       mov  @high_scores,r1
+       mov  @high_score,r1
        li   r2,5
        bl   @display_decimal_at
        .endproc
-*// display_best_high_score
+*// display_high_score
 
 *********************************************************************
 *
