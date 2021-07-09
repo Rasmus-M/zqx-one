@@ -2034,7 +2034,6 @@ wait_fire_key_relased_1:
        copy "gpu.a99"
        copy "vdp.a99"
        copy "sprite-handlers.a99"
-       copy "ti-player-sfx.a99"
 
 lower_memory_max:
        equ  $
@@ -2045,6 +2044,7 @@ lower_memory_max:
 *
        aorg >a000
 
+       copy "ti-player-sfx.a99"
        copy "sub-levels.a99"
        copy "diff0.a99"
 diff_end_0:

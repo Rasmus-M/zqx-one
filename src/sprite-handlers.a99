@@ -13,7 +13,7 @@
 plane_handler:
        mov  @player_status,r0
        jeq  plane_handler_1
-       li   r0,sprite_type_small_explosion
+       li   r0,sprite_type_player_explosion_center
        mov  r0,@sprite_type(r4)
        seto @sprite_counter(r4)
        jmp  plane_handler_2
@@ -88,9 +88,8 @@ green_bullet_handler_3:
 *
 rocket_launch_handler:
        .proc
+       inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
-       inc  r0
-       mov  r0,@sprite_counter(r4)
        ci   r0,64
        jne  rocket_launch_handler_1
 *      Create rocket
@@ -131,9 +130,8 @@ rocket_launch_handler_5:
 *
 green_rocket_handler:
        inc  @sprite_z(r4)
+       inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
-       inc  r0
-       mov  r0,@sprite_counter(r4)
        ci   r0,80
        jne  green_rocket_handler_1
        seto @sprite_counter(r4)
@@ -156,9 +154,8 @@ green_rocket_handler_3:
 * Small explosion handler
 *
 small_explosion_handler:
+       inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
-       inc  r0
-       mov  r0,@sprite_counter(r4)
        ci   r0,16
        jlt  small_explosion_1
        clr  @sprite_type(r4)
@@ -196,9 +193,8 @@ shield_handler_3:
 *
 explosion_handler:
        .proc
+       inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
-       inc  r0
-       mov  r0,@sprite_counter(r4)
        ci   r0,32
        jl   explosion_handler_1
        seto @sprite_counter(r4)
@@ -231,9 +227,8 @@ explosion_handler_3:
 * Debris handler
 *
 debris_handler:
+       inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
-       inc  r0
-       mov  r0,@sprite_counter(r4)
        ci   r0,64
        jlt  debris_handler_1
        clr  @sprite_type(r4)
@@ -507,12 +502,82 @@ red_rocket_handler_5:
 
 *********************************************************************
 *
+* Player explosion center handler
+*
+player_explosion_center_handler:
+       .proc
+       mov  @sprite_counter(r4),r0
+       jlt  player_explosion_center_handler_1
+       inc  r0
+       mov  r0,@sprite_counter(r4)
+       ci   r0,32
+       jne  player_explosion_center_handler_2
+       clr  @sprite_type(r4)
+       jmp  player_explosion_center_handler_2
+*      Init
+player_explosion_center_handler_1:
+       clr  @sprite_counter(r4)
+       clr  r1
+       li   r2,8
+player_explosion_center_handler_3:
+       .push r4
+       bl   @allocate_sprite
+       mov  r4,r5
+       .pop r4
+       mov  r5,r5
+       jeq  player_explosion_center_handler_2
+       li   r0,sprite_type_player_explosion
+       mov  r0,@sprite_type(r5)
+       mov  r1,@sprite_counter(r5)
+       bl   @align_sprites
+       inc  r1
+       dec  r2
+       jne  player_explosion_center_handler_3
+player_explosion_center_handler_2:
+       .endproc
+*// player_explosion_center_handler
+
+*********************************************************************
+*
+* Player explosion handler
+*
+player_explosion_handler:
+       ab   @byte_01,@sprite_counter(r4)
+       mov  @sprite_counter(r4),r1
+       cb   @byte_20,r1
+       jeq  player_explosion_handler_1
+       andi r1,>00ff
+       sla  r1,2
+       ai   r1,player_explosion_velocity_table
+       a    *r1+,@sprite_y(r4)
+       a    *r1,@sprite_z(r4)
+       jmp  player_explosion_handler_2
+player_explosion_handler_1:
+       clr  @sprite_type(r4)
+player_explosion_handler_2:
+       rt
+byte_01:
+       byte >01
+byte_20:
+       byte >20
+player_explosion_velocity_table:
+       data 1,0
+       data 1,1
+       data 0,1
+       data -1,1
+       data -1,0
+       data -1,-1
+       data 0,-1
+       data 1,-1
+*// player_explosion_handler
+
+*********************************************************************
+*
 * Hit handler
 *
 hit_handler:
+       inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
-       inc  r0
-       mov  r0,@sprite_counter(r4)
        ci   r0,16
        jne  hit_handler_1
        clr  @sprite_type(r4)

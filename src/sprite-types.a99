@@ -356,3 +356,13 @@ sprite_type_red_bullet_2:
        data red_bullet_2_handler
        data no_handler                 ; Hit handler
        data 1                          ; Lethal
+sprite_type_player_explosion_center:
+       data sprite_type_index_small_explosion
+       data player_explosion_center_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
+sprite_type_player_explosion:
+       data sprite_type_index_small_explosion
+       data player_explosion_handler
+       data no_handler                 ; Hit handler
+       data 0                          ; Lethal
