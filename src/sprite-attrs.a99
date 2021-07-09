@@ -368,7 +368,7 @@ sprite_attrs_boss_shadow:
        data 23
        data 5
        byte 0,0,>e0,>06
-       byte 0,16,>e4,>06
+       byte 0,16,>98,>06
        byte 16,0,>f0,>06
        byte 16,16,>f4,>06
        byte 16,32,>fc,>06

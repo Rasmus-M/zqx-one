@@ -11,10 +11,17 @@
 * Plane handler
 *
 plane_handler:
-       c    @scroll_pos,@scroll_max
+       mov  @player_status,r0
        jeq  plane_handler_1
-       inc  @sprite_x(r4)
+       li   r0,sprite_type_small_explosion
+       mov  r0,@sprite_type(r4)
+       seto @sprite_counter(r4)
+       jmp  plane_handler_2
 plane_handler_1:
+       c    @scroll_pos,@scroll_max
+       jeq  plane_handler_2
+       inc  @sprite_x(r4)
+plane_handler_2:
        rt
 *// plane_handler
 
@@ -23,6 +30,8 @@ plane_handler_1:
 * Shadow handler
 *
 shadow_handler:
+       mov  @player_status,r0
+       jne  shadow_handler_2
        mov  @player_sprite,r5
        mov  @sprite_x(r5),r0
        mov  r0,@sprite_x(r4)

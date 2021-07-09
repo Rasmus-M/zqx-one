@@ -1,0 +1,6 @@
+* Player explosion
+* Explosion sound
+* Satellite in open space
+* Movement of blue planes
+* Music?
+* Screen after defeating boss

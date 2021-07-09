@@ -319,6 +319,9 @@ run_game_loop:
        jmp  start_level
 *      Died
 run_game_loop_1:
+       li   r0,120
+       mov  r0,@frames_to_wait
+       bl   @dead_loop
        dec  @lives
        jeq  game_over
        bl   @resurrect_player
@@ -342,7 +345,7 @@ game_loop_1:
        bl   @upload_characters
        bl   @draw_column
        bl   @wait_gpu
-;       bl   @player_collisions
+       bl   @player_collisions
        bl   @bullet_collisions
        bl   @move_player
        bl   @fire
@@ -364,6 +367,24 @@ game_loop_1:
 game_loop_2:
        .endproc
 *// game_loop
+
+*********************************************************************
+*
+* Game loop after dying
+*
+dead_loop:
+       .proc
+dead_loop_1:
+       bl   @vsync
+       bl   @gpu_run
+       bl   @wait_gpu
+       bl   @move_sprites
+       bl   @upload_sprites
+       bl   @play_sound
+       dec  @frames_to_wait
+       jne  dead_loop_1
+       .endproc
+*// dead_loop
 
 *********************************************************************
 *
@@ -1107,7 +1128,6 @@ init_game:
        clr  @level
        clr  @score
        seto @old_score
-       mov  @high_scores,@high_score
        clr  @boss_active
        li   r0,3
        mov  r0,@lives
@@ -1548,7 +1568,7 @@ display_intro_1:
        bl   @display_text_at
 *      High score
        bl   @display_high_scores
-       li   r0,180
+       li   r0,240
        bl   @wait
        bl   @clear_tl2
        mov  @frames_to_wait,r0
@@ -1698,6 +1718,7 @@ display_high_scores_1:
 *      Best high score at top of screen
        li   r0,char_zero_high
        mov  r0,@current_char_zero
+       mov  @high_scores,@high_score
        bl   @display_high_score
        .endproc
 high_score_positions:
@@ -1731,6 +1752,9 @@ display_title:
        li   r3,title
        mov  r3,@title_ptr
 display_title_1:
+       bl   @vsync
+       bl   @gpu_run
+       bl   @play_sound
        bl   @vsync
        bl   @gpu_run
        bl   @play_sound
