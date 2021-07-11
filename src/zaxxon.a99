@@ -325,6 +325,7 @@ run_game_loop_1:
        dec  @lives
        jeq  game_over
        bl   @resurrect_player
+       bl   @reposition_player
        jmp  start_sub_level
 *      Game over
 game_over:
@@ -1173,6 +1174,19 @@ resurrect_player:
 
 *********************************************************************
 *
+* Reposition player
+*
+reposition_player:
+       mov  @player_sprite,r1
+       li   r0,plane_def+sprite_def_x
+       mov  *r0+,@sprite_x(r1)
+       mov  *r0+,@sprite_y(r1)
+       mov  *r0+,@sprite_z(r1)
+       rt
+*// reposition_player
+
+*********************************************************************
+*
 * Initialize sub-level
 *
 init_sub_level:
@@ -1188,10 +1202,11 @@ init_sub_level:
 *      Clear name table and patterns
 init_sub_level_1:
        bl   @clear_name_table_and_patterns
-*      Reset player position
+*      Reset player x position
        mov  @player_sprite,r1
        li   r0,player_start_x
        mov  r0,@sprite_x(r1)
+*      Drop all but 2 first sprites
        li   r0,sprites+(2*sprite_size)
        mov  r0,@sprites_end_ptr
        bl   @upload_sprites
