@@ -101,7 +101,7 @@ gpu_program_start:
 sort_sprites:
        li   r0,>0500                   ; Blue border
        movb r0,@>6007
-       li   r3,vdp_sprite_bufffer
+       li   r3,vdp_sprite_buffer
 sort_sprites_1:
        mov  *r3+,r0                    ; Get sprite address
        jeq  sort_sprites_4             ; 0 = End
@@ -145,7 +145,7 @@ generate_sals:
        li   r4,sprite_attr_table_2                  ; Bottom dest
        clr  r5                         ; Number of top sprites
        clr  r6                         ; Number of bottom sprites
-       li   r9,vdp_sprite_bufffer
+       li   r9,vdp_sprite_buffer
 generate_sals_1:
        mov  *r9+,r0                    ; Get sprite address
        jeq  generate_sals_6            ; 0 = End
@@ -242,7 +242,7 @@ generate_sals_6:
 *
 sprite_collisions:
        li   r6,vdp_collisions
-       li   r4,vdp_sprite_bufffer
+       li   r4,vdp_sprite_buffer
 sprite_collisions_1:
        mov  *r4,r0                     ; Get sprite address
        jeq  sprite_collisions_5        ; 0 = End

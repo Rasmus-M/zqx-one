@@ -45,7 +45,7 @@ sprite_attr_table:                     ; Sprite attribute table
        equ  >0500
 sprite_attr_table_2:                   ; Sprite attribute table 2
        equ  >0580
-vdp_sprite_bufffer:                    ; Sprite buffer (162 bytes for 16 sprites)
+vdp_sprite_buffer:                    ; Sprite buffer (182 bytes for 18 sprites)
        equ  >0600
 name_table_p_1:                        ; Name table page 1
        equ  >0800
@@ -434,7 +434,7 @@ set_vdp_regs:
 *
 upload_sprites:
        .proc
-       li   r0,vdp_sprite_bufffer
+       li   r0,vdp_sprite_buffer
        bl   @vwad
        li   r2,r1lb
        li   r4,sprites
@@ -1297,7 +1297,7 @@ reset_sprites:
        li   r0,sprites
        mov  r0,@sprites_end_ptr
 *      Reset sprite buffer in VDP RAM
-       li   r0,vdp_sprite_bufffer
+       li   r0,vdp_sprite_buffer
        bl   @vwad
        clr  *r15
        clr  *r15

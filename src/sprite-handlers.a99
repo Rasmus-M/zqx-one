@@ -510,7 +510,7 @@ player_explosion_center_handler:
        jlt  player_explosion_center_handler_1
        inc  r0
        mov  r0,@sprite_counter(r4)
-       ci   r0,32
+       ci   r0,24
        jne  player_explosion_center_handler_2
        clr  @sprite_type(r4)
        jmp  player_explosion_center_handler_2
@@ -518,7 +518,7 @@ player_explosion_center_handler:
 player_explosion_center_handler_1:
        clr  @sprite_counter(r4)
        clr  r1
-       li   r2,8
+       li   r2,6
 player_explosion_center_handler_3:
        .push r4
        bl   @allocate_sprite
@@ -543,14 +543,19 @@ player_explosion_center_handler_2:
 *
 player_explosion_handler:
        ab   @byte_01,@sprite_counter(r4)
-       mov  @sprite_counter(r4),r1
-       cb   @byte_20,r1
-       jeq  player_explosion_handler_1
-       andi r1,>00ff
-       sla  r1,2
+       mov  @sprite_counter(r4),r0
+       cb   r0,@byte_20
+       jhe  player_explosion_handler_1
+       mov  r0,r1
+       srl  r0,2
+       andi r0,>0100
+       jeq  player_explosion_handler_2
+       andi r1,>000f
+       sla  r1,3
        ai   r1,player_explosion_velocity_table
+       a    *r1+,@sprite_x(r4)
        a    *r1+,@sprite_y(r4)
-       a    *r1,@sprite_z(r4)
+       a    *r1+,@sprite_z(r4)
        jmp  player_explosion_handler_2
 player_explosion_handler_1:
        clr  @sprite_type(r4)
@@ -561,14 +566,12 @@ byte_01:
 byte_20:
        byte >20
 player_explosion_velocity_table:
-       data 1,0
-       data 1,1
-       data 0,1
-       data -1,1
-       data -1,0
-       data -1,-1
-       data 0,-1
-       data 1,-1
+       data 1,0,0,0
+       data -1,0,0,0
+       data 0,1,0,0
+       data 0,-1,0,0
+       data 0,0,1,0
+       data 0,0,-1,0
 *// player_explosion_handler
 
 *********************************************************************
