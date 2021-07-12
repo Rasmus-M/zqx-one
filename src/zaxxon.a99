@@ -165,6 +165,10 @@ char_zero_high:
        equ  240
 char_space_high:
        equ  255
+char_mask:
+       equ  250
+char_life:
+       equ  235
 fuel_max:
        equ  13*64-1
 sub_level_0_sprites:
@@ -242,10 +246,10 @@ player_shadow:
        equ  player_sprite+2
 player_fire:
        equ  player_shadow+2
-player_status:
+player_died:
        equ  player_fire+2
 level:
-       equ  player_status+2
+       equ  player_died+2
 sub_level:
        equ  level+2
 score:
@@ -278,8 +282,10 @@ current_char_zero:
        equ  boss_rocket_hits+2
 frames_to_wait:
        equ  current_char_zero+2
-pad_max:
+extra_life_given:
        equ  frames_to_wait+2
+pad_max:
+       equ  extra_life_given+2
 
 ***************************************************************
 *
@@ -309,7 +315,7 @@ start_sub_level:
 run_game_loop:
        bl   @game_loop
 *      Check if player died or completed sub-level
-       mov  @player_status,r0
+       mov  @player_died,r0
        jne  run_game_loop_1
 *      Next sub level
        inc  @sub_level
@@ -357,8 +363,9 @@ game_loop_1:
        bl   @display_score
        bl   @display_fuel
        bl   @play_sound
-       dec  @fuel
-       mov  @player_status,r0
+       bl   @use_fuel
+       bl   @display_fuel
+       abs  @player_died
        jne  game_loop_2
        bl   @scroll
        c    @scroll_pos,@scroll_max
@@ -831,7 +838,7 @@ player_collisions_1:
        jeq  player_collisions_1
 *      Collision
 player_collisions_2:
-       seto @player_status
+       seto @player_died
 player_collisions_3:
        .endproc
 *// player_collisions
@@ -1029,6 +1036,20 @@ display_height_6:
 
 *********************************************************************
 *
+* Use fuel
+*
+use_fuel:
+       .proc
+       dec  @fuel
+       mov  @fuel,r1
+       jgt  use_fuel_1
+       seto @player_died
+use_fuel_1:
+       .endproc
+*// use_fuel
+
+*********************************************************************
+*
 * Display fuel
 *
 display_fuel:
@@ -1132,6 +1153,7 @@ init_game:
        clr  @boss_active
        li   r0,3
        mov  r0,@lives
+       clr  @extra_life_given
        .endproc
 *// init_game
 
@@ -1164,7 +1186,7 @@ init_level:
 * Resurrect player
 *
 resurrect_player:
-       clr  @player_status
+       clr  @player_died
        clr  @player_fire
        seto @old_height
        li   r0,fuel_max
@@ -1244,6 +1266,8 @@ init_sub_level_1:
        li   r0,vdp_sub_level
        mov  @sub_level,r1
        bl   @vsww
+*      Display lives
+       bl   @display_lives
        .endproc
 *// init_sub_level
 
@@ -1640,7 +1664,7 @@ intro_loop_1:
        bl   @display_fuel
        bl   @play_sound
        bl   @scroll
-       mov  @player_status,r0
+       mov  @player_died,r0
        jne  intro_loop_2
        li   r0,KEY_FI
        bl   @check_key
@@ -1760,6 +1784,33 @@ display_high_score:
 
 *********************************************************************
 *
+* Display lives
+*
+max_displayed_lives:
+       equ  8
+*
+display_lives:
+       .proc
+       li   r0,(30-max_displayed_lives)*32+name_table_2
+       li   r1,max_displayed_lives
+display_lives_1:
+       bl   @vwad
+       c    @lives,r1
+       jhe  display_lives_2
+       li   r2,char_mask*256
+       jmp  display_lives_3
+display_lives_2:
+       li   r2,char_life*256
+display_lives_3:
+       movb r2,*r15
+       ai   r0,32
+       dec  r1
+       jne  display_lives_1
+       .endproc
+*// display_lives
+
+*********************************************************************
+*
 * Display title
 *
 display_title:
@@ -1813,6 +1864,30 @@ clear_title_2:
        jne  clear_title_1
        .endproc
 *// clear_title
+
+*********************************************************************
+*
+* Add score
+*
+* r0: score to add
+* Modifies r0-r1
+*
+add_score:
+       .proc
+       a    r0,@score
+       mov  @score,r0
+       abs  @extra_life_given
+       jne  add_score_1
+       ci   r0,1000                    ; Displayed as 10000
+       jl   add_score_1
+       inc  @lives
+       .push r2
+       bl   @display_lives
+       .pop r2
+       seto @extra_life_given
+add_score_1:
+       .endproc
+*// add_score
 
 *********************************************************************
 *

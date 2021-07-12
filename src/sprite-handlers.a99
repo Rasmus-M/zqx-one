@@ -11,7 +11,7 @@
 * Plane handler
 *
 plane_handler:
-       mov  @player_status,r0
+       mov  @player_died,r0
        jeq  plane_handler_1
        li   r0,sprite_type_player_explosion_center
        mov  r0,@sprite_type(r4)
@@ -30,7 +30,7 @@ plane_handler_2:
 * Shadow handler
 *
 shadow_handler:
-       mov  @player_status,r0
+       mov  @player_died,r0
        jne  shadow_handler_2
        mov  @player_sprite,r5
        mov  @sprite_x(r5),r0
@@ -202,12 +202,12 @@ explosion_handler:
        ci   r0,>e000
        jh   explosion_handler_0
        li   r0,10
-       a    r0,@score
+       bl   @add_score
        li   r0,sprite_type_debris
        jmp  explosion_handler_3
 explosion_handler_0:
        li   r0,50
-       a    r0,@score
+       bl   @add_score
        li   r0,sprite_type_debris_500
        jmp  explosion_handler_3
 explosion_handler_1:
