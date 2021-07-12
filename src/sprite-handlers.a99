@@ -36,8 +36,7 @@ shadow_handler:
        mov  @sprite_x(r5),r0
        mov  r0,@sprite_x(r4)
        mov  @sprite_y(r5),@sprite_y(r4)
-       mov  @sub_level,r1
-       ci   r1,1
+       c    @sub_level_data,@sub_level_0_data
        jeq  shadow_handler_2
        sla  r1,1
        ai   r1,cpu_walls

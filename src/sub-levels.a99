@@ -35,3 +35,9 @@ sub_level_2:
        data map_2_width*8
        data 0
        data char_palettes_2
+sub_level_0_data:
+       data sub_level_0
+sub_level_1_data:
+       data sub_level_1
+sub_level_2_data:
+       data sub_level_2

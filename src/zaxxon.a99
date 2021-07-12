@@ -250,10 +250,12 @@ player_died:
        equ  player_fire+2
 level:
        equ  player_died+2
-sub_level:
+sub_level_index:
        equ  level+2
+sub_level_data:
+       equ  sub_level_index+2
 score:
-       equ  sub_level+2
+       equ  sub_level_data+2
 old_score:
        equ  score+2
 high_score:
@@ -315,11 +317,11 @@ start_sub_level:
 run_game_loop:
        bl   @game_loop
 *      Check if player died or completed sub-level
-       mov  @player_died,r0
+       abs  @player_died
        jne  run_game_loop_1
 *      Next sub level
-       inc  @sub_level
-       mov  @sub_level,r0
+       inc  @sub_level_index
+       mov  @sub_level_index,r0
        ci   r0,n_sub_levels
        jne  start_sub_level
        jmp  start_level
@@ -1040,8 +1042,10 @@ display_height_6:
 *
 use_fuel:
        .proc
+       c    @sub_level_data,@sub_level_0_data
+       jeq  use_fuel_1
        dec  @fuel
-       mov  @fuel,r1
+       mov  @fuel,r0
        jgt  use_fuel_1
        seto @player_died
 use_fuel_1:
@@ -1163,7 +1167,7 @@ init_game:
 *
 init_level:
        .proc
-       clr  @sub_level
+       clr  @sub_level_index
        bl   @resurrect_player
 *      Reset sprites
        bl   @reset_sprites
@@ -1243,9 +1247,10 @@ init_sub_level_1:
        mov  r0,@scroll_y
 *      Init sub-level variables
        clr  @chars_to_upload
-       mov  @sub_level,r1
+       mov  @sub_level_index,r1
        sla  r1,1
        mov  @sub_levels(r1),r1
+       mov  r1,@sub_level_data
        mov  *r1+,@map_bank_select
        mov  *r1+,@char_patterns_bank_select
        mov  *r1+,@sprite_patterns_bank_select
@@ -1264,7 +1269,7 @@ init_sub_level_1:
        bl   @upload_sprite_patterns
 *      Update VDP variable
        li   r0,vdp_sub_level
-       mov  @sub_level,r1
+       mov  @sub_level_index,r1
        bl   @vsww
 *      Display lives
        bl   @display_lives
@@ -1664,7 +1669,7 @@ intro_loop_1:
        bl   @display_fuel
        bl   @play_sound
        bl   @scroll
-       mov  @player_died,r0
+       abs  @player_died
        jne  intro_loop_2
        li   r0,KEY_FI
        bl   @check_key
