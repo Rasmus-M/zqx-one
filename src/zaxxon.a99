@@ -169,8 +169,12 @@ char_mask:
        equ  250
 char_life:
        equ  235
+char_fuel:
+       equ  239
+fuel_unit:
+       equ  64
 fuel_max:
-       equ  13*64-1
+       equ  16*fuel_unit-1
 sub_level_0_sprites:
        equ  16
 
@@ -1050,12 +1054,19 @@ display_height_6:
 use_fuel:
        .proc
        c    @sub_level_data,@sub_level_0_data
-       jeq  use_fuel_1
+       jeq  use_fuel_2
        dec  @fuel
        mov  @fuel,r0
-       jgt  use_fuel_1
+       jeq  use_fuel_1
+       ci   r0,4*fuel_unit
+       jhe  use_fuel_2
+       andi r0,>3f
+       jne  use_fuel_2
+;      TODO: Play sound
+       jmp  use_fuel_2
+use_fuel_1
        seto @player_died
-use_fuel_1:
+use_fuel_2:
        .endproc
 *// use_fuel
 
@@ -1069,22 +1080,24 @@ display_fuel:
        jlt  display_fuel_4
        c    r1,@old_fuel
        jeq  display_fuel_4
-       li   r0,name_table_2+(29*32)+20
+       li   r0,name_table_2+(29*32)+16
        bl   @vwad
        mov  r1,r2
-       srl  r2,6
+       ai   r2,fuel_unit-1
+       srl  r2,6                       ; log2(fuel_unit)
        mov  r2,r3
        jeq  display_fuel_2
-       li   r0,>ef00
+       li   r0,char_fuel*256
 display_fuel_1:
        movb r0,*r15
        dec  r2
        jne  display_fuel_1
 display_fuel_2:
-       li   r2,fuel_max/64
+       li   r2,fuel_max/fuel_unit
        s    r3,r2
+       inc  r2
        jeq  display_fuel_4
-       li   r0,>fa00
+       li   r0,char_mask*256
 display_fuel_3:
        movb r0,*r15
        dec  r2
@@ -1480,8 +1493,8 @@ tl2_labels:
        byte 228,0                      ; Zero-terminated characters to display
        data 19*32
        byte 231,0
-       data 29*32+15
-       byte 236,232,237,238,250,0
+       data 29*32+14
+       byte 236,237,0
        data 0
 *// display_tl2_game_labels
 

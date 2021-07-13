@@ -605,7 +605,7 @@ silo_hit_handler:
        .proc
        bl   @explode_hit_handler
        mov  @fuel,r0
-       ai   r0,2*64
+       ai   r0,2*fuel_unit
        ci   r0,fuel_max
        jle  silo_hit_handler_1
        li   r0,fuel_max
