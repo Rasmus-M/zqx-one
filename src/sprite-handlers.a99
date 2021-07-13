@@ -151,13 +151,17 @@ green_rocket_handler_3:
 * Small explosion handler
 *
 small_explosion_handler:
+       .proc
        inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
        ci   r0,16
        jlt  small_explosion_1
+*      Done
        clr  @sprite_type(r4)
+       li   r0,10
+       bl   @add_score
 small_explosion_1:
-       rt
+       .endproc
 *// small_explosion_handler
 
 *********************************************************************
@@ -195,6 +199,7 @@ explosion_handler:
        ci   r0,32
        jl   explosion_handler_1
        seto @sprite_counter(r4)
+*      Determine and add score
        bl   @rand
        ci   r0,>e000
        jh   explosion_handler_0
@@ -207,6 +212,7 @@ explosion_handler_0:
        bl   @add_score
        li   r0,sprite_type_debris_500
        jmp  explosion_handler_3
+*      Set explosion pattern
 explosion_handler_1:
        andi r0,>0008
        jne  explosion_handler_2
@@ -576,7 +582,18 @@ player_explosion_velocity_table:
 
 *********************************************************************
 *
+* Satellite handler
+*
+satellite_handler:
+       dec  @sprite_y(r4)
+       rt
+*// satellite_handler
+
+*********************************************************************
+*
 * Hit handler
+*
+* Shows a hit on an indestructible item
 *
 hit_handler:
        inc  @sprite_counter(r4)
@@ -600,6 +617,8 @@ hit_handler_2:
 *
 * r4: bullet sprite
 * r5: sprite that's hit
+*
+* Explode and add fuel
 *
 silo_hit_handler:
        .proc
@@ -704,4 +723,3 @@ red_rocket_hit_handler_2:
 red_rocket_hit_handler_3:
        .endproc
 *// red_rocket_hit_handler
-

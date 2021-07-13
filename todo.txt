@@ -1,4 +1,3 @@
-* Satellite in open space
 * Movement of blue planes
 * More accurate boss handling
 * Enemy plane count

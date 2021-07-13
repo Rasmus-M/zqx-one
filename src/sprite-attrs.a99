@@ -59,6 +59,7 @@ sprite_attrs_table:
        data sprite_attrs_red_rocket_1-$
        data sprite_attrs_red_rocket_2-$
        data sprite_attrs_red_bullet_2-$
+       data sprite_attrs_satellite-$
 
 sprite_attrs:
        equ  $
@@ -389,5 +390,13 @@ sprite_attrs_red_bullet_2:
        data 5                          ; cy
        data 1                          ; n sprites
        byte 0,0,>fc,>24
+sprite_attrs_satellite:
+       data 8                          ; cx
+       data 20                         ; cy
+       data 4                          ; n sprites
+       byte 0,0,>a0,>0a
+       byte 0,16,>a4,>0a
+       byte 16,0,>a8,>0a
+       byte 16,16,>ac,>0a
 sprite_attrs_end:
        equ  $

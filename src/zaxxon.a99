@@ -1609,10 +1609,20 @@ init_sprite_defs_0:
        li   r4,240                     ; x
 init_sprite_defs_0_1:
        bl   @rand
+       andi r0,7
+       jeq  init_sprite_defs_0_2
+       bl   @rand
        mov  r0,r5
        andi r5,127
        ai   r5,isometric_center_y-64   ; y
        li   r6,64                      ; z
+       li   r7,sprite_type_blue_plane_up_l
+       jmp  init_sprite_defs_0_3
+init_sprite_defs_0_2:
+       li   r5,255
+       li   r6,64
+       li   r7,sprite_type_satellite
+init_sprite_defs_0_3:
        mov  r4,r0                      ; x
        a    r5,r0                      ; x + y
        ai   r0,-240                    ; scroll_x = x + y - 240
@@ -1620,8 +1630,7 @@ init_sprite_defs_0_1:
        mov  r4,*r3+                    ; Write x
        mov  r5,*r3+                    ; Write y
        mov  r6,*r3+                    ; Write z
-       li   r0,sprite_type_blue_plane_up_l
-       mov  r0,*r3+                    ; Write sprite type
+       mov  r7,*r3+                    ; Write sprite type
        ai   r4,48
        dec  r2
        jne  init_sprite_defs_0_1

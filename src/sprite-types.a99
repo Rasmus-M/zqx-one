@@ -107,6 +107,8 @@ sprite_type_index_red_rocket_2:
        equ  47
 sprite_type_index_red_bullet_2:
        equ  48
+sprite_type_index_satellite:
+       equ  49
 
 no_handler:
        equ  0
@@ -366,3 +368,8 @@ sprite_type_player_explosion:
        data player_explosion_handler
        data no_handler                 ; Hit handler
        data 0                          ; Lethal
+sprite_type_satellite:
+       data sprite_type_index_satellite
+       data satellite_handler
+       data small_explode_hit_handler  ; Hit handler
+       data 1                          ; Lethal

@@ -1,3 +1,7 @@
+**
+*
+* Sub-level data struture
+*
 sub_level_map_bank_select:
        equ  0
 sub_level_patterns_bank_select:
@@ -20,11 +24,14 @@ sub_level_walls:
        equ  18
 sub_level_palettes:
        equ  20
+sub_level_size:
+       equ  22
 
 n_sub_levels:
        equ  3
 sub_levels:
        data sub_level_1,sub_level_0,sub_level_2
+
 sub_level_0:
        data map_0_bank_select
        data patterns_0_bank_select
@@ -61,6 +68,7 @@ sub_level_2:
        data 0
        data cpu_walls_2
        data char_palettes_2
+
 sub_level_0_data:
        data sub_level_0
 sub_level_1_data:
