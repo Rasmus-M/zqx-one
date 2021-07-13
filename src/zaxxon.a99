@@ -282,8 +282,10 @@ boss_sprite:
        equ  boss_active+2
 boss_rocket_hits:
        equ  boss_sprite+2
-current_char_zero:
+boss_bonus:
        equ  boss_rocket_hits+2
+current_char_zero:
+       equ  boss_bonus+2
 frames_to_wait:
        equ  current_char_zero+2
 extra_life_given:
@@ -321,11 +323,13 @@ run_game_loop:
 *      Check if player died or completed sub-level
        abs  @player_died
        jne  run_game_loop_1
-*      Next sub level
+*      Sub level completed
        inc  @sub_level_index
        mov  @sub_level_index,r0
        ci   r0,n_sub_levels
        jne  start_sub_level
+*      Level completed
+       bl   @display_level_completed
        jmp  start_level
 *      Died
 run_game_loop_1:
@@ -1878,9 +1882,9 @@ title_ptr:
 *
 clear_title:
        .proc
-       li   r0,14*32+2+name_table_2
+       li   r0,12*32+2+name_table_2
        li   r1,char_space_high*256
-       li   r3,6
+       li   r3,8
 clear_title_1:
        bl   @vwad
        li   r2,28
@@ -1900,7 +1904,35 @@ clear_title_2:
 *
 display_level_completed:
        .proc
-       bl   @clear_tl2
+       bl   @clear_for_intro
+       li   r0,12*32+8
+       li   r1,txt_congratulations
+       bl   @display_text_at
+       li   r0,15*32+5
+       li   r1,txt_you_get_bonus
+       bl   @display_text_at
+       mov  @boss_bonus,r0
+       ci   r0,boss_bonus_200
+       jne  display_level_completed_1
+       li   r0,15*32+19
+       li   r1,txt_200_pts
+       bl   @display_text_at
+       li   r0,18*32+14
+       li   r1,txt_good
+       bl   @display_text_at
+       jmp  display_level_completed_2
+display_level_completed_1:
+       li   r0,15*32+19
+       li   r1,txt_1000_pts
+       bl   @display_text_at
+       li   r0,18*32+11
+       li   r1,txt_very_good
+       bl   @display_text_at
+display_level_completed_2:
+       bl   @wait_fire_key_relased
+       li   r0,240
+       bl   @wait
+       bl   @clear_title
        .endproc
 *// display_level_completed
 

@@ -1,9 +1,8 @@
-* Explosion sound
+* Better fuel handling
 * Satellite in open space
 * Movement of blue planes
-* Music?
 * More accurate boss handling
-* Screen after defeating boss
-* Enter initials
-* Better fuel handling
 * Enemy plane count
+* Enter initials?
+* Sound effects
+* Music?

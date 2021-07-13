@@ -447,13 +447,16 @@ boss_rocket_launcher_handler:
 *
 * Red rockets handler
 *
+red_rocket_fire_time:
+       equ  140
+*
 red_rocket_handler:
        .proc
        mov  @sprite_counter(r4),r0
        jlt  red_rocket_handler_4
        inc  r0
        mov  r0,@sprite_counter(r4)
-       ci   r0,140
+       ci   r0,red_rocket_fire_time
        jlt  red_rocket_handler_3
        jne  red_rocket_handler_1
 *      Fire
@@ -676,13 +679,29 @@ boss_hit_handler:
 * r4: bullet sprite
 * r5: rocket
 *
+boss_bonus_200:
+       equ  20
+boss_bonus_1000:
+       equ  100
+*
 red_rocket_hit_handler:
+       .proc
        clr  @sprite_type(r4)
        dec  @boss_rocket_hits
-       jne  red_rocket_hit_handler_1
+       jne  red_rocket_hit_handler_3
        clr  @sprite_type(r5)
        neg  @boss_active
+       mov  @sprite_counter(r5),r0
+       ci   r0,red_rocket_fire_time
+       jgt  red_rocket_hit_handler_1
+       li   r0,boss_bonus_200
+       jmp  red_rocket_hit_handler_2
 red_rocket_hit_handler_1:
-       rt
+       li   r0,boss_bonus_1000
+red_rocket_hit_handler_2:
+       mov  r0,@boss_bonus
+       bl   @add_score
+red_rocket_hit_handler_3:
+       .endproc
 *// red_rocket_hit_handler
 
