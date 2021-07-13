@@ -9,9 +9,6 @@ walls:                                 ; Must match order of @sub_levels
        data walls_1-$
        data walls_0-$
        data walls_2-$
-cpu_walls:
-       equ  gpu_program_start+(walls-gpu_prg)
-
 walls_0:
        data 0
 walls_1:
@@ -26,4 +23,11 @@ walls_2:
        data 1524,40
        data 2020,24
        data 0
+
+cpu_walls_0:
+       equ  gpu_program_start+(walls_0-gpu_prg)
+cpu_walls_1:
+       equ  gpu_program_start+(walls_1-gpu_prg)
+cpu_walls_2:
+       equ  gpu_program_start+(walls_2-gpu_prg)
 

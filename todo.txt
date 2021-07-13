@@ -2,7 +2,8 @@
 * Satellite in open space
 * Movement of blue planes
 * Music?
+* More accurate boss handling
 * Screen after defeating boss
 * Enter initials
-* Fuel handling
-
+* Better fuel handling
+* Enemy plane count

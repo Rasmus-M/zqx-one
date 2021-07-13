@@ -1,3 +1,26 @@
+sub_level_map_bank_select:
+       equ  0
+sub_level_patterns_bank_select:
+       equ  2
+sub_level_sprite_patterns_bank_select:
+       equ  4
+sub_level_diff:
+       equ  6
+sub_level_diff_end:
+       equ  8
+sub_level_sprite_def:
+       equ  10
+sub_level_map_width:
+       equ  12
+sub_level_scroll_max:
+       equ  14
+sub_level_player_scale_z:
+       equ  16
+sub_level_walls:
+       equ  18
+sub_level_palettes:
+       equ  20
+
 n_sub_levels:
        equ  3
 sub_levels:
@@ -12,6 +35,7 @@ sub_level_0:
        data map_0_width
        data map_0_width*8+window_width
        data 1
+       data cpu_walls_0
        data char_palettes_0
 sub_level_1:
        data map_1_bank_select
@@ -23,6 +47,7 @@ sub_level_1:
        data map_1_width
        data map_1_width*8+window_width
        data 0
+       data cpu_walls_1
        data char_palettes_1
 sub_level_2:
        data map_2_bank_select
@@ -34,6 +59,7 @@ sub_level_2:
        data map_2_width
        data map_2_width*8
        data 0
+       data cpu_walls_2
        data char_palettes_2
 sub_level_0_data:
        data sub_level_0

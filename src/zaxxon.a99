@@ -254,8 +254,10 @@ sub_level_index:
        equ  level+2
 sub_level_data:
        equ  sub_level_index+2
-score:
+walls_ptr:
        equ  sub_level_data+2
+score:
+       equ  walls_ptr+2
 old_score:
        equ  score+2
 high_score:
@@ -337,6 +339,7 @@ run_game_loop_1:
        jmp  start_sub_level
 *      Game over
 game_over:
+       bl   @display_game_over
        bl   @update_high_scores
        jmp  intro
 *// main
@@ -1260,6 +1263,7 @@ init_sub_level_1:
        mov  *r1+,@map_width
        mov  *r1+,@scroll_max
        mov  *r1+,@player_scale_z
+       mov  *r1+,@walls_ptr
 *      Load palettes
        clr  r0                         ; Palette index 0
        mov  *r1,r1                     ; Palette address
@@ -1334,24 +1338,6 @@ clear_vdp_ram
 
 *********************************************************************
 *
-* Reset sprites
-*
-reset_sprites:
-       .proc
-       li   r0,sprites
-       mov  r0,@sprites_end_ptr
-*      Reset sprite buffer in VDP RAM
-       li   r0,vdp_sprite_buffer
-       bl   @vwad
-       clr  *r15
-       clr  *r15
-*      Run GPU
-       bl   @gpu_run
-       .endproc
-*// reset_sprites
-
-*********************************************************************
-*
 * Upload sprite patterns
 *
 upload_sprite_patterns:
@@ -1372,6 +1358,74 @@ upload_sprite_patterns:
        bl   @vmbw
        .endproc
 *// upload_sprite_patterns
+
+*********************************************************************
+*
+* Display tile layer 2 mask
+*
+display_tl2_mask:
+       .proc
+       li   r0,name_table_2
+       li   r1,MD0
+       li   r2,960
+       bl   @vmbw
+       .endproc
+*// display_tl2_mask
+
+*********************************************************************
+*
+* Clear name table and tile patterns
+*
+clear_name_table_and_patterns:
+       .proc
+       li   r0,pattern_table_p_0
+       li   r2,>800-(tl2_chars*8)
+       bl   @vclr
+       li   r0,pattern_table_p_1
+       li   r2,>800-(tl2_chars*8)
+       bl   @vclr
+       li   r0,pattern_table_p_2
+       li   r2,>800-(tl2_chars*8)
+       bl   @vclr
+       li   r0,name_table_p_0
+       li   r2,>3c0
+       bl   @vclr
+       li   r0,name_table_p_1
+       li   r2,>3c0
+       bl   @vclr
+       .endproc
+*// clear_name_table_and_patterns
+
+*********************************************************************
+*
+* Reset sprites
+*
+reset_sprites:
+       .proc
+       li   r0,sprites
+       mov  r0,@sprites_end_ptr
+*      Reset sprite buffer in VDP RAM
+       li   r0,vdp_sprite_buffer
+       bl   @vwad
+       clr  *r15
+       clr  *r15
+*      Run GPU
+       bl   @gpu_run
+       .endproc
+*// reset_sprites
+
+*********************************************************************
+*
+* Clear tl2 except scores at top
+*
+clear_tl2:
+       .proc
+       li   r0,8*32+name_table_2
+       li   r1,8*32+MD0
+       li   r2,24*32
+       bl   @vmbw
+       .endproc
+*// clear_tl2
 
 *********************************************************************
 *
@@ -1397,19 +1451,6 @@ init_tl2_patterns:
        bl   @vmbw
        .endproc
 *// init_tl2_patterns
-
-*********************************************************************
-*
-* Display tile layer 2 mask
-*
-display_tl2_mask:
-       .proc
-       li   r0,name_table_2
-       li   r1,MD0
-       li   r2,960
-       bl   @vmbw
-       .endproc
-*// display_tl2_mask
 
 *********************************************************************
 *
@@ -1439,30 +1480,6 @@ tl2_labels:
        byte 236,232,237,238,250,0
        data 0
 *// display_tl2_game_labels
-
-*********************************************************************
-*
-* Clear name table and tile patterns
-*
-clear_name_table_and_patterns:
-       .proc
-       li   r0,pattern_table_p_0
-       li   r2,>800-(tl2_chars*8)
-       bl   @vclr
-       li   r0,pattern_table_p_1
-       li   r2,>800-(tl2_chars*8)
-       bl   @vclr
-       li   r0,pattern_table_p_2
-       li   r2,>800-(tl2_chars*8)
-       bl   @vclr
-       li   r0,name_table_p_0
-       li   r2,>3c0
-       bl   @vclr
-       li   r0,name_table_p_1
-       li   r2,>3c0
-       bl   @vclr
-       .endproc
-*// clear_name_table_and_patterns
 
 *********************************************************************
 *
@@ -1600,12 +1617,8 @@ init_sprite_defs_0_1:
 *
 display_intro:
        .proc
-       bl   @wait_fire_key_relased
 display_intro_1:
-       bl   @clear_name_table_and_patterns
-       bl   @reset_sprites
-       bl   @clear_tl2
-       bl   @init_tl2_patterns
+       bl   @clear_for_intro
 *      Press fire to start
        li   r0,8*32+6
        li   r1,txt_press_fire_to_start
@@ -1641,6 +1654,19 @@ display_intro_2:
 display_intro_3:
        .endproc
 *// display_intro
+
+*********************************************************************
+*
+* Clear for intro
+*
+clear_for_intro:
+       .proc
+       bl   @clear_name_table_and_patterns
+       bl   @reset_sprites
+       bl   @clear_tl2
+       bl   @init_tl2_patterns
+       .endproc
+*// clear_for_intro
 
 *********************************************************************
 *
@@ -1823,12 +1849,10 @@ display_title:
        li   r3,title
        mov  r3,@title_ptr
 display_title_1:
-       bl   @vsync
-       bl   @gpu_run
-       bl   @play_sound
-       bl   @vsync
-       bl   @gpu_run
-       bl   @play_sound
+       li   r0,2
+       bl   @wait
+       mov  r0,r0
+       jne  display_title_2
        mov  @title_ptr,r3
        movb *r3+,r0                    ; x
        jlt  display_title_2
@@ -1872,6 +1896,32 @@ clear_title_2:
 
 *********************************************************************
 *
+* Display level completed
+*
+display_level_completed:
+       .proc
+       bl   @clear_tl2
+       .endproc
+*// display_level_completed
+
+*********************************************************************
+*
+* Display game over
+*
+display_game_over:
+       .proc
+       bl   @clear_for_intro
+       li   r0,14*32+11
+       li   r1,txt_game_over
+       bl   @display_text_at
+       bl   @wait_fire_key_relased
+       li   r0,240
+       bl   @wait
+       .endproc
+*// display_game_over
+
+*********************************************************************
+*
 * Add score
 *
 * r0: score to add
@@ -1893,19 +1943,6 @@ add_score:
 add_score_1:
        .endproc
 *// add_score
-
-*********************************************************************
-*
-* Clear tl2 except scores at top
-*
-clear_tl2:
-       .proc
-       li   r0,8*32+name_table_2
-       li   r1,8*32+MD0
-       li   r2,24*32
-       bl   @vmbw
-       .endproc
-*// clear_tl2
 
 *********************************************************************
 *

@@ -4,5 +4,27 @@ txt_high_scores:
 txt_press_fire_to_start:
        text "PRESS FIRE TO START"
        byte 0
+txt_congratulations:
+       text "CONGRATULATIONS /"
+       byte 0
+txt_you_get_bonus:
+       text "YOU GET BONUS "
+       byte 0
+txt_200_pts:
+       text " 200 PTS."
+       byte 0
+txt_1000_pts:
+       text "1000 PTS."
+       byte 0
+txt_good:
+       text "GOOD /"
+       byte 0
+txt_very_good:
+       text "VERY GOOD /"
+       byte 0
+txt_game_over:
+       text "GAME  OVER"
+       byte 0
+
        even
 
