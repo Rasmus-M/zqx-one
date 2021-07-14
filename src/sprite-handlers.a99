@@ -641,11 +641,13 @@ silo_hit_handler_1:
 * r5: sprite that's hit
 *
 explode_hit_handler:
+       .proc
        clr  @sprite_type(r4)           ; Remove bullet
        li   r0,sprite_type_explosion_1
        mov  r0,@sprite_type(r5)        ; Change sprite that's hit to explosion
        seto @sprite_counter(r5)
-       rt
+       bl   @play_explosion_1
+       .endproc
 *// explode_hit_handler
 
 *********************************************************************
@@ -656,11 +658,13 @@ explode_hit_handler:
 * r5: sprite that's hit
 *
 small_explode_hit_handler:
+       .proc
        clr  @sprite_type(r4)           ; Remove bullet
        li   r0,sprite_type_small_explosion
        mov  r0,@sprite_type(r5)        ; Change sprite that's hit to small explosion
        seto @sprite_counter(r5)
-       rt
+       bl   @play_explosion_2
+       .endproc
 *// small_explode_hit_handler
 
 *********************************************************************
@@ -671,10 +675,12 @@ small_explode_hit_handler:
 * r5: wall that's hit
 *
 wall_hit_handler:
+       .proc
        li   r0,sprite_type_hit_2
        mov  r0,@sprite_type(r4)        ; Change bullet to hit sprite
        seto @sprite_counter(r4)
-       rt
+       bl   @play_explosion_3
+       .endproc
 *// wall_hit_handler
 
 *********************************************************************

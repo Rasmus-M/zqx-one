@@ -8,6 +8,7 @@
 *
 
        copy "macros.a99"
+       copy "sound-defs.a99"
 
 **
 * Memory mapped addresses
@@ -294,8 +295,16 @@ frames_to_wait:
        equ  current_char_zero+2
 extra_life_given:
        equ  frames_to_wait+2
-pad_max:
+snd_channel_1:
        equ  extra_life_given+2
+snd_channel_2:
+       equ  snd_channel_1+snd_channel_size
+snd_channel_3:
+       equ  snd_channel_2+snd_channel_size
+snd_channel_4:
+       equ  snd_channel_3+snd_channel_size
+pad_max:
+       equ  snd_channel_4+2
 
 ***************************************************************
 *
@@ -337,6 +346,7 @@ run_game_loop:
        jmp  start_level
 *      Died
 run_game_loop_1:
+       bl   @play_explosion_1
        li   r0,120
        mov  r0,@frames_to_wait
        bl   @dead_loop
@@ -375,7 +385,7 @@ game_loop_1:
        bl   @display_height
        bl   @display_score
        bl   @display_fuel
-       bl   @play_sound
+       bl   @snd_player
        bl   @use_fuel
        bl   @display_fuel
        abs  @player_died
@@ -401,7 +411,7 @@ dead_loop_1:
        bl   @wait_gpu
        bl   @move_sprites
        bl   @upload_sprites
-       bl   @play_sound
+       bl   @snd_player
        dec  @frames_to_wait
        jne  dead_loop_1
        .endproc
@@ -775,8 +785,7 @@ fire:
        li   r0,3
        a    r0,@sprite_y(r5)
        neg  @player_fire
-       li   r1,test_sfx
-       bl   @init_sfx
+       bl   @play_shot
 fire_1:
        .endproc
 *// fire
@@ -1161,7 +1170,6 @@ one_time_init:
        seto @music_on
        li   r1,test_music
        clr  r2
-       bl   @init_music
        .endproc
 *// one_time_init
 
@@ -1525,81 +1533,6 @@ load_palettes_1:
 
 *********************************************************************
 *
-* Play music and sound
-*
-play_sound:
-       .proc
-       .push r15
-       bl   @SfxLoop
-       bl   @SongLoop
-       movb  @songActive,r0                 ; Check if music is done
-       andi r0,>0100
-       jne  play_sound_1
-*      Restart music
-       mov  @music,r1
-       jeq  play_sound_1
-       clr  r2
-       bl   @init_music
-*      Return
-play_sound_1:
-       .pop 15
-       .endproc
-*// play_sound
-
-*********************************************************************
-*
-* Initialize music
-*
-* r1: Pointer to music
-* r2: Tune number
-*
-init_music:
-       .proc
-       bl   @mute_sound
-       abs  @music_on
-       jeq  init_music_1
-       mov  r1,@music
-       mov  r2,@tune_no
-       bl   @StartSong
-*      Return
-init_music_1:
-       .endproc
-*// init_music
-
-*********************************************************************
-*
-* Initialize sound fx
-*
-* r1: Pointer to sound fx data
-*
-init_sfx:
-       .proc
-       clr  r2
-       li   r3,>0100
-       bl   @StartSfx
-*      Return
-       .endproc
-*// init_sfx
-
-*********************************************************************
-*
-* Mute sound
-*
-mute_sound:
-       li   r0,mute_table              ; Mute all
-       li   r2,4
-mute_sound_1:
-       movb *r0+,@sound
-       dec  r2
-       jne  mute_sound_1
-*      Return
-       rt
-mute_table:
-       byte >9f, >bf, >df, >ff
-*// mute_sound
-
-*********************************************************************
-*
 * Init sprites on sub-level 0 (open space)
 *
 init_sprite_defs_0:
@@ -1719,7 +1652,7 @@ intro_loop_1:
        bl   @upload_sprites
        bl   @display_height
        bl   @display_fuel
-       bl   @play_sound
+       bl   @snd_player
        bl   @scroll
        abs  @player_died
        jne  intro_loop_2
@@ -2179,7 +2112,7 @@ wait:
 wait_1:
        bl   @vsync
        bl   @gpu_run
-       bl   @play_sound
+       bl   @snd_player
        li   r0,KEY_FI
        bl   @check_key
        jne  wait_2
@@ -2204,7 +2137,7 @@ wait_fire_key_relased:
 wait_fire_key_relased_1:
        bl   @vsync
        bl   @gpu_run
-       bl   @play_sound
+       bl   @snd_player
        li   r0,KEY_FI
        bl   @check_key
        jne  wait_fire_key_relased_1
@@ -2230,7 +2163,9 @@ lower_memory_max:
 *
        aorg >a000
 
-       copy "ti-player-sfx.a99"
+       copy "sound-fx-routines.a99"
+       copy "sound-fx.a99"
+       copy "sound-player.a99"
        copy "sub-levels.a99"
        copy "diff0.a99"
 diff_end_0:
