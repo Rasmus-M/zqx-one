@@ -15,16 +15,16 @@ snd_shield:
        data 6                          ; Freq step
 snd_warning:
        byte T3
-       byte 127                        ; Frames
+       byte 16                         ; Frames
        byte 0                          ; Attn start
        byte 0                          ; Attn step
-       data -8                         ; Freq step
+       data 0                          ; Freq step
 snd_extra:
        byte T3
-       byte 127                        ; Frames
+       byte 64                         ; Frames
        byte 0                          ; Attn start
-       byte 0                          ; Attn step
-       data -8                         ; Freq step
+       byte 4                          ; Attn step
+       data 0                          ; Freq step
 snd_boss:
        byte T3
        byte 127                        ; Frames

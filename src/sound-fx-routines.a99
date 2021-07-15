@@ -53,7 +53,7 @@ play_warning:
        .proc
        li   r0,snd_warning
        li   r1,snd_channel_3
-       li   r2,>0040
+       li   r2,A4
        bl   @play_snd
        .endproc
 *// play_warning
@@ -66,7 +66,7 @@ play_extra:
        .proc
        li   r0,snd_extra
        li   r1,snd_channel_3
-       li   r2,>0040
+       li   r2,A5
        bl   @play_snd
        .endproc
 *// play_extra

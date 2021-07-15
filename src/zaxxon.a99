@@ -1069,9 +1069,9 @@ use_fuel:
        jeq  use_fuel_1
        ci   r0,4*fuel_unit
        jhe  use_fuel_2
-       andi r0,>3f
+       andi r0,>1f
        jne  use_fuel_2
-;      TODO: Play sound
+       bl   @play_warning
        jmp  use_fuel_2
 use_fuel_1
        seto @player_died
@@ -1925,6 +1925,7 @@ add_score:
        inc  @lives
        .push r2
        bl   @display_lives
+       bl   @play_extra
        .pop r2
        seto @extra_life_given
 add_score_1:
