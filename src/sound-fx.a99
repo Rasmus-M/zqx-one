@@ -27,10 +27,10 @@ snd_extra:
        data 0                          ; Freq step
 snd_boss:
        byte T3
-       byte 127                        ; Frames
-       byte 0                          ; Attn start
+       byte 8                          ; Frames
+       byte 8                          ; Attn start
        byte 0                          ; Attn step
-       data -8                         ; Freq step
+       data 0                          ; Freq step
 snd_explosion_1:
        byte W2
        byte 48                         ; Frames

@@ -79,7 +79,7 @@ play_boss:
        .proc
        li   r0,snd_boss
        li   r1,snd_channel_3
-       li   r2,>0040
+       li   r2,>3ff
        bl   @play_snd
        .endproc
 *// play_boss

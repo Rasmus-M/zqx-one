@@ -376,7 +376,7 @@ boss_handler:
        dec  @sprite_counter(r4)
        jne  boss_handler_3
 *      Move
-       mov  @boss_active,r0
+       mov  @boss_active,r0            ; Also determines direction
        jgt  boss_handler_6
 *      Move forward
        mov  @sprite_x(r4),r0
@@ -401,6 +401,7 @@ boss_handler_6:
        jh   boss_handler_7
        inc  @sprite_x(r4)
        jmp  boss_handler_2
+*      Reset counter for next move
 boss_handler_7:
        clr  @boss_active
        jmp  boss_handler_2
@@ -414,6 +415,7 @@ boss_handler_1:
 boss_handler_2:
        li   r0,4
        mov  r0,@sprite_counter(r4)
+       bl   @play_boss
 boss_handler_3:
        .endproc
 *// boss_handler
