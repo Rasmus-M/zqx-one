@@ -169,23 +169,19 @@ small_explosion_1:
 * Shield handler
 *
 shield_handler:
+       .proc
+       inc  @sprite_counter(r4)
        mov  @sprite_counter(r4),r0
-       jlt  shield_handler_2           ; Reset
-       jeq  shield_handler_1           ; Move back
-       dec  r0
-       mov  r0,@sprite_counter(r4)
-       mov  @sprite_y(r4),r0
-       ai   r0,32
+       mov  r0,r1
+       andi r0,3                       ; Four positions of sprite
+       sla  r0,5                       ; * 32
+       ai   r0,72                      ; Start y
        mov  r0,@sprite_y(r4)
-       jmp  shield_handler_3
+       andi r1,15
+       jne  shield_handler_1
+       bl   @play_shield
 shield_handler_1:
-       li   r0,128
-       s    r0,@sprite_y(r4)
-shield_handler_2:
-       li   r0,4
-       mov  r0,@sprite_counter(r4)
-shield_handler_3:
-       rt
+       .endproc
 *// shield_handler
 
 *********************************************************************

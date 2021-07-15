@@ -9,8 +9,8 @@ snd_shot:
        data 2                          ; Freq step
 snd_shield:
        byte T2
-       byte 32                         ; Frames
-       byte 0                          ; Attn start
+       byte 16                         ; Frames
+       byte 6                          ; Attn start
        byte 0                          ; Attn step
        data 6                          ; Freq step
 snd_warning:

@@ -40,7 +40,7 @@ play_shield:
        .proc
        li   r0,snd_shield
        li   r1,snd_channel_2
-       li   r2,>0100
+       li   r2,C4
        bl   @play_snd
        .endproc
 *// play_shield
