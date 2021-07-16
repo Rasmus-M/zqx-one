@@ -6,7 +6,7 @@ snd_shot:
        byte 16                         ; Frames
        byte 0                          ; Attn start
        byte 16                         ; Attn step
-       data 2                          ; Freq step
+       data 4                          ; Freq step
 snd_shield:
        byte T2
        byte 16                         ; Frames

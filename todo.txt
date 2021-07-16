@@ -2,5 +2,3 @@
 * More accurate boss handling
 * Enemy plane count
 * Enter initials?
-* Sound effects
-* Music?

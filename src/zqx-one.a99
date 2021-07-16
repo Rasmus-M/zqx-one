@@ -1,6 +1,6 @@
 *********************************************************************
 *
-* Zaxxon
+* ZQX-one (Zaxxon clone)
 * For the TI-99/4A home computer with F18A
 *
 * February 2021 -
@@ -1598,6 +1598,10 @@ display_intro_1:
 *      Press fire to start
        li   r0,9*32+6
        li   r1,txt_press_fire_to_start
+       bl   @display_text_at
+*      Versiom
+       li   r0,29*32+19
+       li   r1,txt_version
        bl   @display_text_at
 *      High score
        bl   @display_high_scores

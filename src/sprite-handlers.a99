@@ -481,6 +481,15 @@ red_rocket_handler_1:
        neg  r0                         ; If > 0 change sign to 1
 red_rocket_handler_2:
        a    r0,@sprite_y(r4)
+*      Check if past player
+       c    @sprite_x(r4),@sprite_x(r5)
+       jhe  red_rocket_handler_5
+       mov  @boss_active,r0
+       jgt  red_rocket_handler_5
+       neg  @boss_active
+       li   r0,boss_bonus_200
+       mov  r0,@boss_bonus
+       bl   @add_score
        jmp  red_rocket_handler_5
 *      Before firing
 red_rocket_handler_3:
@@ -712,8 +721,6 @@ red_rocket_hit_handler:
        clr  @sprite_type(r4)
        dec  @boss_rocket_hits
        jne  red_rocket_hit_handler_3
-       clr  @sprite_type(r5)
-       neg  @boss_active
        mov  @sprite_counter(r5),r0
        ci   r0,red_rocket_fire_time
        jgt  red_rocket_hit_handler_1
@@ -724,6 +731,10 @@ red_rocket_hit_handler_1:
 red_rocket_hit_handler_2:
        mov  r0,@boss_bonus
        bl   @add_score
+       li   r0,sprite_type_small_explosion
+       mov  r0,@sprite_type(r5)
+       seto @sprite_counter(r5)
+       neg  @boss_active
 red_rocket_hit_handler_3:
        .endproc
 *// red_rocket_hit_handler

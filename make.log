@@ -3,10 +3,10 @@ File path: 'bin/ZQX-ONE'
 Cart name: 'ZXQ-ONE'
 Dest bank: 0
 Size: 32768
-File: 0, Start: 8192, Length: 7008
+File: 0, Start: 8192, Length: 7058
 File: 1, Start: 40960, Length: 8186
-File: 2, Start: 49146, Length: 5732
-Lower start: 8192, Lower end: 15199
-Upper start: 40960, Upper end: 54877
+File: 2, Start: 49146, Length: 5744
+Lower start: 8192, Lower end: 15249
+Upper start: 40960, Upper end: 54889
 Start address: 8192
 Output file written to: .\bin\ZQX-ONE8.bin

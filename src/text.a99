@@ -1,6 +1,9 @@
 txt_zqx_one:
        text "ZQX-ONE"
        byte 0
+txt_version:
+       text "VERSION 0.1"
+       byte 0
 txt_high_scores:
        text "HIGH SCORES"
        byte 0
