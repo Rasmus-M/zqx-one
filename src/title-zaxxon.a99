@@ -1,4 +1,5 @@
 title:
+*      Z
        byte 3,14,215
        byte 4,14,215
        byte 5,14,215
@@ -42,6 +43,7 @@ title:
        byte 26,19,227
        byte 27,19,227
        byte 28,19,219
+*      A
        byte 9,18,214
        byte 9,17,222
        byte 9,16,222
@@ -54,6 +56,7 @@ title:
        byte 11,17,227
        byte 11,18,215
        byte 10,16,215
+*      X
        byte 12,14,214
        byte 13,14,227
        byte 13,15,222
@@ -71,6 +74,7 @@ title:
        byte 16,17,216
        byte 15,18,214
        byte 16,18,215
+*      X
        byte 17,14,214
        byte 18,14,227
        byte 18,15,222
@@ -88,6 +92,7 @@ title:
        byte 21,17,216
        byte 20,18,214
        byte 21,18,215
+*      O
        byte 24,14,227
        byte 23,14,215
        byte 22,14,222
@@ -100,6 +105,7 @@ title:
        byte 24,17,227
        byte 24,16,227
        byte 24,15,227
+*      N
        byte 25,18,214
        byte 25,17,222
        byte 25,16,222
@@ -116,5 +122,6 @@ title:
        byte 28,16,227
        byte 28,15,227
        byte 28,14,227
+
        byte -1,-1,-1
        even

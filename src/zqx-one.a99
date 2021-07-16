@@ -275,14 +275,8 @@ old_fuel:
        equ  fuel+2
 lives:
        equ  old_fuel+2
-music:
-       equ  lives+2
-tune_no:
-       equ  music+2
-music_on:
-       equ  tune_no+2
 boss_active:
-       equ  music_on+2
+       equ  lives+2
 boss_sprite:
        equ  boss_active+2
 boss_rocket_hits:
@@ -1167,9 +1161,6 @@ one_time_init:
        bl   @init_tl2_patterns
        bl   @display_tl2_mask
        bl   @upload_gpu_program
-       seto @music_on
-       li   r1,test_music
-       clr  r2
        .endproc
 *// one_time_init
 
@@ -1445,12 +1436,34 @@ reset_sprites:
 *
 clear_tl2:
        .proc
-       li   r0,8*32+name_table_2
-       li   r1,8*32+MD0
-       li   r2,24*32
+       li   r0,3*32+name_table_2
+       li   r1,3*32+MD0
+       li   r2,27*32
        bl   @vmbw
        .endproc
 *// clear_tl2
+
+*********************************************************************
+*
+* Clear center area of tl2
+*
+clear_tl2_center:
+       .proc
+       li   r0,10*32+2+name_table_2
+       li   r1,char_space_high*256
+       li   r3,11
+clear_tl2_center_1:
+       bl   @vwad
+       li   r2,28
+clear_tl2_center_2:
+       movb  r1,*r15
+       dec  r2
+       jne  clear_tl2_center_2
+       ai   r0,32
+       dec  r3
+       jne  clear_tl2_center_1
+       .endproc
+*// clear_title
 
 *********************************************************************
 *
@@ -1578,8 +1591,12 @@ display_intro:
        .proc
 display_intro_1:
        bl   @clear_for_intro
+*      ZQX-ONE
+       li   r0,7*32+12
+       li   r1,txt_zqx_one
+       bl   @display_text_at
 *      Press fire to start
-       li   r0,8*32+6
+       li   r0,9*32+6
        li   r1,txt_press_fire_to_start
        bl   @display_text_at
 *      High score
@@ -1600,7 +1617,7 @@ display_intro_1:
        bl   @display_title
        li   r0,180
        bl   @wait
-       bl   @clear_title
+       bl   @clear_tl2_center
        mov  @frames_to_wait,r0
        jne  display_intro_3
 *      Continue demo flight
@@ -1609,7 +1626,7 @@ display_intro_1:
        mov  r0,r0
        jeq  display_intro_1
 display_intro_2:
-       bl   @clear_title
+       bl   @clear_tl2
 display_intro_3:
        .endproc
 *// display_intro
@@ -1833,28 +1850,6 @@ title_ptr:
 
 *********************************************************************
 *
-* Clear title area
-*
-clear_title:
-       .proc
-       li   r0,12*32+2+name_table_2
-       li   r1,char_space_high*256
-       li   r3,8
-clear_title_1:
-       bl   @vwad
-       li   r2,28
-clear_title_2:
-       movb  r1,*r15
-       dec  r2
-       jne  clear_title_2
-       ai   r0,32
-       dec  r3
-       jne  clear_title_1
-       .endproc
-*// clear_title
-
-*********************************************************************
-*
 * Display level completed
 *
 display_level_completed:
@@ -1887,7 +1882,7 @@ display_level_completed_2:
        bl   @wait_fire_key_relased
        li   r0,240
        bl   @wait
-       bl   @clear_title
+       bl   @clear_tl2_center
        .endproc
 *// display_level_completed
 
@@ -2175,16 +2170,12 @@ diff_end_1:
        copy "diff2.a99"
 diff_end_2:
        copy "tl2.a99"
-       copy "title.a99"
+       copy "title-zqx-one.a99"
        copy "sprite-types.a99"
        copy "sprite-defs.a99"
        copy "sprites.a99"
        copy "palettes.a99"
        copy "text.a99"
-test_music:
-       bcopy "../audio/level3.sbf"
-test_sfx:
-       bcopy "../audio/shot1.sbf"
 *      Scores are automatically multiplied by 10
 high_scores:
        data 890
