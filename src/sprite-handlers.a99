@@ -679,6 +679,26 @@ explode_hit_handler:
 
 *********************************************************************
 *
+* Blue plane hit handler
+*
+* r4: bullet sprite
+* r5: blue plane
+*
+blue_plane_hit_handler:
+       .proc
+       bl   @small_explode_hit_handler
+       mov  @enemy_planes,r0
+       jeq  blue_plane_hit_handler_1
+       dec  @enemy_planes
+       jne  blue_plane_hit_handler_1
+       li   r0,100
+       bl   @add_score
+blue_plane_hit_handler_1:
+       .endproc
+*// blue_plane_hit_handler
+
+*********************************************************************
+*
 * Small explode hit handler
 *
 * r4: bullet sprite

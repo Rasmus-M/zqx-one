@@ -1,6 +1,6 @@
 *********************************************************************
 *
-* ZQX-one (Zaxxon clone)
+* ZQX-ONE (Zaxxon port)
 * For the TI-99/4A home computer with F18A
 *
 * February 2021 -
@@ -289,8 +289,12 @@ frames_to_wait:
        equ  current_char_zero+2
 extra_life_given:
        equ  frames_to_wait+2
+enemy_planes:
+       equ extra_life_given+2
+old_enemy_planes:
+       equ enemy_planes+2
 snd_channel_1:
-       equ  extra_life_given+2
+       equ  old_enemy_planes+2
 snd_channel_2:
        equ  snd_channel_1+snd_channel_size
 snd_channel_3:
@@ -378,7 +382,7 @@ game_loop_1:
        bl   @upload_sprites
        bl   @display_height
        bl   @display_score
-       bl   @display_fuel
+       bl   @display_enemy_planes
        bl   @snd_player
        bl   @use_fuel
        bl   @display_fuel
@@ -1132,6 +1136,23 @@ display_score_1:
 
 *********************************************************************
 *
+* Display enemy planes
+*
+display_enemy_planes:
+       .proc
+       mov  @enemy_planes,r1
+       c    r1,@old_enemy_planes
+       jeq  display_enemy_planes_1
+       li   r0,27*32+30
+       li   r2,2
+       bl   @display_decimal_at
+       mov  @enemy_planes,@old_enemy_planes
+display_enemy_planes_1:
+       .endproc
+*// display_enemy_planes
+
+*********************************************************************
+*
 * Scroll
 *
 scroll:
@@ -1188,6 +1209,9 @@ init_level:
        .proc
        clr  @sub_level_index
        bl   @resurrect_player
+       li   r0,20
+       mov  r0,@enemy_planes
+       seto @old_enemy_planes
 *      Reset sprites
        bl   @reset_sprites
 *      Create player plane
@@ -1515,7 +1539,9 @@ tl2_labels:
        data 19*32
        byte 231,0
        data 29*32+14
-       byte 236,237,0
+       byte 236,237,250,0
+       data 27*32+29
+       byte 238,242,240,0
        data 0
 *// display_tl2_game_labels
 

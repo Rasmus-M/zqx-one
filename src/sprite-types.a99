@@ -151,7 +151,7 @@ sprite_type_green_gun_2:
 sprite_type_blue_plane:
        data sprite_type_index_blue_plane
        data no_handler
-       data explode_hit_handler        ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_green_rocket_1:
        data sprite_type_index_green_rocket_1
@@ -291,37 +291,37 @@ sprite_type_plane_down_xs:
 sprite_type_blue_plane_up_l:
        data sprite_type_index_blue_plane_up_l
        data blue_plane_handler
-       data small_explode_hit_handler  ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane_up_m:
        data sprite_type_index_blue_plane_up_m
        data blue_plane_handler
-       data small_explode_hit_handler  ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane_up_s:
        data sprite_type_index_blue_plane_up_s
        data blue_plane_handler
-       data small_explode_hit_handler  ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane_up_xs:
        data sprite_type_index_blue_plane_up_xs
        data blue_plane_handler
-       data small_explode_hit_handler  ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane_down_l:
        data sprite_type_index_blue_plane_down_l
        data blue_plane_handler
-       data small_explode_hit_handler  ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane_down_m:
        data sprite_type_index_blue_plane_down_m
        data blue_plane_handler
-       data small_explode_hit_handler  ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane_down_s:
        data sprite_type_index_blue_plane_down_s
        data blue_plane_handler
-       data small_explode_hit_handler  ; Hit handler
+       data blue_plane_hit_handler     ; Hit handler
        data 1                          ; Lethal
 sprite_type_blue_plane_down_xs:
        data sprite_type_index_blue_plane_down_xs
