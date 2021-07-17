@@ -1,4 +1,3 @@
 * Movement of blue planes
 * More accurate boss handling
-* Enemy plane count
 * Enter initials?
