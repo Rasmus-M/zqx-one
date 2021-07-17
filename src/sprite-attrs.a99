@@ -372,7 +372,7 @@ sprite_attrs_boss_shadow:
        byte 0,16,>98,>06
        byte 16,0,>f0,>06
        byte 16,16,>f4,>06
-       byte 16,32,>fc,>06
+       byte 16,32,>8c,>06
 sprite_attrs_red_rocket_1:
        data 0
        data 13

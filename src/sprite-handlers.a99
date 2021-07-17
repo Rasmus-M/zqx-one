@@ -329,18 +329,21 @@ red_bullet_2_handler:
 * Blue plane handler
 *
 blue_plane_handler:
-       mov  @sprite_counter(r4),r0
+       .proc
+*      Move
+       mov  @sprite_counter(r4),r0     ; Direction
        mov  @sprite_z(r4),r1
        mov  r1,r2
-       a    r0,r1
-       jlt  blue_plane_handler_1
+       a    r0,r1                      ; Add direction to z
+       jlt  blue_plane_handler_1       ; Check bounds
        ci   r1,player_z_max
        jhe  blue_plane_handler_1
-       mov  r1,@sprite_z(r4)
+       mov  r1,@sprite_z(r4)           ; Update z
        jmp  blue_plane_handler_2
 blue_plane_handler_1:
-       neg  @sprite_counter(r4)
+       neg  @sprite_counter(r4)        ; Change direction
 blue_plane_handler_2:
+*      Set pattern
        andi r2,>30
        srl  r2,3
        mov  r0,r0
@@ -351,7 +354,24 @@ blue_plane_handler_3:
        mov  @blue_plane_sprite_types_down(r2),r1
 blue_plane_handler_4:
        mov  r1,@sprite_type(r4)
-       rt
+*      Check for fire
+       bl   @rand
+       andi r0,>007f
+       jne  blue_plane_handler_5
+*      Create bullet
+       .push r4
+       bl   @allocate_sprite
+       mov  r4,r5
+       .pop r4
+       mov  r5,r5
+       jeq  blue_plane_handler_5
+       li   r0,sprite_type_red_bullet
+       mov  r0,@sprite_type(r5)
+       bl   @align_sprites
+       li   r0,24
+       s    r0,@sprite_x(r5)
+blue_plane_handler_5:
+       .endproc
 blue_plane_sprite_types_up:
        data sprite_type_blue_plane_up_xs
        data sprite_type_blue_plane_up_s
