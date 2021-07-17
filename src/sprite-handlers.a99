@@ -763,7 +763,7 @@ red_rocket_hit_handler:
        jne  red_rocket_hit_handler_3
        mov  @sprite_counter(r5),r0
        ci   r0,red_rocket_fire_time
-       jgt  red_rocket_hit_handler_1
+       jlt  red_rocket_hit_handler_1
        li   r0,boss_bonus_200
        jmp  red_rocket_hit_handler_2
 red_rocket_hit_handler_1:

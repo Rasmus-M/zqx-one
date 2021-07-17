@@ -173,7 +173,7 @@ char_life:
 char_fuel:
        equ  239
 fuel_unit:
-       equ  64
+       equ  128
 fuel_max:
        equ  16*fuel_unit-1
 sub_level_0_sprites:
@@ -1091,7 +1091,7 @@ display_fuel:
        bl   @vwad
        mov  r1,r2
        ai   r2,fuel_unit-1
-       srl  r2,6                       ; log2(fuel_unit)
+       srl  r2,7                       ; log2(fuel_unit)
        mov  r2,r3
        jeq  display_fuel_2
        li   r0,char_fuel*256
