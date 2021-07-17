@@ -32,8 +32,8 @@ copy /b bin\ZQX-ONE8.bin + ^
     bin\empty-1k.bin + bin\char-patterns0-1.bin + ^
     bin\empty-2k.bin + bin\sprite-patterns-0.bin + ^
     bin\empty-2k.bin + bin\sprite-patterns-2.bin ^
-    .\zxq-one-8.bin
+    .\zqx-one-8.bin
 
-java -jar tools/CopyHeader.jar zxq-one-8.bin 60 4 5 6
+java -jar tools/CopyHeader.jar zqx-one-8.bin 60 4 5 6
 
 :end
