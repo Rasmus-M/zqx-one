@@ -3,7 +3,7 @@ xas99.py -R -S -L zqx-one.lst -w src/zqx-one.a99 -o zqx-one.obj
 
 xas99.py -R -i -w src/zqx-one.a99 -o bin/ZQX-ONE
 
-java -jar tools/ea5tocart.jar bin/ZQX-ONE "ZXQ-ONE" > make.log
+java -jar tools/ea5tocart.jar bin/ZQX-ONE "ZQX-ONE" > make.log
 
 tools\pad.exe bin\map0.bin bin\map0-8k.bin 8192
 tools\pad.exe bin\map1.bin bin\map1-8k.bin 8192
